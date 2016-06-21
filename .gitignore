@@ -250,3 +250,6 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
+
+#####
+ScoreDb/HolbergAnon_20160620.bak
