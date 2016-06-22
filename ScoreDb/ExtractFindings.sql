@@ -102,11 +102,13 @@ SELECT     DISTINCT(Description.DescriptionId)
 ORDER BY DescriptionId
 
 --Identify all findings from all reports where any finding is epileptiform or normal sharps
-SELECT     Study.StudyId, Description.DescriptionId, Recording.RecordingId, Recording.FilePath,
+SELECT     PatientDetails.DateOfBirth, PatientDetails.GenderId, Study.StudyId, Description.DescriptionId, Recording.RecordingId, Recording.FilePath,
 					Recording.FileName, EventCoding.EventCodingId, EventCode.EventCodeId, 
                     EventCode.Name, Event.EventId, Event.StartDateTime, Event.Duration, Event.EndDateTime
-FROM         Description 				
+FROM         Description 				    
 	INNER JOIN Study ON Description.StudyId = Study.StudyId 
+	INNER JOIN Patient ON Patient.PatientId = Study.PatientId
+	INNER JOIN PatientDetails ON PatientDetails.PatientId = Study.PatientId
 	INNER JOIN Recording ON Study.StudyId = Recording.StudyId 
 	INNER JOIN EventCoding ON Description.DescriptionId = EventCoding.DescriptionId 
 	INNER JOIN EventCode ON EventCoding.EventCodeId = EventCode.EventCodeId 
@@ -125,7 +127,7 @@ FROM         Description
 		OR    EventCode.Name = 'Pattern of uncertain significance - Slow-fused transient' 
 		OR    EventCode.Name = 'Pattern of uncertain significance - Sharp transient' 
 		OR    EventCode.Name = 'Pattern of uncertain significance - Small sharp spikes (Benign epileptiform transients of sleep)')
-		AND Description.IsActive = 1 AND Description.IsDescgit statusriptionSigned = 1
+		AND Description.IsActive = 1 AND Description.IsDescriptionSigned = 1
 	) As innerjoin ON Description.DescriptionId = innerjoin.DescriptionId
 WHERE Description.IsActive = 1 AND Description.IsDescriptionSigned = 1	
 ORDER BY StudyId, DescriptionId, RecordingId, EventCodingId, EventId
