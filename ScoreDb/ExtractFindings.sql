@@ -102,7 +102,7 @@ SELECT     DISTINCT(Description.DescriptionId)
 ORDER BY DescriptionId
 
 --Identify all findings from all reports where any finding is epileptiform or normal sharps
-SELECT     PatientDetails.DateOfBirth, PatientDetails.GenderId, Study.StudyId, Description.DescriptionId, Recording.RecordingId, Recording.FilePath,
+SELECT     Patient.PatientId, PatientDetails.DateOfBirth, PatientDetails.GenderId, Study.StudyId, Description.DescriptionId, Recording.RecordingId, Recording.FilePath,
 					Recording.FileName, EventCoding.EventCodingId, EventCode.EventCodeId, 
                     EventCode.Name, Event.EventId, Event.StartDateTime, Event.Duration, Event.EndDateTime
 FROM         Description 				    
