@@ -1,3 +1,5 @@
+ addpath J:\nicoletsdk\MFiles
+ NicSt = NicOpen('J:\ScorePipeline\janbrogger.e'); %Opens the file Test.e 
 
 %Get One Segment
 iSegment = 1;        					%One based so first segment of data
