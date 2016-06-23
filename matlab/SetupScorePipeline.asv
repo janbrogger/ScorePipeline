@@ -1,0 +1,34 @@
+
+function [] = SetupScorePipeline()
+    %SetupScorePipeline Sets up SCORE pipeline
+    %   by adding Eeglab and Nicolet Matlab SDK to the path
+    myPath = '';
+    if (strcmp(getenv('UserDomain'), 'Jan-PC'))
+        myPath = getenv('UserProfile') + 'GitHub\ScorePipeline\matlab';
+    elseif (strcmp(getenv('UserDomain'), 'ihelsenet'))
+        myPath = '';
+    end
+
+    if (mypath == '')
+        disp('Do not know the base path on this machine')
+    elseif  not exist(myPath,'dir')
+        disp('Working folder not found:', myPath);
+    else
+        cd myPath                
+        if  not exist(myPath,'NicoletSDK_2011071\MFiles')
+            disp('Nicolet SDK not found - unzip the archive?');
+        end
+        if  not exist(myPath + 'eeglab_current')
+            disp('Nicolet SDK not found - unzip the archive?');
+        end
+        addpath mypath+'NicoletSDK_2011071\MFiles'
+        addpath mypath+'eeglab_current'
+    end
+        
+
+end
+
+
+
+
+  
