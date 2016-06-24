@@ -1,37 +1,37 @@
 
-function [] = SetupScorePipeline()
+function [scorePath] = SetupScorePipeline()
     %SetupScorePipeline Sets up SCORE pipeline
     %   by adding Eeglab and Nicolet Matlab SDK to the path
     NicoletSDKpath = 'NicoletSDK_20110718\MFiles';
     eeglabPath = 'eeglab_current';
     
-    myPath = '';
+    scorePath = '';
     if (strcmp(getenv('UserDomain'), 'Jan-PC'))
-        myPath = [getenv('UserProfile'), '\Documents\GitHub\ScorePipeline\matlab\']
+        scorePath = [getenv('UserProfile'), '\Documents\GitHub\ScorePipeline\matlab\']
     elseif (strcmp(getenv('UserDomain'), 'ihelse.net'))
-        myPath = ''
+        scorePath = ''
     end
 
-    if (strcmp(myPath, ''))
+    if (strcmp(scorePath, ''))
         disp('Do not know the base path on this machine')
-    elseif  not(exist(myPath,'dir'))
-        disp(['Working folder not found:', myPath]);
+    elseif  not(exist(scorePath,'dir'))
+        disp(['Working folder not found:', scorePath]);
     else
-        cd(myPath)
-        if  not(exist([myPath, NicoletSDKpath], 'dir'))
-            disp(['Nicolet SDK not found - unzip the archive? Expected at ', [myPath, NicoletSDKpath]]);
+        cd(scorePath)
+        if  not(exist([scorePath, NicoletSDKpath], 'dir'))
+            disp(['Nicolet SDK not found - unzip the archive? Expected at ', [scorePath, NicoletSDKpath]]);
         else
-            disp(['Nicolet SDK found at: ', [myPath, NicoletSDKpath]]);
+            disp(['Nicolet SDK found at: ', [scorePath, NicoletSDKpath]]);
         end
-        if  not(exist([myPath, eeglabPath], 'dir'))
-            disp(['Eeglab not found - unzip the archive? Expected at ', [myPath, eeglabPath]]);
+        if  not(exist([scorePath, eeglabPath], 'dir'))
+            disp(['Eeglab not found - unzip the archive? Expected at ', [scorePath, eeglabPath]]);
         else
-            disp(['Eeglab found at: ', [myPath, eeglabPath]]);
+            disp(['Eeglab found at: ', [scorePath, eeglabPath]]);
         end
         
-        if and(exist([myPath, NicoletSDKpath], 'dir'), exist([myPath, eeglabPath], 'dir'))
-            addpath([myPath, NicoletSDKpath]);
-            addpath([myPath, eeglabPath]);
+        if and(exist([scorePath, NicoletSDKpath], 'dir'), exist([scorePath, eeglabPath], 'dir'))
+            addpath([scorePath, NicoletSDKpath]);
+            addpath([scorePath, eeglabPath]);
             disp('Setup complete');
         end
     end
