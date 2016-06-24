@@ -7,9 +7,9 @@ function [scorePath] = SetupScorePipeline()
     
     scorePath = '';
     if (strcmp(getenv('UserDomain'), 'Jan-PC'))
-        scorePath = [getenv('UserProfile'), '\Documents\GitHub\ScorePipeline\matlab\']
-    elseif (strcmp(getenv('UserDomain'), 'ihelse.net'))
-        scorePath = ''
+        scorePath = [getenv('UserProfile'), '\Documents\GitHub\ScorePipeline\matlab\'];
+    elseif (strcmp(getenv('UserDomain'), 'HS'))
+        scorePath = 'J:\ScorePipeline\matlab\';
     end
 
     if (strcmp(scorePath, ''))
