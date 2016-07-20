@@ -1,4 +1,4 @@
-function [ scoreData ] = SetupScoreExtractDb( scorePath )
+function [ scoreData ] = ReadScoreExtractDb( scorePath )
 %SetupScoreExtractDb Reads in tab-delimited text file with SCORE extracts
 
     extractFile = [scorePath, '\ScoreDb\ExtractSharps_NormalAndEpi.txt'];
