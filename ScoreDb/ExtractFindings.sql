@@ -133,3 +133,51 @@ WHERE Description.IsActive = 1 AND Description.IsDescriptionSigned = 1
 ORDER BY StudyId, DescriptionId, RecordingId, EventCodingId, EventId
 
 
+--A more limited version of the above to make processing easier
+--Identify all findings where any finding is epileptiform or normal sharps
+--and pre-calculate IsEpi and IsNonEpiSharp
+SELECT     Patient.PatientId, PatientDetails.DateOfBirth, PatientDetails.GenderId, Study.StudyId, Description.DescriptionId, Recording.RecordingId, Recording.FilePath,
+			Recording.FileName, EventCoding.EventCodingId, EventCode.EventCodeId, 
+            EventCode.Name, Event.EventId, Event.StartDateTime, Event.Duration, Event.EndDateTime,
+			CASE WHEN EventCode.Name LIKE 'Epileptiform interictal%' THEN 1 ELSE 0  END [IsEpileptiform],
+			CASE WHEN EventCode.Name = 'Physiologic pattern - Positive occipital sharp transient of sleep (POSTS)' 
+				OR    EventCode.Name = 'Physiologic pattern - Sharp transient' 
+				OR    EventCode.Name = 'Pattern of uncertain significance - BETS (Benign epileptiform transients of sleep / small sharp spikes)' 
+				OR    EventCode.Name = 'Pattern of uncertain significance - Slow-fused transient' 
+				OR    EventCode.Name = 'Pattern of uncertain significance - Sharp transient' 
+				OR    EventCode.Name = 'Pattern of uncertain significance - Small sharp spikes (Benign epileptiform transients of sleep)'
+			THEN 1 ELSE 0  END [IsNonEpiSharp]
+FROM         Description 				    
+	INNER JOIN Study ON Description.StudyId = Study.StudyId 
+	INNER JOIN Patient ON Patient.PatientId = Study.PatientId
+	INNER JOIN PatientDetails ON PatientDetails.PatientId = Study.PatientId
+	INNER JOIN Recording ON Study.StudyId = Recording.StudyId 
+	INNER JOIN EventCoding ON Description.DescriptionId = EventCoding.DescriptionId 
+	INNER JOIN EventCode ON EventCoding.EventCodeId = EventCode.EventCodeId 
+    INNER JOIN Event ON EventCoding.EventCodingId = Event.EventCodingId
+    INNER JOIN (
+		SELECT     DISTINCT(Description.DescriptionId)
+		FROM         Description 										
+						INNER JOIN EventCoding ON Description.DescriptionId = EventCoding.DescriptionId 
+						INNER JOIN EventCode ON EventCoding.EventCodeId = EventCode.EventCodeId 
+						INNER JOIN Event ON EventCoding.EventCodingId = Event.EventCodingId
+		WHERE (EventCode.Name = 'Epileptiform interictal activity' 
+		OR    EventCode.Name LIKE 'Epileptiform interictal activity%' 
+		OR    EventCode.Name = 'Physiologic pattern - Positive occipital sharp transient of sleep (POSTS)' 
+		OR    EventCode.Name = 'Physiologic pattern - Sharp transient' 
+		OR    EventCode.Name = 'Pattern of uncertain significance - BETS (Benign epileptiform transients of sleep / small sharp spikes)' 
+		OR    EventCode.Name = 'Pattern of uncertain significance - Slow-fused transient' 
+		OR    EventCode.Name = 'Pattern of uncertain significance - Sharp transient' 
+		OR    EventCode.Name = 'Pattern of uncertain significance - Small sharp spikes (Benign epileptiform transients of sleep)')
+		AND Description.IsActive = 1 AND Description.IsDescriptionSigned = 1
+	) As innerjoin ON Description.DescriptionId = innerjoin.DescriptionId
+WHERE Description.IsActive = 1 AND Description.IsDescriptionSigned = 1	AND
+		(EventCode.Name = 'Epileptiform interictal activity' 
+		OR    EventCode.Name LIKE 'Epileptiform interictal activity%' 
+		OR    EventCode.Name = 'Physiologic pattern - Positive occipital sharp transient of sleep (POSTS)' 
+		OR    EventCode.Name = 'Physiologic pattern - Sharp transient' 
+		OR    EventCode.Name = 'Pattern of uncertain significance - BETS (Benign epileptiform transients of sleep / small sharp spikes)' 
+		OR    EventCode.Name = 'Pattern of uncertain significance - Slow-fused transient' 
+		OR    EventCode.Name = 'Pattern of uncertain significance - Sharp transient' 
+		OR    EventCode.Name = 'Pattern of uncertain significance - Small sharp spikes (Benign epileptiform transients of sleep)')
+ORDER BY StudyId, DescriptionId, RecordingId, EventCodingId, EventId

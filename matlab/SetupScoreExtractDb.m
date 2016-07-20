@@ -11,7 +11,7 @@ function [ scoreData ] = SetupScoreExtractDb( scorePath )
         HEADERLINES = 1;        
         % Import the file        
         fileId = fopen(extractFile);
-        formatString = '%u\t%s\t%u\t%u\t%u\t%u\t%s\t%s\t%u\t%u\t%s\t%u\t%s\t%s\t%s\r\n';
+        formatString = '%u\t%s\t%u\t%u\t%u\t%u\t%s\t%s\t%u\t%u\t%s\t%u\t%s\t%s\t%s\t%u\t%u\r\n';
 %         PatientId
 %         DateOfBirth
 %         GenderId
@@ -26,9 +26,11 @@ function [ scoreData ] = SetupScoreExtractDb( scorePath )
 %         EventId
 %         StartDateTime
 %         Duration
-%         EndDateTime        
+%         EndDateTime      
+%         IsEpileptiform
+%         IsNonEpiSharp
         scoreData = textscan(fileId,formatString,'headerLines', HEADERLINES, 'Delimiter',DELIMITER);
-        fields = {'PatientId','DateOfBirth','GenderId','StudyId','DescriptionId','RecordingId','FilePath','FileName','EventCodingId','EventCodeId','Name','EventId','StartDateTime','Duration','EndDateTime'};
+        fields = {'PatientId','DateOfBirth','GenderId','StudyId','DescriptionId','RecordingId','FilePath','FileName','EventCodingId','EventCodeId','Name','EventId','StartDateTime','Duration','EndDateTime','IsEpileptiform','IsNonEpiSharp'};
         fclose(fileId);
         lines = cellfun('length',scoreData(1));
         scoreData = cell2struct(scoreData, fields, 2);
