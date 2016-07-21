@@ -13,7 +13,7 @@ function [ scoreData ] = CheckScoreEegFileExists(scoreData)
     scoreData.FileIndex = zeros(size(scoreData.FilePath,1),1);
     scoreData.FilePath2 = cell(size(scoreData.FilePath,1),1);
 
-    disp('Extracting file index number...');
+    %disp('Extracting file index number...');
     %Extract file index
     for i=1:1:size(scoreData.FilePath)    
         scoreData.FilePath(i) = strrep(scoreData.FilePath(i),'\\batman.knf.local\','\\hbemta-nevrofil01.knf.local\');    
@@ -23,7 +23,7 @@ function [ scoreData ] = CheckScoreEegFileExists(scoreData)
         end
     end
 
-    disp('Setting new file path..');
+    %disp('Setting new file path..');
     %Set file paths to local new paths
     for i=1:1:size(scoreData.FilePath,1)        
         %filePath2 = '';
@@ -57,7 +57,7 @@ function [ scoreData ] = CheckScoreEegFileExists(scoreData)
     end
 
     %Make full path
-    disp('Setting new full path..');
+    %disp('Setting new full path..');
     scoreData.FilePathAndName = cell(size(scoreData.FilePath,1),1);
     for i=1:1:size(scoreData.FilePath)    
         scoreData.FilePathAndName{i} = strcat(scoreData.FilePath2{i}, '\', scoreData.FileName{i});
@@ -65,16 +65,23 @@ function [ scoreData ] = CheckScoreEegFileExists(scoreData)
 
 
     %Check file exists
-    disp('Checking file exists..');
+    disp('Checking file exists:   ');
     scoreData.FileExist = zeros(size(scoreData.FilePath,1),1);
+    lastCounterPrint = 0;
     for i=1:1:size(scoreData.FilePath)        
-        if mod(i,1000)==0
-            disp(i);
+        if mod(i,1000)==0            
+            for j=0:log10(lastCounterPrint)
+              fprintf('\b'); % delete previous counter display
+            end            
+            fprintf('%d', i);
+            pause(.05); % allows time for display to updat
         end
         scoreData.FileExist(i) = exist(scoreData.FilePathAndName{i},'file') == 2;
+        lastCounterPrint = i;
     end
     totalFileCount = size(scoreData.FilePath,1);
     missingFileCount = sum(scoreData.FileExist==0);
     foundFileCount = sum(scoreData.FileExist);
+    fprintf('\r\n');
     disp(['Checked ' num2str(totalFileCount) ' files. Found ' num2str(foundFileCount),' files. '  num2str(missingFileCount) ' files not found']);
 end
