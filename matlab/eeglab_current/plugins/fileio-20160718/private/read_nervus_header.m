@@ -483,7 +483,9 @@ tsPackets = DynamicPackets(strcmp({DynamicPackets.IDStr},'TSGUID'));
 if length(tsPackets) > 1
     warning(['Multiple TSinfo packets detected; using first instance ' ...
         ' ac for all segments. See documentation for info.']);
-elseif isempty(tsPackets)
+end
+
+if isempty(tsPackets)
     warning(['No TSINFO found']);
 else
     tsPacket = tsPackets(1);
