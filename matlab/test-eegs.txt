@@ -1,0 +1,37 @@
+EDU>> struct2table(eeglist);
+  #                                                  filename   opensuccess
+¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯¯
+  1                       C:\LocalDB\Workarea\45153\0801x12.e             1
+  2                       C:\LocalDB\Workarea\45163\1050x08.e             1
+  3                       C:\LocalDB\Workarea\45164\0616x03.e             1
+  4                    C:\LocalDB\Workarea\45166\Patient6t1.e             0
+  5                    C:\LocalDB\Workarea\45167\Patient1t1.e             0
+  6                    C:\LocalDB\Workarea\45168\Patient1t1.e             1
+  7                    C:\LocalDB\Workarea\45169\Patient1t1.e             1
+  8            C:\LocalDB\Workarea\45172\Patient6_EEG246_t1.e             1
+  9      C:\LocalDB\Workarea\45173\Patient1_KNF-PORTABEL_t1.e             1
+ 10            C:\LocalDB\Workarea\45174\Patient1_EEG241_t1.e             1
+ 11      C:\LocalDB\Workarea\45175\Patient1_KNF-PORTABEL_t1.e             1
+ 12      C:\LocalDB\Workarea\45177\Patient1_KNF-PORTABEL_t1.e             1
+ 13            C:\LocalDB\Workarea\45178\Patient2_EEG224_t1.e             1
+ 14      C:\LocalDB\Workarea\45179\Patient1_KNF-PORTABEL_t1.e             1
+ 15      C:\LocalDB\Workarea\45180\Patient1_KNF-PORTABEL_t1.e             1
+ 16            C:\LocalDB\Workarea\45181\Patient2_EEG238_t1.e             1
+ 17            C:\LocalDB\Workarea\45182\Patient9_EEG226_t1.e             1
+ 18            C:\LocalDB\Workarea\45183\Patient2_EEG224_t1.e             1
+ 19   C:\LocalDB\Workarea\45184\Patient2_KNF-PORTABEL_t1(1).e             1
+ 20            C:\LocalDB\Workarea\45185\Patient6_EEG246_t1.e             1
+ 21            C:\LocalDB\Workarea\45186\Patient6_EEG246_t1.e             1
+ 22            C:\LocalDB\Workarea\45187\Patient1_EEG241_t1.e             1
+ 23      C:\LocalDB\Workarea\45188\Patient2_KNF-PORTABEL_t1.e             1
+ 24            C:\LocalDB\Workarea\45189\Patient2_EEG238_t1.e             1
+ 25            C:\LocalDB\Workarea\45190\Patient9_EEG226_t1.e             1
+ 26            C:\LocalDB\Workarea\45191\Patient5_EEG226_t1.e             1
+ 27      C:\LocalDB\Workarea\45192\Patient1_KNF-PORTABEL_t1.e             1
+ 28            C:\LocalDB\Workarea\45193\Patient8_EEG246_t1.e             1
+ 29           C:\LocalDB\Workarea\45194\Patient15_EEG246_t1.e             1
+ 30      C:\LocalDB\Workarea\45195\Patient2_KNF-PORTABEL_t1.e             1
+ 31            C:\LocalDB\Workarea\45196\Patient1_EEG224_t1.e             1
+ 32            C:\LocalDB\Workarea\45197\Patient6_EEG226_t1.e             1
+ 33            C:\LocalDB\Workarea\45198\Patient5_EEG246_t1.e             1
+ 

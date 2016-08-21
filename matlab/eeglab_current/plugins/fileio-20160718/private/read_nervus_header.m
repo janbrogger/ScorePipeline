@@ -1,4 +1,4 @@
-function output = read_nervus_header(filename)
+function output = read_nervus_header(filename, debug)
 % read_nervus_header  Returns header information from Nicolet file.
 %
 %   FILENAME is the file name of a file in the Natus/Nicolet/Nervus(TM)
@@ -41,51 +41,80 @@ end
 
 nrvHdr = struct();
 nrvHdr.filename = filename;
-nrvHdr.misc1 = fread(h,5, 'uint32');
-nrvHdr.unknown = fread(h,1,'uint32');
-nrvHdr.indexIdx = fread(h,1,'uint32');
+nrvHdr.misc1 = fread(h,20, 'uint8=>uint8');
+nrvHdr.unknown = fread(h,4,'uint8=>uint8');
+nrvHdr.indexIdx = fread(h,1,'uint32=>uint32');
+
 [nrvHdr.NrStaticPackets, nrvHdr.StaticPackets] = read_nervus_header_staticpackets(h);
 nrvHdr.QIIndex = read_nervus_header_Qi(h, nrvHdr.NrStaticPackets);
 nrvHdr.QIIndex2 = read_nervus_header_Qi2(h, nrvHdr.QIIndex);
-nrvHdr.MainIndex  = read_nervus_header_main(h, nrvHdr.indexIdx, nrvHdr.QIIndex.nrEntries);
-nrvHdr.allIndexIDs = [nrvHdr.MainIndex.sectionIdx];
-nrvHdr.infoGuids = read_nervus_header_infoGuids(h, nrvHdr.StaticPackets, nrvHdr.MainIndex);
-nrvHdr.DynamicPackets = read_nervus_header_dynamicpackets(h, nrvHdr.StaticPackets, nrvHdr.MainIndex);
-nrvHdr.PatientInfo = read_nervus_header_patient(h, nrvHdr.StaticPackets, nrvHdr.MainIndex);
-nrvHdr.SigInfo = read_nervus_header_SignalInfo(h, nrvHdr.StaticPackets, nrvHdr.MainIndex, ITEMNAMESIZE, LABELSIZE, UNITSIZE);
-nrvHdr.ChannelInfo = read_nervus_header_ChannelInfo(h, nrvHdr.StaticPackets, nrvHdr.MainIndex, ITEMNAMESIZE, LABELSIZE);
-nrvHdr.TSInfo = read_nervus_header_TSInfo(h, nrvHdr.DynamicPackets, nrvHdr.MainIndex, ITEMNAMESIZE, TSLABELSIZE, LABELSIZE);
-nrvHdr.Segments = read_nervus_header_Segments(h, nrvHdr.StaticPackets, nrvHdr.MainIndex, nrvHdr.TSInfo);
-nrvHdr.Events = read_nervus_header_events(h, nrvHdr.StaticPackets, nrvHdr.MainIndex);
-nrvHdr.MontageInfo = read_nervus_header_montage(h, nrvHdr.StaticPackets, nrvHdr.MainIndex);
 
-reference = unique(nrvHdr.Segments(1).refName(cellfun(@length, [nrvHdr.Segments(1).refName])>0));
-if strcmp(reference, 'REF')
-	nrvHdr.reference = 'common';
-else
-	nrvHdr.reference = 'unknown';
+if (debug == 1) 
+    disp('nrvHdr.misc1');
+    disp(nrvHdr.misc1);
+    disp(['indexIdx ' num2str(nrvHdr.indexIdx)]);
+    disp(['NrStaticPackets ' num2str(nrvHdr.NrStaticPackets)]);
+    disp('QIIndex:');
+    disp(nrvHdr.QIIndex);    
+    disp('QIIndex2:');
+    disp(nrvHdr.QIIndex2);
+end
+
+
+if nrvHdr.indexIdx == 0
+    warning('Cannot read this file - dont know how to read MainIndex when indexIdx is zero ');
+    output = struct();
+    output.Fs          = -1;
+    output.nChans      = -1;
+    output.label       = {''};
+    output.nSamples    = -1;
+    output.nSamplesPre = 0;
+    output.nTrials     = 0;
+    output.reference   = -1;
+    output.filename    = -1;
+    output.orig        = nrvHdr;
+else    
+    
+    nrvHdr.MainIndex  = read_nervus_header_main(h, nrvHdr.indexIdx, nrvHdr.QIIndex.nrEntries);
+    nrvHdr.allIndexIDs = [nrvHdr.MainIndex.sectionIdx];
+    nrvHdr.infoGuids = read_nervus_header_infoGuids(h, nrvHdr.StaticPackets, nrvHdr.MainIndex);
+    nrvHdr.DynamicPackets = read_nervus_header_dynamicpackets(h, nrvHdr.StaticPackets, nrvHdr.MainIndex);
+    nrvHdr.PatientInfo = read_nervus_header_patient(h, nrvHdr.StaticPackets, nrvHdr.MainIndex);
+    nrvHdr.SigInfo = read_nervus_header_SignalInfo(h, nrvHdr.StaticPackets, nrvHdr.MainIndex, ITEMNAMESIZE, LABELSIZE, UNITSIZE);
+    nrvHdr.ChannelInfo = read_nervus_header_ChannelInfo(h, nrvHdr.StaticPackets, nrvHdr.MainIndex, ITEMNAMESIZE, LABELSIZE);
+    nrvHdr.TSInfo = read_nervus_header_TSInfo(h, nrvHdr.DynamicPackets, nrvHdr.MainIndex, ITEMNAMESIZE, TSLABELSIZE, LABELSIZE);
+    nrvHdr.Segments = read_nervus_header_Segments(h, nrvHdr.StaticPackets, nrvHdr.MainIndex, nrvHdr.TSInfo);
+    nrvHdr.Events = read_nervus_header_events(h, nrvHdr.StaticPackets, nrvHdr.MainIndex);
+    nrvHdr.MontageInfo = read_nervus_header_montage(h, nrvHdr.StaticPackets, nrvHdr.MainIndex);
+
+    reference = unique(nrvHdr.Segments(1).refName(cellfun(@length, [nrvHdr.Segments(1).refName])>0));
+    if strcmp(reference, 'REF')
+        nrvHdr.reference = 'common';
+    else
+        nrvHdr.reference = 'unknown';
+    end
+    
+    
+    %Calculate sample count across segments
+    % - some channels have lower sampling rates, so we for each segments we
+    %   choose the channel with the highest sampling rate
+    totalNSamples = 0;
+    for i=1:size(nrvHdr.Segments,2)
+        totalNSamples = totalNSamples + max(nrvHdr.Segments(i).samplingRate*nrvHdr.Segments(i).duration);
+    end
+
+    output = struct();
+    output.Fs          = max([nrvHdr.Segments.samplingRate]);
+    output.nChans      = size([nrvHdr.Segments(1).chName],2);
+    output.label       = nrvHdr.Segments(1).chName;
+    output.nSamples    = totalNSamples;
+    output.nSamplesPre = 0;
+    output.nTrials     = 1; %size(nrvHdr.Segments,2);
+    output.reference   = nrvHdr.reference;
+    output.filename    = nrvHdr.filename;
+    output.orig        = nrvHdr;
 end
 fclose(h);
-
-%Calculate sample count across segments
-% - some channels have lower sampling rates, so we for each segments we
-%   choose the channel with the highest sampling rate
-totalNSamples = 0;
-for i=1:size(nrvHdr.Segments,2)
-    totalNSamples = totalNSamples + max(nrvHdr.Segments(i).samplingRate*nrvHdr.Segments(i).duration);
-end
-
-output = struct();
-output.Fs          = max([nrvHdr.Segments.samplingRate]);
-output.nChans      = size([nrvHdr.Segments(1).chName],2);
-output.label       = nrvHdr.Segments(1).chName;
-output.nSamples    = totalNSamples;
-output.nSamplesPre = 0;
-output.nTrials     = 1; %size(nrvHdr.Segments,2);
-output.reference   = nrvHdr.reference;
-output.filename    = nrvHdr.filename;
-output.orig        = nrvHdr;
-
 
 end
 
@@ -98,8 +127,8 @@ for i = 1:NrStaticPackets
     StaticPackets(i).tag = deblank(cast(fread(h, 40, 'uint16'),'char')');
     StaticPackets(i).index = fread(h,1,'uint32');
     switch StaticPackets(i).tag
-        case 'ExtraDataStaticPackets'
-            StaticPackets(i).IDStr = 'ExtraDataStaticPackets';
+        case 'ExtraDataTags'
+            StaticPackets(i).IDStr = 'ExtraDataTags';
         case 'SegmentStream'
             StaticPackets(i).IDStr = 'SegmentStream';
         case 'DataStream'
@@ -186,6 +215,12 @@ for i = 1:NrStaticPackets
             StaticPackets(i).IDStr = 'DATEXDATAGUID';
         case '{35F356D9-0F1C-4DFE-8286-D3DB3346FD75}'
             StaticPackets(i).IDStr = 'TESTINFOGUID';
+        case 'Events'
+            StaticPackets(i).IDStr = 'Events';
+        case 'EventData'
+            StaticPackets(i).IDStr = 'EventData';
+        case 'EventLocation'
+            StaticPackets(i).IDStr = 'EventLocation';
             
         otherwise
             if isstrprop(StaticPackets(i).tag, 'digit')
@@ -236,9 +271,11 @@ curIdx = 0;
 nextIndexPointer = indexIdx;
 curIdx2 = 1;
 while curIdx < nrEntries
-    
+    disp(['CurIdx ' num2str(curIdx)]);    
+    disp(['CurIdx2 ' num2str(curIdx2)]);    
     fseek(h, nextIndexPointer, 'bof');
     nrIdx = fread(h,1, 'uint64');
+    disp(['nrIdx ' num2str(nrIdx)]);    
     MainIndex(curIdx + nrIdx).sectionIdx = 0;   % Preallocate next set of indices
     var = fread(h,3*nrIdx, 'uint64');
     for i = 1: nrIdx
@@ -254,7 +291,6 @@ end
 end
 
 function infoGuids = read_nervus_header_infoGuids(h, StaticPackets, MainIndex)
-
 
 infoIdx = StaticPackets(find(strcmp({StaticPackets.IDStr},'InfoGuids'),1)).index;
 indexInstance = MainIndex(find([MainIndex.sectionIdx]==infoIdx,1));
@@ -277,6 +313,7 @@ dynamicPackets = struct();
 indexIdx = StaticPackets(find(strcmp({StaticPackets.IDStr},'InfoChangeStream'),1)).index;
 offset = MainIndex(indexIdx).offset;
 nrDynamicPackets = MainIndex(indexIdx).sectionL / 48;
+disp(['Want to read ' num2str(nrDynamicPackets) ' packets']);
 fseek(h, offset, 'bof');
 
 %Read first only the dynamic packets structure without actual data
@@ -319,7 +356,8 @@ end
 for i = 1: nrDynamicPackets
     %Look up the GUID of this dynamic packet in the static packets
     % to find the section index
-    
+
+    disp(['Processing dynamic packet ' num2str(i) ' ' dynamicPackets(i).guidAsStr]);
     infoIdx = StaticPackets(find(strcmp({StaticPackets.tag},dynamicPackets(i).guidAsStr),1)).index;
     
     %Matching index segments
