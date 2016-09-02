@@ -30,9 +30,9 @@ function [ scoreData ] = CheckScoreEegFileExists(scoreData)
         if (scoreData.FileIndex(i) >= 60001) 
              filePath2 = strcat('\\hbemta-nevrofil01.knf.local\Rutine\workarea\', num2str(scoreData.FileIndex(i)));
         elseif (scoreData.FileIndex(i) >= 55001) &&  (scoreData.FileIndex(i) <= 660000)
-             filePath2 = strcat('\\hbemta-nevrofil01.knf.local\Rutine\workarea\55001-60000\', num2str(scoreData.FileIndex(i)));
+             filePath2 = strcat('\\hbemta-nevrofil01.knf.local\RutineArkiv4\55001-60000\', num2str(scoreData.FileIndex(i)));
         elseif (scoreData.FileIndex(i) >= 50001) &&  (scoreData.FileIndex(i) <= 55000)        
-             filePath2 = strcat('\\hbemta-nevrofil01.knf.local\Rutine\workarea\50001-55000\', num2str(scoreData.FileIndex(i)));
+             filePath2 = strcat('\\hbemta-nevrofil01.knf.local\RutineArkiv3\50001-55000\', num2str(scoreData.FileIndex(i)));
         elseif (scoreData.FileIndex(i) >= 45001) &&  (scoreData.FileIndex(i) <= 55000)        
              filePath2 = strcat('\\hbemta-nevrofil01.knf.local\Rutine\workarea\45001-50000\', num2str(scoreData.FileIndex(i)));
         elseif (scoreData.FileIndex(i) >= 40001) &&  (scoreData.FileIndex(i) <= 45000)        
