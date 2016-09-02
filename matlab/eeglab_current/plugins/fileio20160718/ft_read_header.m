@@ -1572,7 +1572,7 @@ switch headerformat
     
   
   case 'nervus_eeg'
-    hdr = read_nervus_header(filename, 1);
+    hdr = read_nervus_header(filename, 0);
     checkUniqueLabels = false;
     
   case 'neuralynx_dma'

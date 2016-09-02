@@ -62,17 +62,17 @@ end
 
 
 if nrvHdr.indexIdx == 0
-    warning('Cannot read this file - dont know how to read MainIndex when indexIdx is zero ');
-    output = struct();
-    output.Fs          = -1;
-    output.nChans      = -1;
-    output.label       = {''};
-    output.nSamples    = -1;
-    output.nSamplesPre = 0;
-    output.nTrials     = 0;
-    output.reference   = -1;
-    output.filename    = -1;
-    output.orig        = nrvHdr;
+    error('Cannot read this file - dont know how to read MainIndex when indexIdx is zero ');
+%     output = struct();
+%     output.Fs          = -1;
+%     output.nChans      = -1;
+%     output.label       = {''};
+%     output.nSamples    = -1;
+%     output.nSamplesPre = 0;
+%     output.nTrials     = 0;
+%     output.reference   = -1;
+%     output.filename    = -1;
+%     output.orig        = nrvHdr;
 else    
     
     nrvHdr.MainIndex  = read_nervus_header_main(h, nrvHdr.indexIdx, nrvHdr.QIIndex.nrEntries);
@@ -271,11 +271,15 @@ curIdx = 0;
 nextIndexPointer = indexIdx;
 curIdx2 = 1;
 while curIdx < nrEntries
-    disp(['CurIdx ' num2str(curIdx)]);    
-    disp(['CurIdx2 ' num2str(curIdx2)]);    
+    if (debug == 1) 
+        disp(['CurIdx ' num2str(curIdx)]);    
+        disp(['CurIdx2 ' num2str(curIdx2)]);    
+    end
     fseek(h, nextIndexPointer, 'bof');
     nrIdx = fread(h,1, 'uint64');
-    disp(['nrIdx ' num2str(nrIdx)]);    
+    if (debug == 1) 
+        disp(['nrIdx ' num2str(nrIdx)]);    
+    end
     MainIndex(curIdx + nrIdx).sectionIdx = 0;   % Preallocate next set of indices
     var = fread(h,3*nrIdx, 'uint64');
     for i = 1: nrIdx
@@ -313,7 +317,9 @@ dynamicPackets = struct();
 indexIdx = StaticPackets(find(strcmp({StaticPackets.IDStr},'InfoChangeStream'),1)).index;
 offset = MainIndex(indexIdx).offset;
 nrDynamicPackets = MainIndex(indexIdx).sectionL / 48;
-disp(['Want to read ' num2str(nrDynamicPackets) ' packets']);
+if (debug == 1) 
+    disp(['Want to read ' num2str(nrDynamicPackets) ' packets']);
+end
 fseek(h, offset, 'bof');
 
 %Read first only the dynamic packets structure without actual data
@@ -357,7 +363,9 @@ for i = 1: nrDynamicPackets
     %Look up the GUID of this dynamic packet in the static packets
     % to find the section index
 
-    disp(['Processing dynamic packet ' num2str(i) ' ' dynamicPackets(i).guidAsStr]);
+    if (debug == 1) 
+        disp(['Processing dynamic packet ' num2str(i) ' ' dynamicPackets(i).guidAsStr]);
+    end
     infoIdx = StaticPackets(find(strcmp({StaticPackets.tag},dynamicPackets(i).guidAsStr),1)).index;
     
     %Matching index segments
