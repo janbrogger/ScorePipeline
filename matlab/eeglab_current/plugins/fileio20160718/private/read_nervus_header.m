@@ -75,10 +75,10 @@ if nrvHdr.indexIdx == 0
 %     output.orig        = nrvHdr;
 else    
     
-    nrvHdr.MainIndex  = read_nervus_header_main(h, nrvHdr.indexIdx, nrvHdr.QIIndex.nrEntries);
+    nrvHdr.MainIndex  = read_nervus_header_main(h, nrvHdr.indexIdx, nrvHdr.QIIndex.nrEntries, debug);
     nrvHdr.allIndexIDs = [nrvHdr.MainIndex.sectionIdx];
     nrvHdr.infoGuids = read_nervus_header_infoGuids(h, nrvHdr.StaticPackets, nrvHdr.MainIndex);
-    nrvHdr.DynamicPackets = read_nervus_header_dynamicpackets(h, nrvHdr.StaticPackets, nrvHdr.MainIndex);
+    nrvHdr.DynamicPackets = read_nervus_header_dynamicpackets(h, nrvHdr.StaticPackets, nrvHdr.MainIndex, debug);
     nrvHdr.PatientInfo = read_nervus_header_patient(h, nrvHdr.StaticPackets, nrvHdr.MainIndex);
     nrvHdr.SigInfo = read_nervus_header_SignalInfo(h, nrvHdr.StaticPackets, nrvHdr.MainIndex, ITEMNAMESIZE, LABELSIZE, UNITSIZE);
     nrvHdr.ChannelInfo = read_nervus_header_ChannelInfo(h, nrvHdr.StaticPackets, nrvHdr.MainIndex, ITEMNAMESIZE, LABELSIZE);
@@ -261,7 +261,7 @@ for i = 1:QIIndex.LQi
 end
 end
 
-function MainIndex = read_nervus_header_main(h, indexIdx, nrEntries)
+function MainIndex = read_nervus_header_main(h, indexIdx, nrEntries, debug)
 %% Get Main Index:
 % Index consists of multiple blocks, after each block is the pointer
 % to the next block. Total number of entries is in obj.Qi.nrEntries
@@ -312,7 +312,7 @@ end
 end
 
 
-function dynamicPackets = read_nervus_header_dynamicpackets(h, StaticPackets, MainIndex)
+function dynamicPackets = read_nervus_header_dynamicpackets(h, StaticPackets, MainIndex, debug)
 dynamicPackets = struct();
 indexIdx = StaticPackets(find(strcmp({StaticPackets.IDStr},'InfoChangeStream'),1)).index;
 offset = MainIndex(indexIdx).offset;

@@ -951,7 +951,7 @@ switch dataformat
     [hdr, dat] = read_mpi_ds(filename);
     dat = dat(chanindx, begsample:endsample); % select the desired channels and samples
   case 'nervus_eeg'     
-    hdr = read_nervus_header(filename);        
+    hdr = read_nervus_header(filename, 0);
     %Nervus usually has discontinuous EEGs, e.g. pauses in clinical
     %recordings. The code currently concatenates these trials.
     %We could set this up as separate "trials" later.

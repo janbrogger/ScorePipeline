@@ -44,7 +44,6 @@ end
 
 j = 1;
 %for i=1:size(eeglist,2)    
-for i=31:33    
     disp([num2str(j) ' ' datestr(now) ' ' eeglist(i).filename]);
     try        
         ft_read_header(eeglist(i).filename);

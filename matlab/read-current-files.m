@@ -19,7 +19,7 @@ end
 
 %then extract around 100 files of that list
 eegcount = size(eeglist,2);
-extractsize = 10;
+extractsize = 99;
 eeglist = eeglist([eegcount-extractsize:eegcount]);
 
 
@@ -31,7 +31,8 @@ for i=1:size(eeglist,2)
         ft_read_header(eeglist(i).filename);
         %ft_read_data(eeglist(i).filename);
         eeglist(i).opensuccess = 1;
-    catch
+    catch ex
+        disp(['Exception: ' ex.identifier])
         eeglist(i).opensuccess = 0;
     end     
     j = j+1;    
@@ -39,3 +40,5 @@ for i=1:size(eeglist,2)
 end
 
 struct2table(eeglist);
+sum(cat(1,eeglist.opensuccess))
+size(eeglist,2)
