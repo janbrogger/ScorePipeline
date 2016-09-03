@@ -1,47 +1,24 @@
-scoreBasePath = SetupScorePipeLinePath();
+scoreBasePath = 'C:\Users\Jan\Documents\GitHub\ScorePipeline\';
+addPath([scoreBasePath '\matlab']);
+cd([scoreBasePath '\matlab']);
+%Update the fieldtrip plugin in EEGLAB
+system([scoreBasePath 'update-fieldtrip-in-eeglab.bat'])
+%Add eeglab to path
+eeglabPath = 'C:\Users\Jan\Documents\GitHub\eeglab';
+addpath(eeglabPath);
+
+
 scoreData = ReadScoreExtractDb(scoreBasePath);
 disp(['Number of epileptiform findings: ' num2str(sum(scoreData.IsEpileptiform))])
 disp(['Number of non-epileptiform findings: ' num2str(sum(scoreData.IsNonEpiSharp))])
 
-scoreData = CheckScoreEegFileExists(scoreData);
+%scoreData = CheckScoreEegFileExists(scoreData);
 
 disp('Fields in the scoreData structure');
 fields(scoreData)
 
-pop_fileio
 
-disp('Trying import of one EEG file using EEGLAB-fileio');
-pop_fileio('\\hbemta-nevrofil01.knf.local\Rutine\workarea\25001-30000\25001\Patient7t1.e');
-
-
-pop_fileio([scoreBasePath 'janbrogger.e']);
-pop_fileio([scoreBasePath 'Patient15_EEG246_t1.e']);
-
-header = ft_read_header('C:\Users\Jan\Documents\GitHub\ScorePipeline\janbrogger.e');
-
-ft_read_header([scoreBasePath 'janbrogger.e']);
-ft_read_header([scoreBasePath 'Patient15_EEG246_t1.e']);
-
-eegDir = 'C:\LocalDB\Workarea\';
-eeglist = struct();
-eegdirlist = dir(eegDir);
-j = 1;
-for i=3:size(eegdirlist,1)        
-     if eegdirlist(i).isdir   
-         eegdirlist2 = dir([eegDir eegdirlist(i).name '\*.e']);  
-         for k=1:size(eegdirlist2,1)    
-             oneeeg = [eegDir eegdirlist(i).name '\' eegdirlist2(k).name];
-             disp(oneeeg);
-             eeglist(j).filename = oneeeg;
-             eeglist(j).opensuccess = -1;
-             j = j + 1;
-         end        
-     end
-end
-
-
-
-
+%Read each file to test for read success
 j = 1;
 %for i=1:size(eeglist,2)    
     disp([num2str(j) ' ' datestr(now) ' ' eeglist(i).filename]);
@@ -56,50 +33,22 @@ end
 
 struct2table(eeglist);
 
-
-x = ft_read_header( 'C:\LocalDB\Workarea\45166\Patient6t1.e');
-x.orig
-x.orig.QIIndex
-x.orig.QIIndex2
-x.orig.misc1'
-x.orig.unknown'
-
-
-x = ft_read_header( 'C:\LocalDB\Workarea\45167\Patient1t1.e');
-x.orig
-x.orig.QIIndex
-x.orig.QIIndex2
-x.orig.misc1'
-x.orig.unknown'
-
-
-x = ft_read_header([scoreBasePath 'janbrogger.e']);
-x.orig
-x.orig.QIIndex
-x.orig.QIIndex2
-x.orig.misc1'
-x.orig.unknown'
+%Process one file
+eeglab
+% Read the file
+EEG = pop_fileio('C:\LocalDB\Workarea\45197\Patient6_EEG226_t1.e');
+EEG.setname='test';
+% Drop some irrelevant channels
+EEG = pop_select( EEG,'nochannel',{'Photic' 'Rate' 'IBI' 'Bursts' 'Suppr'});
+% Rereference to common average, except EKG
+ekgindex = find(strcmp({EEG.chanlocs(:).labels}, 'EKG'));
+EEG = pop_reref( EEG, [],'exclude',ekgindex);
+% Filter lowpass 0.5-70 Hz
+EEG = pop_eegfilt( EEG, 0.5, 70, [], [0], 0, 0, 'fir1', 0);
+EEG = eeg_checkset( EEG );
+eeglab redraw
+pop_eegplot( EEG, 1, 1, 1);
 
 
-x = ft_read_header( 'C:\LocalDB\Workarea\45164\0616x03.e');
-x.orig
-x.orig.QIIndex
-x.orig.QIIndex2
-x.orig.misc1'
-x.orig.unknown'
 
 
-x = ft_read_header( 'C:\LocalDB\Workarea\45195\Patient2_KNF-PORTABEL_t1.e');
-x.orig
-x.orig.QIIndex
-x.orig.QIIndex2
-x.orig.misc1'
-x.orig.unknown'
-
-
-x = ft_read_header( 'C:\LocalDB\Workarea\45168\Patient1t1.e');
-x.orig
-x.orig.QIIndex
-x.orig.QIIndex2
-x.orig.misc1'
-x.orig.unknown'
