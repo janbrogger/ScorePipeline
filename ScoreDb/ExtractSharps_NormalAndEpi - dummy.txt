@@ -1,0 +1,2 @@
+PatientId	DateOfBirth	GenderId	StudyId	DescriptionId	RecordingId	FilePath	FileName	EventCodingId	EventCodeId	Name	EventId	StartDateTime	Duration	EndDateTime	IsEpileptiform	IsNonEpiSharp
+4	1954-04-01 00:00:00.000	2	4	15	4	\\JAN-PC\LocalDB\Workarea\45194\	Patient15_EEG246_t1.e	65	188	Epileptiform interictal activity - Sharp wave	65	17.09.2013 11:40	1	17.09.2013 11:40	1	0
