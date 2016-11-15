@@ -1,0 +1,23 @@
+USE [HolbergAnon]
+GO
+
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[SearchResult](
+    [SearchResultId] [int] IDENTITY(1,1) NOT NULL,
+	[SearchSavedId] [int] NULL,
+	[DatePerformed] [datetime] NULL,
+	[Comment] [nvarchar](255) NULL,
+ CONSTRAINT [PK_SearchResult] PRIMARY KEY CLUSTERED 
+(
+	[SearchResultId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+
+GO
+
+
