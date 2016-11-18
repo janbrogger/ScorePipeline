@@ -1,20 +1,15 @@
-
-%Test the ODBC connection to the SCORE anonymized database that we need
-setdbprefs('DataReturnFormat','cellarray')
-conn = database.ODBCConnection('SCOREAnon', '', '');
-sqlquery = 'SELECT Lang_nob FROM EventCode';
-curs = exec(conn, sqlquery);
-curs = fetch(curs);
-curs
-curs.Data
-close(curs);
-close(conn);
-            
 %Now setup paths to EEGLAB, and update fieldtrip in EEGLAB if necessary
 scoreBasePath = 'C:\Users\Jan\Documents\GitHub\ScorePipeline\';
-addPath([scoreBasePath '\matlab']);
-cd([scoreBasePath '\matlab']);
+addpath([scoreBasePath 'matlab']);
+
+%Test the ODBC connection to the SCORE anonymized database that we need
+
+setdbprefs('DataReturnFormat','cellarray')
+ScoreVerifyTableExist('SearchResult');
+ScoreVerifyTableExist('SearchResult_Study');
+            
 %Update the fieldtrip plugin in EEGLAB
+cd([scoreBasePath '\matlab']);
 system([scoreBasePath 'update-fieldtrip-in-eeglab.bat'])
 %Add eeglab to path
 eeglabPath = 'C:\Users\Jan\Documents\GitHub\eeglab';
