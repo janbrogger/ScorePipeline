@@ -20,4 +20,7 @@ CREATE TABLE [dbo].[SearchResult_Study](
 
 GO
 
+ALTER TABLE [dbo].[SearchResult_Study] ADD CONSTRAINT [FK_SearchResult] FOREIGN KEY ([SearchResultId]) REFERENCES [dbo].[SearchResult] ([SearchResultId]) ON DELETE CASCADE ON UPDATE CASCADE
+
+ALTER TABLE [dbo].[SearchResult_Study] ADD CONSTRAINT [FK_SearchResult_Study] FOREIGN KEY ([StudyId]) REFERENCES [dbo].[Study] ([StudyId]) ON DELETE CASCADE ON UPDATE CASCADE
 

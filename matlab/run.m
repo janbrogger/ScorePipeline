@@ -1,29 +1,18 @@
-%Now setup paths to EEGLAB, and update fieldtrip in EEGLAB if necessary
+%Setup paths to EEGLAB, and update fieldtrip in EEGLAB if necessary
 scoreBasePath = 'C:\Users\Jan\Documents\GitHub\ScorePipeline\';
 addpath([scoreBasePath 'matlab']);
-
-%Test the ODBC connection to the SCORE anonymized database that we need
-
-setdbprefs('DataReturnFormat','cellarray')
-ScoreVerifyTableExist('SearchResult');
-ScoreVerifyTableExist('SearchResult_Study');
-            
-%Update the fieldtrip plugin in EEGLAB
-cd([scoreBasePath '\matlab']);
-system([scoreBasePath 'update-fieldtrip-in-eeglab.bat'])
-%Add eeglab to path
 eeglabPath = 'C:\Users\Jan\Documents\GitHub\eeglab';
 addpath(eeglabPath);
 
+%Test the ODBC connection to the SCORE anonymized database that we need
+ScoreVerifyConnection();
+ScoreVerifyTableExist('SearchResult');
+ScoreVerifyTableExist('SearchResult_Study');
 
-scoreData = ReadScoreExtractDb(scoreBasePath);
-disp(['Number of epileptiform findings: ' num2str(sum(scoreData.IsEpileptiform))])
-disp(['Number of non-epileptiform findings: ' num2str(sum(scoreData.IsNonEpiSharp))])
 
-%scoreData = CheckScoreEegFileExists(scoreData);
-
-disp('Fields in the scoreData structure');
-fields(scoreData)
+%Update the fieldtrip plugin in EEGLAB
+cd([scoreBasePath '\matlab']);
+system([scoreBasePath 'update-fieldtrip-in-eeglab.bat'])
 
 
 %Read each file to test for read success

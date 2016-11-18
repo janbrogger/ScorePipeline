@@ -1,2 +1,0 @@
-1. Download fileio from ftp://ftp.fieldtriptoolbox.org/pub/fieldtrip/modules/
-2. Unzip file to <repo-base-path>\matlab\eeglab_current\plugins
