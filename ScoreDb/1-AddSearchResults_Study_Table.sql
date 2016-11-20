@@ -12,6 +12,7 @@ CREATE TABLE [dbo].[SearchResult_Study](
 	[SearchResultId] [int] NOT NULL,
 	[StudyId] [int] NOT NULL,
 	[WorkflowState] [int] NULL,
+    [FileState] [int] NOT NULL CONSTRAINT [DF_SearchResult_Study_FileState]  DEFAULT ((0)),
  CONSTRAINT [PK_SearchResult_Study] PRIMARY KEY CLUSTERED 
 (
 	[SearchResultStudyId] ASC

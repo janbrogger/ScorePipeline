@@ -4,10 +4,6 @@ addpath([scoreBasePath 'matlab']);
 eeglabPath = 'C:\Users\Jan\Documents\GitHub\eeglab';
 addpath(eeglabPath);
 
-%Test the ODBC connection to the SCORE anonymized database that we need
-ScoreVerifyConnection();
-ScoreVerifyTableExist('SearchResult');
-ScoreVerifyTableExist('SearchResult_Study');
 
 
 %Update the fieldtrip plugin in EEGLAB
