@@ -16,7 +16,7 @@ function ScoreCheckOneStudyFiles(searchResultStudyId)
       ' WHERE Recording.IsDeleted <> 1 AND Study.IsDeleted <> 1 AND SearchResult_Study.SearchResultStudyId = ' ...
       num2str(searchResultStudyId) ]; 
   
-  recording = ScoreQueryRun(query);  
+  recording = ScoreQueryRun(query);    
   if strcmp(recording, 'No Data')
       ScoreSetStudyFileStatus(searchResultStudyId, -1);
       ScoreSetStudyWorkStatus(searchResultStudyId, -1);
@@ -24,9 +24,7 @@ function ScoreCheckOneStudyFiles(searchResultStudyId)
       fullPath = strcat(recording(6), '\', recording(5));
       if not(exist(fullPath{1}, 'file') == 2)
           ScoreSetStudyFileStatus(searchResultStudyId, -1);
-          if recording{8} == 0
-             ScoreSetStudyWorkStatus(searchResultStudyId, -1);
-          end
+          ScoreSetStudyWorkStatus(searchResultStudyId, -1);
       elseif not(recording{7}== -1)
           ScoreSetStudyFileStatus(searchResultStudyId, 1);
       end  
