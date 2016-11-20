@@ -222,9 +222,9 @@ function openButton_Callback(hObject, eventdata, handles)
 
 %h = msgbox({'Not implemented yet.'});
 if isfield(handles, 'datatable_row')
-    ScorePipelineOneSearchResult(handles.datatable_row);
+    ScoreSearchResultDetail(handles.datatable_row);
 else
-    msgbox({'Select an item first.S'});
+    msgbox({'Select an item first.'});
 end
 
 

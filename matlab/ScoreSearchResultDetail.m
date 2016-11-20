@@ -1,19 +1,19 @@
-function varargout = ScorePipelineOneSearchResult(varargin)
-% SCOREPIPELINEONESEARCHRESULT MATLAB code for ScorePipeline.fig
-%      SCOREPIPELINEONESEARCHRESULT, by itself, creates a new SCOREPIPELINEONESEARCHRESULT or raises the existing
+function varargout = ScoreSearchResultDetail(varargin)
+% SCOREPIPELINE MATLAB code for ScorePipeline.fig
+%      SCOREPIPELINE, by itself, creates a new SCOREPIPELINE or raises the existing
 %      singleton*.
 %
-%      H = SCOREPIPELINEONESEARCHRESULT returns the handle to a new SCOREPIPELINEONESEARCHRESULT or the handle to
+%      H = SCOREPIPELINE returns the handle to a new SCOREPIPELINE or the handle to
 %      the existing singleton*.
 %
-%      SCOREPIPELINEONESEARCHRESULT('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in SCOREPIPELINEONESEARCHRESULT.M with the given input arguments.
+%      SCOREPIPELINE('CALLBACK',hObject,eventData,handles,...) calls the local
+%      function named CALLBACK in SCOREPIPELINE.M with the given input arguments.
 %
-%      SCOREPIPELINEONESEARCHRESULT('Property','Value',...) creates a new SCOREPIPELINEONESEARCHRESULT or raises
+%      SCOREPIPELINE('Property','Value',...) creates a new SCOREPIPELINE or raises
 %      the existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before ScorePipeline_OpeningFcn gets called.  An
+%      applied to the GUI before ScoreSearchResultDetail_OpeningFcn gets called.  An
 %      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to ScorePipeline_OpeningFcn via varargin.
+%      stop.  All inputs are passed to ScoreSearchResultDetail_OpeningFcn via varargin.
 %
 %      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
 %      instance to run (singleton)".
@@ -22,13 +22,13 @@ function varargout = ScorePipelineOneSearchResult(varargin)
 
 % Edit the above text to modify the response to help ScorePipeline
 
-% Last Modified by GUIDE v2.5 18-Nov-2016 21:54:38
+% Last Modified by GUIDE v2.5 20-Nov-2016 13:51:36
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
                    'gui_Singleton',  gui_Singleton, ...
-                   'gui_OpeningFcn', @ScorePipelineOneSearchResult_OpeningFcn, ...
+                   'gui_OpeningFcn', @ScoreSearchResultDetail_OpeningFcn, ...
                    'gui_OutputFcn',  @ScorePipeline_OutputFcn, ...
                    'gui_LayoutFcn',  [] , ...
                    'gui_Callback',   []);
@@ -44,7 +44,7 @@ end
 % End initialization code - DO NOT EDIT
 
 % --- Executes just before ScorePipeline is made visible.
-function ScorePipelineOneSearchResult_OpeningFcn(hObject, eventdata, handles, varargin)
+function ScoreSearchResultDetail_OpeningFcn(hObject, eventdata, handles, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
@@ -62,6 +62,19 @@ if (handles.SearchResultId == -1)
     error('Cannot show search result details, no argument given');
 end
 
+UpdateInfo(handles);
+% Choose default command line output for ScorePipeline
+handles.output = hObject;
+
+% Update handles structure
+guidata(hObject, handles);
+
+initialize_gui(hObject, handles, false);
+
+% UIWAIT makes ScorePipeline wait for user response (see UIRESUME)
+% uiwait(handles.figure1);
+
+function UpdateInfo(handles)
 comment = ScoreQueryRun(['SELECT SearchResult.Comment FROM [SearchResult] WHERE SearchResultId = ' num2str(handles.SearchResultId)]);
 filesNotTested = ScoreQueryRun(['SELECT COUNT([SearchResult_Study].[SearchResultStudyId]) FROM [SearchResult_Study] WHERE FileState=0 AND SearchResultId = ' num2str(handles.SearchResultId)]);
 filesTested = ScoreQueryRun(['SELECT COUNT([SearchResult_Study].[SearchResultStudyId]) FROM [SearchResult_Study] WHERE FileState<>0 AND SearchResultId = ' num2str(handles.SearchResultId)]);
@@ -75,19 +88,7 @@ data = ['Comment' comment;...
     'Files found' filesFound; ...
     'Files missing' filesMissing ...
     ];
-set(handles.searchResultsTable,'data',data,'ColumnName',colNames);
-
-% Choose default command line output for ScorePipeline
-handles.output = hObject;
-
-% Update handles structure
-guidata(hObject, handles);
-
-initialize_gui(hObject, handles, false);
-
-% UIWAIT makes ScorePipeline wait for user response (see UIRESUME)
-% uiwait(handles.figure1);
-
+set(handles.searchResultProperties,'data',data,'ColumnName',colNames);
 
 % --- Outputs from this function are returned to the command line.
 function varargout = ScorePipeline_OutputFcn(hObject, eventdata, handles)
@@ -179,21 +180,6 @@ function reset_Callback(hObject, eventdata, handles)
 
 initialize_gui(gcbf, handles, true);
 
-% --- Executes when selected object changed in unitgroup.
-function unitgroup_SelectionChangedFcn(hObject, eventdata, handles)
-% hObject    handle to the selected object in unitgroup 
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-if (hObject == handles.english)
-    set(handles.text4, 'String', 'lb/cu.in');
-    set(handles.text5, 'String', 'cu.in');
-    set(handles.text6, 'String', 'lb');
-else
-    set(handles.text4, 'String', 'kg/cu.m');
-    set(handles.text5, 'String', 'cu.m');
-    set(handles.text6, 'String', 'kg');
-end
 
 % --------------------------------------------------------------------
 function initialize_gui(fig_handle, handles, isreset)
@@ -232,7 +218,7 @@ function addButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-h = msgbox({'This must be manually using SQL for now.' 'See the script "3-ExtractFindings.sql" for an example  '});
+h = msgbox({'Not implemented'});
 
 
 % --- Executes on button press in deleteButton.
@@ -240,12 +226,35 @@ function deleteButton_Callback(hObject, eventdata, handles)
 % hObject    handle to deleteButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-h = msgbox({'This must be manually in the database for now.' 'Delete a row in the SearchResult table.'});
+h = msgbox({'Not implemented'});
 
 
-% --- Executes on button press in updateFoundFiles.
-function updateFoundFiles_Callback(hObject, eventdata, handles)
-% hObject    handle to updateFoundFiles (see GCBO)
+% --- Executes on button press in updateFiles.
+function updateFiles_Callback(hObject, eventdata, handles)
+% hObject    handle to updateFiles (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-h = msgbox({'Not implemented yet.'});
+
+%h = msgbox({'Not implemented yet.'});
+
+t1 = timer();
+set(t1,...
+    'Name','UpdateFilesInfoTimer', ...
+    'TimerFcn', @(~,~) UpdateFilesTimerTick(handles), ...
+    'ExecutionMode','fixedSpacing', ...
+    'Period', 1, ...    
+    'BusyMode', 'drop')
+start(t1);
+%pause(5);
+%Do expensive stuff here
+resetfileStatusQuery = ['UPDATE [dbo].[SearchResult_Study] SET FileState = 0 WHERE SearchResultId=' num2str(handles.SearchResultId)];  
+ScoreQueryRun(resetfileStatusQuery);  
+ScoreCheckStudyFiles(handles.SearchResultId);
+stop(t1);
+delete(t1);
+UpdateFilesTimerTick(handles);
+
+
+function UpdateFilesTimerTick(handles)
+UpdateInfo(handles);
+drawnow();
