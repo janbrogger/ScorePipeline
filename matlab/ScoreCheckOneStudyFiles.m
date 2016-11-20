@@ -1,3 +1,6 @@
+%Updates the file existing status for one SearchResult_Study
+%and if file does not exist and the workflow state is "not started"
+%then we set the workflow state to -1, "invalid"
 function ScoreCheckOneStudyFiles(searchResultStudyId)
     query = ['SELECT  [RecordingId]' ...
       ' ,Study.StudyId' ...
@@ -6,6 +9,7 @@ function ScoreCheckOneStudyFiles(searchResultStudyId)
       ' ,CONVERT(varchar(255), FileName) AS FileName' ...
       ' ,CONVERT(varchar(255), FilePath) AS FileName' ...      
 	  ' ,SearchResult_Study.FileState' ...
+      ' ,SearchResult_Study.WorkflowState' ...
       ' FROM [HolbergAnon].[dbo].[Recording] ' ...
       ' INNER JOIN Study ON Recording.StudyId = Study.StudyId ' ...
       ' INNER JOIN SearchResult_Study ON Study.StudyId = SearchResult_Study.StudyId ' ...
@@ -15,11 +19,15 @@ function ScoreCheckOneStudyFiles(searchResultStudyId)
   recording = ScoreQueryRun(query);  
   if strcmp(recording, 'No Data')
       ScoreSetStudyFileStatus(searchResultStudyId, -1);
+      ScoreSetStudyWorkStatus(searchResultStudyId, -1);
   else  
       fullPath = strcat(recording(6), '\', recording(5));
       if not(exist(fullPath{1}, 'file') == 2)
           ScoreSetStudyFileStatus(searchResultStudyId, -1);
-      elseif not(recording(7)== -1)
+          if recording{8} == 0
+             ScoreSetStudyWorkStatus(searchResultStudyId, -1);
+          end
+      elseif not(recording{7}== -1)
           ScoreSetStudyFileStatus(searchResultStudyId, 1);
       end  
    end
