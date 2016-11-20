@@ -27,6 +27,7 @@ function ScoreCheckOneStudyFiles(searchResultStudyId)
           ScoreSetStudyWorkStatus(searchResultStudyId, -1);
       elseif not(recording{7}== -1)
           ScoreSetStudyFileStatus(searchResultStudyId, 1);
+          ScoreSetStudyWorkStatus(searchResultStudyId, 0);
       end  
    end
 end
