@@ -52,6 +52,11 @@ function ScorePipeline_OpeningFcn(hObject, eventdata, handles, varargin)
 % varargin   command line arguments to ScorePipeline (see VARARGIN)
 
 ScorePrintHeader();
+disp('Reading ScoreConfig.m');
+if not(exist('ScoreConfig'))
+        error('Configuration file ScoreConfig.m file not found in Matlab path');
+end
+ScoreConfig;
 ScoreVerifyRequirements();
 
 searchResultsQuery = ['SELECT [SearchResult].Comment , COUNT(SearchResult_Study.SearchResultStudyId) AS b_count' ...

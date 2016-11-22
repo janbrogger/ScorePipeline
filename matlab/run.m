@@ -1,28 +1,7 @@
-%Setup paths to EEGLAB, and update fieldtrip in EEGLAB if necessary
-scoreBasePath = 'C:\Users\Jan\Documents\GitHub\ScorePipeline\';
-addpath([scoreBasePath 'matlab']);
-eeglabPath = 'C:\Users\Jan\Documents\GitHub\eeglab';
-addpath(eeglabPath);
+
+ft_read_header('C:\LocalDB\Workarea\45166\Patient6t1.e');
 
 
-
-%Update the fieldtrip plugin in EEGLAB
-cd([scoreBasePath '\matlab']);
-system([scoreBasePath 'update-fieldtrip-in-eeglab.bat'])
-
-
-%Read each file to test for read success
-j = 1;
-%for i=1:size(eeglist,2)    
-    disp([num2str(j) ' ' datestr(now) ' ' eeglist(i).filename]);
-    try        
-        ft_read_header(eeglist(i).filename);
-        eeglist(i).opensuccess = 1;
-    catch
-        eeglist(i).opensuccess = 0;
-    end     
-    j = j+1;
-end
 
 struct2table(eeglist);
 
