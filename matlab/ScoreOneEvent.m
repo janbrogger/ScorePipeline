@@ -230,6 +230,21 @@ if not(isnan(searchResultEventId{1}))
 end
 guidata(hObject, handles);
 UpdateInfo(handles);
+newFilePath = ScoreQueryRun(['SELECT CONVERT(varchar(255), Recording.FilePath)+ ' ...
+    ' CONVERT(varchar(255), Recording.FileName) AS FileName ' ...
+    ' FROM SearchResult_Event ' ...
+    ' INNER JOIN Event ON SearchResult_Event.Eventid = Event.EventId ' ...
+    ' INNER JOIN Recording ON Event.RecordingId = Recording.RecordingId ' ...
+    ' WHERE SearchResult_Event.SearchResultEventId = ' num2str(handles.SearchResultEventId) ]);
+EEG = evalin('base','EEG');
+currentFilePath = EEG.comments;
+if isempty(strfind(currentFilePath, newFilePath))
+    disp('Opening new EEG file');
+    ScoreOpenEegFileInEeglab(newFilePath);
+else
+    disp('EEG file is the same, no change necessary');
+    pop_eegplot( EEG, 1, 1, 1);
+end
 
 
 % --- Executes on button press in backButton.
