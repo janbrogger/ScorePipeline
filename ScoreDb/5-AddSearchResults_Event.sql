@@ -23,7 +23,7 @@ ALTER TABLE [dbo].[SearchResult_Event] CHECK CONSTRAINT [FK_SearchResult_Event_E
 GO
 
 ALTER TABLE [dbo].[SearchResult_Event]  WITH CHECK ADD  CONSTRAINT [FK_SearchResult_Event_SearchResult] FOREIGN KEY([SearchResultId])
-REFERENCES [dbo].[SearchResult] ([SearchResultId])
+REFERENCES [dbo].[SearchResult] ([SearchResultId]) ON DELETE CASCADE ON UPDATE CASCADE
 GO
 
 ALTER TABLE [dbo].[SearchResult_Event] CHECK CONSTRAINT [FK_SearchResult_Event_SearchResult]

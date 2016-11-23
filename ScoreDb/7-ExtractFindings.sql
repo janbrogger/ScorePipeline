@@ -40,23 +40,26 @@ FROM #TempEventCoding
 INNER JOIN Event ON #TempEventCoding.EventCodingId = Event.EventCodingId
 WHERE Event.IsDeleted = 0
 
-SELECT     Recording.RecordingId
+SELECT     DISTINCT(Recording.RecordingId)
 INTO #TempRecording
 FROM #TempEvent
 INNER JOIN Recording ON #TempEvent.RecordingId = Recording.RecordingId
 WHERE Recording.IsDeleted = 0
+ORDER BY Recording.RecordingId
 
-SELECT     Description.DescriptionId, Description.StudyId
+SELECT     DISTINCT(Description.DescriptionId), Description.StudyId
 INTO #TempDescription
 FROM #TempEventCoding
 INNER JOIN Description ON #TempEventCoding.DescriptionId = Description.DescriptionId
 WHERE Description.IsActive = 1 AND Description.IsDescriptionSigned = 1 AND Description.IsDeleted = 0
+ORDER BY Description.DescriptionId
 
-SELECT     Study.StudyId
+SELECT     DISTINCT(Study.StudyId)
 INTO #TempStudy
 FROM #TempDescription
 INNER JOIN Study ON #TempDescription.StudyId = Study.StudyId
 WHERE Study.IsDeleted=0
+ORDER BY Study.StudyId 
 
 -----
 

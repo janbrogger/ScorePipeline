@@ -1,4 +1,4 @@
-function count = ScoreWorkstateCount(searchResultId, workflowState, objectType)
+function count = ScoreGetWorkstateCount(searchResultId, workflowState, objectType)
     count = -1;
     switch objectType
         case 0 %Study

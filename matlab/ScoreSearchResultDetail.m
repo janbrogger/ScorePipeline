@@ -22,7 +22,7 @@ function varargout = ScoreSearchResultDetail(varargin)
 
 % Edit the above text to modify the response to help ScorePipeline
 
-% Last Modified by GUIDE v2.5 20-Nov-2016 13:51:36
+% Last Modified by GUIDE v2.5 23-Nov-2016 13:45:24
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -80,26 +80,29 @@ filesNotTested = ScoreQueryRun(['SELECT COUNT([SearchResult_Study].[SearchResult
 filesTested = ScoreQueryRun(['SELECT COUNT([SearchResult_Study].[SearchResultStudyId]) FROM [SearchResult_Study] WHERE FileState<>0 AND SearchResultId = ' num2str(handles.SearchResultId)]);
 filesFound = ScoreQueryRun(['SELECT COUNT([SearchResult_Study].[SearchResultStudyId]) FROM [SearchResult_Study] WHERE FileState=1 AND SearchResultId = ' num2str(handles.SearchResultId)]);
 filesMissing = ScoreQueryRun(['SELECT COUNT([SearchResult_Study].[SearchResultStudyId]) FROM [SearchResult_Study] WHERE FileState=-1 AND SearchResultId = ' num2str(handles.SearchResultId)]);
-studyWorkstateNotStarted = ScoreWorkstateCount(handles.SearchResultId, 0, 0);
-studyWorkstateInvalid = ScoreWorkstateCount(handles.SearchResultId, -1, 0);
-studyWorkstateInProgress = ScoreWorkstateCount(handles.SearchResultId, 1, 0);
-studyWorkstateCompleted = ScoreWorkstateCount(handles.SearchResultId, 2, 0);
-descriptionWorkstateNotStarted = ScoreWorkstateCount(handles.SearchResultId, 0, 1);
-descriptionWorkstateInvalid = ScoreWorkstateCount(handles.SearchResultId, -1, 1);
-descriptionWorkstateInProgress = ScoreWorkstateCount(handles.SearchResultId, 1, 1);
-descriptionWorkstateCompleted = ScoreWorkstateCount(handles.SearchResultId, 2, 1);
-recordingWorkstateNotStarted = ScoreWorkstateCount(handles.SearchResultId, 0, 2);
-recordingWorkstateInvalid = ScoreWorkstateCount(handles.SearchResultId, -1, 2);
-recordingWorkstateInProgress = ScoreWorkstateCount(handles.SearchResultId, 1, 2);
-recordingWorkstateCompleted = ScoreWorkstateCount(handles.SearchResultId, 2, 2);
-eventcodingWorkstateNotStarted = ScoreWorkstateCount(handles.SearchResultId, 0, 3);
-eventcodingWorkstateInvalid = ScoreWorkstateCount(handles.SearchResultId, -1, 3);
-eventcodingWorkstateInProgress = ScoreWorkstateCount(handles.SearchResultId, 1, 3);
-eventcodingWorkstateCompleted = ScoreWorkstateCount(handles.SearchResultId, 2, 3);
-eventWorkstateNotStarted = ScoreWorkstateCount(handles.SearchResultId, 0, 4);
-eventWorkstateInvalid = ScoreWorkstateCount(handles.SearchResultId, -1, 4);
-eventWorkstateInProgress = ScoreWorkstateCount(handles.SearchResultId, 1, 4);
-eventWorkstateCompleted = ScoreWorkstateCount(handles.SearchResultId, 2, 4);
+studyWorkstateNotStarted = ScoreGetWorkstateCount(handles.SearchResultId, 0, 0);
+studyWorkstateInvalid = ScoreGetWorkstateCount(handles.SearchResultId, -1, 0);
+studyWorkstateInProgress = ScoreGetWorkstateCount(handles.SearchResultId, 1, 0);
+studyWorkstateCompleted = ScoreGetWorkstateCount(handles.SearchResultId, 2, 0);
+descriptionWorkstateNotStarted = ScoreGetWorkstateCount(handles.SearchResultId, 0, 1);
+descriptionWorkstateInvalid = ScoreGetWorkstateCount(handles.SearchResultId, -1, 1);
+descriptionWorkstateInProgress = ScoreGetWorkstateCount(handles.SearchResultId, 1, 1);
+descriptionWorkstateCompleted = ScoreGetWorkstateCount(handles.SearchResultId, 2, 1);
+recordingWorkstateNotStarted = ScoreGetWorkstateCount(handles.SearchResultId, 0, 2);
+recordingWorkstateInvalid = ScoreGetWorkstateCount(handles.SearchResultId, -1, 2);
+recordingWorkstateInProgress = ScoreGetWorkstateCount(handles.SearchResultId, 1, 2);
+recordingWorkstateCompleted = ScoreGetWorkstateCount(handles.SearchResultId, 2, 2);
+recordingFileStateNotStarted = ScoreGetFileStateCount(handles.SearchResultId, 0, 2);
+recordingFileStateFound = ScoreGetFileStateCount(handles.SearchResultId, 1, 2);
+recordingFileStateNotFound = ScoreGetFileStateCount(handles.SearchResultId, -1, 2);
+eventcodingWorkstateNotStarted = ScoreGetWorkstateCount(handles.SearchResultId, 0, 3);
+eventcodingWorkstateInvalid = ScoreGetWorkstateCount(handles.SearchResultId, -1, 3);
+eventcodingWorkstateInProgress = ScoreGetWorkstateCount(handles.SearchResultId, 1, 3);
+eventcodingWorkstateCompleted = ScoreGetWorkstateCount(handles.SearchResultId, 2, 3);
+eventWorkstateNotStarted = ScoreGetWorkstateCount(handles.SearchResultId, 0, 4);
+eventWorkstateInvalid = ScoreGetWorkstateCount(handles.SearchResultId, -1, 4);
+eventWorkstateInProgress = ScoreGetWorkstateCount(handles.SearchResultId, 1, 4);
+eventWorkstateCompleted = ScoreGetWorkstateCount(handles.SearchResultId, 2, 4);
 
 
 
@@ -121,6 +124,9 @@ data = ['Comment' comment;...
     'Recording work state invalid' recordingWorkstateInvalid; ...
     'Recording work state in progress' recordingWorkstateInProgress; ...
     'Recording work state completed' recordingWorkstateCompleted; ...
+    'Recording file state not started' recordingFileStateNotStarted; ...
+    'Recording file state found' recordingFileStateFound; ...    
+    'Recording file state not found' recordingFileStateNotFound; ...    
     'Eventcoding work state not started' eventcodingWorkstateNotStarted; ...
     'Eventcoding work state invalid' eventcodingWorkstateInvalid; ...
     'Eventcoding work state in progress' eventcodingWorkstateInProgress; ...
@@ -289,9 +295,12 @@ set(t1,...
 start(t1);
 %pause(5);
 %Do expensive stuff here
-resetfileStatusQuery = ['UPDATE [dbo].[SearchResult_Study] SET FileState = 0 WHERE SearchResultId=' num2str(handles.SearchResultId)];  
+resetfileStatusQuery = ['UPDATE [dbo].[SearchResult_Recording] SET FileState = 0 WHERE SearchResultId=' num2str(handles.SearchResultId)];  
 ScoreQueryRun(resetfileStatusQuery);  
-ScoreCheckStudyFiles(handles.SearchResultId);
+resetfileStatusQuery2 = ['UPDATE [dbo].[SearchResult_Recording] SET WorkflowState = 0 WHERE WorkflowState= -1 AND SearchResultId=' num2str(handles.SearchResultId)];  
+ScoreQueryRun(resetfileStatusQuery2);  
+
+ScoreCheckRecordingFiles(handles.SearchResultId);
 stop(t1);
 delete(t1);
 UpdateFilesTimerTick(handles);
@@ -300,3 +309,4 @@ UpdateFilesTimerTick(handles);
 function UpdateFilesTimerTick(handles)
 UpdateInfo(handles);
 drawnow();
+
