@@ -236,23 +236,31 @@ newFilePath = ScoreQueryRun(['SELECT CONVERT(varchar(255), Recording.FilePath)+ 
     ' INNER JOIN Event ON SearchResult_Event.Eventid = Event.EventId ' ...
     ' INNER JOIN Recording ON Event.RecordingId = Recording.RecordingId ' ...
     ' WHERE SearchResult_Event.SearchResultEventId = ' num2str(handles.SearchResultEventId) ]);
-EEG = evalin('base','EEG');
-currentFilePath = EEG.comments;
-if isempty(strfind(currentFilePath, newFilePath))
-    disp('Opening new EEG file');
-    ScoreOpenEegFileInEeglab(newFilePath);
-else
-    disp('EEG file is the same, no change necessary');
-    pop_eegplot( EEG, 1, 1, 1);
-end
 
+evalin('base', ['ScoreOpenEegFileInEeglab(''' newFilePath{1} ''', ' num2str(handles.SearchResultEventId) ');']);  
 
 % --- Executes on button press in backButton.
 function backButton_Callback(hObject, eventdata, handles)
 % hObject    handle to backButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-h = msgbox({'Not implemented'});
+
+searchResultEventId = ScoreQueryRun(['SELECT MAX(SearchResultEventId) FROM SearchResult_Event ' ...
+    'WHERE SearchResult_Event.SearchResultId = ' num2str(handles.SearchResultId) ...
+    'AND SearchResult_Event.SearchResultEventId < ' num2str(handles.SearchResultEventId) ...
+    ]);
+if not(isnan(searchResultEventId{1}))
+    handles.SearchResultEventId = searchResultEventId{1};
+end
+guidata(hObject, handles);
+UpdateInfo(handles);
+newFilePath = ScoreQueryRun(['SELECT CONVERT(varchar(255), Recording.FilePath)+ ' ...
+    ' CONVERT(varchar(255), Recording.FileName) AS FileName ' ...
+    ' FROM SearchResult_Event ' ...
+    ' INNER JOIN Event ON SearchResult_Event.Eventid = Event.EventId ' ...
+    ' INNER JOIN Recording ON Event.RecordingId = Recording.RecordingId ' ...
+    ' WHERE SearchResult_Event.SearchResultEventId = ' num2str(handles.SearchResultEventId) ]);
+evalin('base', ['ScoreOpenEegFileInEeglab(''' newFilePath{1} ''', ' searchResultEventId ');']);  
 
 
 % --- Executes when selected cell(s) is changed in oneEventProperties.

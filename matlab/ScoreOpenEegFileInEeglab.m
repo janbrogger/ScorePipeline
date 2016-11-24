@@ -1,6 +1,7 @@
-function ScoreOpenEegFileInEeglab(newFilePath)
-    disp(['Opening new EEG file ' newFilePath]);
-    EEG = pop_fileio(newFilePath);
+function ScoreOpenEegFileInEeglab(newFilePath, searchResultEventId)
+    disp(['Opening new EEG file ' newFilePath]);    
+    %pop_delset(ALLEEG, 1);    
+    EEG = pop_fileio(newFilePath);        
     EEG.setname='test';    
     EEG = pop_select( EEG,'nochannel',{'Photic' 'Rate' 'IBI' 'Bursts' 'Suppr'});    
     ekgindex = find(strcmp({EEG.chanlocs(:).labels}, 'EKG'));
@@ -9,4 +10,6 @@ function ScoreOpenEegFileInEeglab(newFilePath)
     EEG = eeg_checkset( EEG );
     eeglab redraw
     pop_eegplot( EEG, 1, 1, 1);
+    clear ekgindex
+    EEG.filename = ['searchResultEventId = ' num2str(searchResultEventId)];
 end
