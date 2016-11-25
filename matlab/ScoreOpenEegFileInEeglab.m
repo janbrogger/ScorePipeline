@@ -1,6 +1,15 @@
 function ScoreOpenEegFileInEeglab(newFilePath, searchResultEventId)
     disp(['Opening new EEG file ' newFilePath]);    
-    %pop_delset(ALLEEG, 1);    
+    %Start up EEGLAB if pop_fileio is not in the path   
+    if not(exist('pop_fileio', 'file'))
+        eeglab
+    end
+    %Close any existing plot
+    existingPlot = findobj(0, 'tag', 'EEGPLOT');
+    if not(isempty(existingPlot))
+        close(existingPlot.Number)
+    end
+        
     EEG = pop_fileio(newFilePath);        
     EEG.setname='test';    
     EEG = pop_select( EEG,'nochannel',{'Photic' 'Rate' 'IBI' 'Bursts' 'Suppr'});    
