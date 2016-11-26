@@ -89,8 +89,13 @@ initialize_gui(hObject, handles, false);
 function UpdateInfo(handles)
 
 colNames = {'Parameter' 'Value'};
-data = {'SearchResultEventId' handles.SearchResultEventId;};
 
+time = ScoreQueryRun(['SELECT StartDateTime FROM [SearchResult_Event] ' ... 
+            ' INNER JOIN Event ON Event.EventId = SearchResult_Event.EventId ' ... 
+            ' WHERE SearchResultEventId = ' num2str(handles.SearchResultEventId)]);    
+data = {'SearchResultEventId' handles.SearchResultEventId;
+        'Time' time{1};
+       };
 set(handles.oneEventProperties,'data',data,'ColumnName',colNames);
 
 % --- Outputs from this function are returned to the command line.
