@@ -22,7 +22,7 @@ function varargout = ScorePipeline(varargin)
 
 % Edit the above text to modify the response to help ScorePipeline
 
-% Last Modified by GUIDE v2.5 20-Nov-2016 12:26:19
+% Last Modified by GUIDE v2.5 02-Dec-2016 13:47:10
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -59,12 +59,12 @@ end
 ScoreConfig;
 ScoreVerifyRequirements();
 
-searchResultsQuery = ['SELECT [SearchResult].Comment , COUNT(SearchResult_Study.SearchResultStudyId) AS b_count' ...
+searchResultsQuery = ['SELECT [SearchResult].SearchResultId, [SearchResult].Comment , COUNT(SearchResult_Study.SearchResultStudyId) AS b_count' ...
 ' FROM [SearchResult] ' ...
 ' INNER JOIN SearchResult_Study on SearchResult_Study.SearchResultId = SearchResult_Study.SearchResultId' ...
-' GROUP BY [SearchResult].Comment'];
+' GROUP BY [SearchResult].SearchResultId, [SearchResult].Comment'];
 
-colNames = {'Name' '# of studies'};
+colNames = {'Id', 'Name' '# of studies'};
 data = ScoreQueryRun(searchResultsQuery);
 set(handles.searchResultsTable,'data',data,'ColumnName',colNames);
 
@@ -179,16 +179,6 @@ function initialize_gui(fig_handle, handles, isreset)
 guidata(handles.figure1, handles);
 
 
-% --- Executes on selection change in searchResultsListBox.
-function searchResultsListBox_Callback(hObject, eventdata, handles)
-% hObject    handle to searchResultsListBox (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns searchResultsListBox contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from searchResultsListBox
-
-
 % --- Executes during object creation, after setting all properties.
 function searchResultsListBox_CreateFcn(hObject, eventdata, handles)
 % hObject    handle to searchResultsListBox (see GCBO)
@@ -227,7 +217,9 @@ function openButton_Callback(hObject, eventdata, handles)
 
 %h = msgbox({'Not implemented yet.'});
 if isfield(handles, 'datatable_row')
-    ScoreSearchResultDetail(handles.datatable_row);
+    tableData = get(handles.searchResultsTable, 'data');
+    searchResultId = tableData{handles.datatable_row,1};
+    ScoreSearchResultDetail(searchResultId);
 else
     msgbox({'Select an item first.'});
 end

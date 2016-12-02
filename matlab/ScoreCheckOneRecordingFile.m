@@ -16,12 +16,16 @@ function ScoreCheckOneRecordingFile(searchResultRecordingId)
       ScoreSetRecordingFileStatus(searchResultRecordingId, -1);
       ScoreSetWorkStatus(searchResultRecordingId, -1, 2);
   else  
-      fullPath = strcat(recording(4), '\', recording(3));
-      if not(exist(fullPath{1}, 'file') == 2)
-          ScoreSetRecordingFileStatus(searchResultRecordingId, -1);
-          ScoreSetWorkStatus(searchResultRecordingId, -1, 2);
-      else
-          ScoreSetRecordingFileStatus(searchResultRecordingId, 1);          
-      end  
+      try 
+          fullPath = strcat(recording(4), '\', recording(3));
+          if not(exist(fullPath{1}, 'file') == 2)
+              ScoreSetRecordingFileStatus(searchResultRecordingId, -1);
+              ScoreSetWorkStatus(searchResultRecordingId, -1, 2);
+          else
+              ScoreSetRecordingFileStatus(searchResultRecordingId, 1);          
+          end 
+      catch 
+          ScoreSetRecordingFileStatus(searchResultRecordingId, -1);          
+      end
    end
 end
