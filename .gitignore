@@ -256,3 +256,4 @@ ScoreDb/HolbergAnon_20160620.bak
 #matlab/eeglab_current/
 matlab/NicoletSDK_20110718/
 *.asv
+/matlab/ScoreConfig.m
