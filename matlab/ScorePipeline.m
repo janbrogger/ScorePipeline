@@ -57,6 +57,10 @@ if not(exist('ScoreConfig'))
         error('Configuration file ScoreConfig.m file not found in Matlab path');
 end
 ScoreConfig;
+disp('Setting session objects');
+ScoreSession;
+%This next line will output only if ScoreConfig.debug == 1
+ScoreDebugLog('Verbose output for debugging is ON');
 ScoreVerifyRequirements();
 
 searchResultsQuery = ['SELECT [SearchResult].SearchResultId, [SearchResult].Comment , COUNT(SearchResult_Study.SearchResultStudyId) AS b_count' ...
