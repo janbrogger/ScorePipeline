@@ -1,8 +1,9 @@
 classdef ScoreConfig
     properties (Constant)
-        odbcDatabaseName = 'ScoreAnon';
-        scoreBasePath = 'J:\ScorePipeline\';
-        eeglabPath = 'J:\eeglab\';
-        debug = 1
+        databaseName = 'HolbergAnon';
+		databaseServer = 'localhost';
+        scoreBasePath = 'C:\Users\Jan\Documents\GitHub\ScorePipeline\';
+        eeglabPath = 'C:\Users\Jan\Documents\GitHub\eeglab';
+        debug = 0
     end
 end

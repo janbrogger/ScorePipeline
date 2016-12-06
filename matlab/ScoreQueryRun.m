@@ -6,7 +6,6 @@ function [data] = ScoreQueryRun(sqlquery)
     curs = fetch(curs);
     data = curs.Data;
     close(curs);
-    close(conn);
     timeElapsed = toc(timer);
-    ScoreDebugLog(['ScoreQueryRun took ' num2str(timeElapsed) 'seconds']);
+    ScoreDebugLog(['ScoreQueryRun took ' num2str(timeElapsed) ' seconds']);
 end

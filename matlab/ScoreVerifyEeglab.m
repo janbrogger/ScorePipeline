@@ -1,13 +1,13 @@
 function ScoreVerifyEeglab()
    
    addpath(ScoreConfig.eeglabPath);
-   addpath([ScoreConfig.eeglabPath '\plugins']);
-   addpath([ScoreConfig.eeglabPath '\functions']);
-   addpath([ScoreConfig.eeglabPath '\functions\adminfunc']);
     if not(exist('eeglab'))
         error('EEGLAB not found in Matlab path');
     else
         disp('EEGLAB found in Matlab path');
+        addpath([ScoreConfig.eeglabPath '\plugins']);
+        addpath([ScoreConfig.eeglabPath '\functions']);
+        addpath([ScoreConfig.eeglabPath '\functions\adminfunc']);
     end
         
     if exist([ScoreConfig.eeglabPath '\plugins\Fileio161116'], 'dir')==0        

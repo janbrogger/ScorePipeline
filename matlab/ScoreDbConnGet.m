@@ -1,19 +1,21 @@
 function [conn] = ScoreDbConnGet
     timer = tic;
     
-    if ScoreSession.setdbprefs == 0        
+    scoreSession = ScoreSession();
+    
+    if scoreSession.setgetDbPrefs() == 0        
         setdbprefs('DataReturnFormat','cellarray');
         ScoreDebugLog(['ScoreDbConnGet called  setdbprefs']);    
-        ScoreSession.setdbprefs = 1;
+        scoreSession.setdbprefs = 1;
     end
-    if isempty(ScoreSession.setgetODBC())
-        conn = database.ODBCConnection(ScoreConfig.odbcDatabaseName, '', '');
-        ScoreDebugLog(['ScoreDbConnGet got a new connection']);    
-        ScoreSession.setgetODBC(conn);
-    else
-        conn = ScoreSession.setgetODBC();
-        ScoreDebugLog(['ScoreDbConnGet used an existing connection']);    
-    end
+    
+    conn = database(ScoreConfig.databaseName, ...
+        '','', ...
+        'Vendor','Microsoft SQL Server', ...
+        'Server',ScoreConfig.databaseServer, ...
+        'AuthType','Windows', ...
+        'PortNumber',1433);
+                
     timeElapsed = toc(timer);
     ScoreDebugLog(['ScoreDbConnGet took ' num2str(timeElapsed) ' seconds']);    
 end

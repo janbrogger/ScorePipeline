@@ -22,7 +22,7 @@ function varargout = ScorePipeline(varargin)
 
 % Edit the above text to modify the response to help ScorePipeline
 
-% Last Modified by GUIDE v2.5 02-Dec-2016 13:47:10
+% Last Modified by GUIDE v2.5 06-Dec-2016 18:10:38
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -237,3 +237,13 @@ function searchResultsTable_CellSelectionCallback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 handles.datatable_row = eventdata.Indices(1);
 guidata(hObject, handles);
+
+
+% --- Executes when user attempts to close figure1.
+function figure1_CloseRequestFcn(hObject, eventdata, handles)
+% hObject    handle to figure1 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: delete(hObject) closes the figure
+delete(hObject);
