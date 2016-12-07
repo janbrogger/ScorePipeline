@@ -2,6 +2,11 @@ function ScoreAssistJDBC()
     restart = 0;
     jlp = [prefdir() '\javalibrarypath.txt'];
     jdbc_auth_path = [ScoreConfig.scoreBasePath 'matlab\jdbc\sqljdbc_6.0\enu\auth\x64\'];    
+    
+    if not(exist(jdbc_auth_path, 'file'))
+        error('ScoreAssistJDBC could not find the JDBC files - please ensure file ScoreConfig.m field scoreBasePath is correct');
+    end
+    
     jdbc_auth_path2 = strrep(jdbc_auth_path, '\', '\\');
     if not(exist(jlp, 'file'))        
         disp(['File not found: ' jlp]);
@@ -26,6 +31,9 @@ function ScoreAssistJDBC()
        
     jclp = [prefdir() '\javaclasspath.txt'];
     jdbc_path = [ScoreConfig.scoreBasePath 'matlab\jdbc\sqljdbc_6.0\enu\sqljdbc4.jar'];
+    if not(exist(jdbc_path, 'file'))
+        error('ScoreAssistJDBC could not find the JDBC files - please ensure file ScoreConfig.m field scoreBasePath is correct');
+    end
     jdbc_path2 = strrep(jdbc_path, '\', '\\');
     if not(exist(jclp, 'file'))
         disp(['File not found: ' jlp]);
