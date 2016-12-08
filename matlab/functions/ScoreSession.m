@@ -17,6 +17,8 @@ classdef ScoreSession
          end
          out = dbprefs;
       end  
+      
+      
    
       function CloseDB()
         if isempty(ScoreSession.setgetDatabaseConnection())                

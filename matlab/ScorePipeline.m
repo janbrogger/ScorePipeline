@@ -51,12 +51,15 @@ function ScorePipeline_OpeningFcn(hObject, eventdata, handles, varargin)
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to ScorePipeline (see VARARGIN)
 
+
 ScorePrintHeader();
 disp('Reading ScoreConfig.m');
-if not(exist('ScoreConfig'))
+if not(exist('ScoreConfig.m', 'file'))
         error('Configuration file ScoreConfig.m file not found in Matlab path');
 end
 ScoreConfig;
+disp('Adding directories to matlab path if needed');
+ScoreFixMatlabPaths();
 disp('Setting session objects');
 ScoreSession;
 %This next line will output only if ScoreConfig.debug == 1
