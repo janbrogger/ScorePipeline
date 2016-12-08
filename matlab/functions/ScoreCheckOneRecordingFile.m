@@ -1,7 +1,7 @@
 %Updates the file existing status for one SearchResult_Recording
 %and if file does not exist and the workflow state is "not started"
 %then we set the workflow state to -1, "invalid"
-function result = ScoreCheckOneRecordingFile(searchResultRecordingId)
+function [result, fullPath] = ScoreCheckOneRecordingFile(searchResultRecordingId)
     result = -1;
     query = ['SELECT  SearchResult_Recording.RecordingId' ...      
       ' , WorkflowState' ...

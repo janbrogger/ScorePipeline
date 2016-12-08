@@ -86,17 +86,41 @@ initialize_gui(hObject, handles, false);
 % UIWAIT makes ScorePipeline wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
 
-function UpdateInfo(handles)
+function handles = UpdateInfo(handles)
 
 colNames = {'Parameter' 'Value'};
 
 time = ScoreQueryRun(['SELECT StartDateTime FROM [SearchResult_Event] ' ... 
             ' INNER JOIN Event ON Event.EventId = SearchResult_Event.EventId ' ... 
             ' WHERE SearchResultEventId = ' num2str(handles.SearchResultEventId)]);    
+        
+searchResultRecordingId = ScoreQueryRun([
+        'SELECT MIN(SearchResultRecordingId)  ' ...
+        'FROM SearchResult_Event  ' ...
+        'INNER JOIN Event ON SearchResult_Event.Eventid = Event.EventId  ' ...
+        'INNER JOIN Recording ON Event.RecordingId = Recording.RecordingId  ' ...
+        'INNER JOIN SearchResult_Recording ON Recording.RecordingId = SearchResult_Recording.RecordingId  ' ...
+        ' WHERE SearchResult_Event.SearchResultEventId =  ' num2str(handles.SearchResultEventId)]);  
+
+handles.SearchResultRecordingId = searchResultRecordingId{1};
+
+[handles.FileExists, handles.FilePath] = ScoreCheckOneRecordingFile(searchResultRecordingId{1});
+handles.FilePath = handles.FilePath{1}
+if handles.FileExists == -1
+    fileExistsText = 'EEG FILE NOT FOUND';
+elseif handles.FileExists == 1
+    fileExistsText = 'EEG file was found';
+else
+    fileExistsText = 'Unknown file status';
+end
 data = {'SearchResultEventId' handles.SearchResultEventId;
         'Time' time{1};
+        'File path' handles.FilePath;
+        'File status' fileExistsText;
        };
+
 set(handles.oneEventProperties,'data',data,'ColumnName',colNames);
+
 
 % --- Outputs from this function are returned to the command line.
 function varargout = ScorePipeline_OutputFcn(hObject, eventdata, handles)
@@ -226,23 +250,21 @@ function nextButton_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-searchResultEventId = ScoreQueryRun(['SELECT MIN(SearchResultEventId) FROM SearchResult_Event ' ...
+nextSearchResultEventId = ScoreQueryRun(['SELECT MIN(SearchResultEventId) FROM SearchResult_Event ' ...
     'WHERE SearchResult_Event.SearchResultId = ' num2str(handles.SearchResultId) ...
     'AND SearchResult_Event.SearchResultEventId > ' num2str(handles.SearchResultEventId) ...
     ]);
-if not(isnan(searchResultEventId{1}))
-    handles.SearchResultEventId = searchResultEventId{1};
+if not(isnan(nextSearchResultEventId{1}))
+    handles.SearchResultEventId = nextSearchResultEventId{1};
 end
-guidata(hObject, handles);
-UpdateInfo(handles);
-newFilePath = ScoreQueryRun(['SELECT CONVERT(varchar(255), Recording.FilePath)+ ' ...
-    ' CONVERT(varchar(255), Recording.FileName) AS FileName ' ...
-    ' FROM SearchResult_Event ' ...
-    ' INNER JOIN Event ON SearchResult_Event.Eventid = Event.EventId ' ...
-    ' INNER JOIN Recording ON Event.RecordingId = Recording.RecordingId ' ...
-    ' WHERE SearchResult_Event.SearchResultEventId = ' num2str(handles.SearchResultEventId) ]);
 
-evalin('base', ['ScoreOpenEegFileInEeglab(''' newFilePath{1} ''', ' num2str(handles.SearchResultEventId) ');']);  
+guidata(hObject, handles);
+handles = UpdateInfo(handles);
+guidata(hObject, handles);
+if handles.FileExists == 1
+    evalin('base', ['ScoreOpenEegFileInEeglab(''' handles.FilePath ''', ' num2str(handles.SearchResultEventId) ');']);      
+end
+
 
 % --- Executes on button press in backButton.
 function backButton_Callback(hObject, eventdata, handles)
@@ -274,3 +296,7 @@ function oneEventProperties_CellSelectionCallback(hObject, eventdata, handles)
 % eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)
 %	Indices: row and column indices of the cell(s) currently selecteds
 % handles    structure with handles and user data (see GUIDATA)
+
+
+function OpenEegFile(handles)
+    evalin('base', ['ScoreOpenEegFileInEeglab(''' handles.FilePath ''', ' num2str(handles.SearchResultEventId) ');']);  
