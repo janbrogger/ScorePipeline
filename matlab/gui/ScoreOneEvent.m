@@ -75,6 +75,9 @@ if not(handles.SearchResultId == -1) && handles.SearchResultEventId == -1
 end
 
 UpdateInfo(handles);
+if handles.FileExists == 1
+    evalin('base', ['ScoreOpenEegFileInEeglab(''' handles.FilePath ''', ' num2str(handles.SearchResultEventId) ');']);      
+end
 % Choose default command line output for ScorePipeline
 handles.output = hObject;
 
@@ -120,9 +123,7 @@ data = {'SearchResultEventId' handles.SearchResultEventId;
        };
 
 set(handles.oneEventProperties,'data',data,'ColumnName',colNames);
-if handles.FileExists == 1
-    evalin('base', ['ScoreOpenEegFileInEeglab(''' handles.FilePath ''', ' num2str(handles.SearchResultEventId) ');']);      
-end
+
 
 
 % --- Outputs from this function are returned to the command line.
@@ -262,9 +263,10 @@ if not(isnan(nextSearchResultEventId{1}))
 end
 
 guidata(hObject, handles);
+oldSearchResultRecordingId = handles.SearchResultRecordingId;
 handles = UpdateInfo(handles);
 guidata(hObject, handles);
-if handles.FileExists == 1
+if oldSearchResultRecordingId ~= handles.SearchResultRecordingId && handles.FileExists == 1
     evalin('base', ['ScoreOpenEegFileInEeglab(''' handles.FilePath ''', ' num2str(handles.SearchResultEventId) ');']);      
 end
 
@@ -283,10 +285,11 @@ if not(isnan(nextSearchResultEventId{1}))
     handles.SearchResultEventId = nextSearchResultEventId{1};
 end
 
+oldSearchResultRecordingId = handles.SearchResultRecordingId;
 guidata(hObject, handles);
 handles = UpdateInfo(handles);
 guidata(hObject, handles);
-if handles.FileExists == 1
+if oldSearchResultRecordingId ~= handles.SearchResultRecordingId && handles.FileExists == 1
     evalin('base', ['ScoreOpenEegFileInEeglab(''' handles.FilePath ''', ' num2str(handles.SearchResultEventId) ');']);      
 end
 
