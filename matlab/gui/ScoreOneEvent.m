@@ -74,9 +74,10 @@ if not(handles.SearchResultId == -1) && handles.SearchResultEventId == -1
     handles.SearchResultEventId = searchResultEventId{1};
 end
 
-UpdateInfo(handles);
+handles = UpdateInfo(handles);
 if handles.FileExists == 1
-    evalin('base', ['ScoreOpenEegFileInEeglab(''' handles.FilePath ''', ' num2str(handles.SearchResultEventId) ');']);      
+    %evalin('base', ['ScoreOpenEegFileInEeglab(''' handles.FilePath ''', ' num2str(handles.SearchResultEventId) ');']);      
+    ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultEventId)); 
 end
 % Choose default command line output for ScorePipeline
 handles.output = hObject;
@@ -266,8 +267,10 @@ guidata(hObject, handles);
 oldSearchResultRecordingId = handles.SearchResultRecordingId;
 handles = UpdateInfo(handles);
 guidata(hObject, handles);
-if oldSearchResultRecordingId ~= handles.SearchResultRecordingId && handles.FileExists == 1
-    evalin('base', ['ScoreOpenEegFileInEeglab(''' handles.FilePath ''', ' num2str(handles.SearchResultEventId) ');']);      
+existingPlot = findobj(0, 'tag', 'EEGPLOT');
+if isempty(existingPlot) || (oldSearchResultRecordingId ~= handles.SearchResultRecordingId && handles.FileExists == 1)
+    %evalin('base', ['ScoreOpenEegFileInEeglab(''' handles.FilePath ''', ' num2str(handles.SearchResultEventId) ');']);      
+    ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultEventId)); 
 end
 
 
@@ -289,8 +292,10 @@ oldSearchResultRecordingId = handles.SearchResultRecordingId;
 guidata(hObject, handles);
 handles = UpdateInfo(handles);
 guidata(hObject, handles);
-if oldSearchResultRecordingId ~= handles.SearchResultRecordingId && handles.FileExists == 1
-    evalin('base', ['ScoreOpenEegFileInEeglab(''' handles.FilePath ''', ' num2str(handles.SearchResultEventId) ');']);      
+existingPlot = findobj(0, 'tag', 'EEGPLOT');
+if isempty(existingPlot) || (oldSearchResultRecordingId ~= handles.SearchResultRecordingId && handles.FileExists == 1)
+    %evalin('base', ['ScoreOpenEegFileInEeglab(''' handles.FilePath ''', ' num2str(handles.SearchResultEventId) ');']);      
+    ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultEventId)); 
 end
 
 
