@@ -3,8 +3,8 @@ function [conn] = ScoreDbConnGet
     
     scoreSession = ScoreSession();
     
-    if scoreSession.setgetDbPrefs() == 0        
-        setdbprefs('DataReturnFormat','cellarray');
+    if scoreSession.setgetDbPrefs() == 0                
+        setdbprefs('DataReturnFormat', 'table');
         ScoreDebugLog(['ScoreDbConnGet called  setdbprefs']);    
         scoreSession.setdbprefs = 1;
     end

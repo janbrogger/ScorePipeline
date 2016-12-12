@@ -24,4 +24,5 @@ function count = ScoreGetWorkstateCount(searchResultId, workflowState, objectTyp
         otherwise
             error('Unknown type of object to count');
     end    
+    count = count.x;
 end

@@ -24,4 +24,5 @@ function count = ScoreGetFilestateCount(searchResultId, fileState, objectType)
         otherwise
             error('Unknown type of object to count');
     end    
+    count = count.x;
 end

@@ -71,7 +71,7 @@ end
 
 if not(handles.SearchResultId == -1) && handles.SearchResultEventId == -1    
     searchResultEventId = ScoreQueryRun(['SELECT MIN(SearchResultEventId) FROM SearchResult_Event WHERE SearchResult_Event.SearchResultId = ' num2str(handles.SearchResultId)]);
-    handles.SearchResultEventId = searchResultEventId{1};
+    handles.SearchResultEventId = searchResultEventId.x;
 end
 
 handles = UpdateInfo(handles);
@@ -106,10 +106,9 @@ searchResultRecordingId = ScoreQueryRun([
         'INNER JOIN SearchResult_Recording ON Recording.RecordingId = SearchResult_Recording.RecordingId  ' ...
         ' WHERE SearchResult_Event.SearchResultEventId =  ' num2str(handles.SearchResultEventId)]);  
 
-handles.SearchResultRecordingId = searchResultRecordingId{1};
+handles.SearchResultRecordingId = searchResultRecordingId.x;
 
-[handles.FileExists, handles.FilePath] = ScoreCheckOneRecordingFile(searchResultRecordingId{1});
-handles.FilePath = handles.FilePath{1};
+[handles.FileExists, handles.FilePath] = ScoreCheckOneRecordingFile(searchResultRecordingId.x);
 if handles.FileExists == -1
     fileExistsText = 'EEG FILE NOT FOUND';
 elseif handles.FileExists == 1
@@ -118,7 +117,7 @@ else
     fileExistsText = 'Unknown file status';
 end
 data = {'SearchResultEventId' handles.SearchResultEventId;
-        'Time' time{1};
+        'Time' time.StartDateTime{1};
         'File path' handles.FilePath;
         'File status' fileExistsText;
        };
@@ -259,8 +258,8 @@ nextSearchResultEventId = ScoreQueryRun(['SELECT MIN(SearchResultEventId) FROM S
     'WHERE SearchResult_Event.SearchResultId = ' num2str(handles.SearchResultId) ...
     'AND SearchResult_Event.SearchResultEventId > ' num2str(handles.SearchResultEventId) ...
     ]);
-if not(isnan(nextSearchResultEventId{1}))
-    handles.SearchResultEventId = nextSearchResultEventId{1};
+if not(isnan(nextSearchResultEventId.x))
+    handles.SearchResultEventId = nextSearchResultEventId.x;
 end
 
 guidata(hObject, handles);
@@ -284,8 +283,8 @@ nextSearchResultEventId = ScoreQueryRun(['SELECT MAX(SearchResultEventId) FROM S
     'WHERE SearchResult_Event.SearchResultId = ' num2str(handles.SearchResultId) ...
     'AND SearchResult_Event.SearchResultEventId < ' num2str(handles.SearchResultEventId) ...
     ]);
-if not(isnan(nextSearchResultEventId{1}))
-    handles.SearchResultEventId = nextSearchResultEventId{1};
+if not(isnan(nextSearchResultEventId.x))
+    handles.SearchResultEventId = nextSearchResultEventId.x;
 end
 
 oldSearchResultRecordingId = handles.SearchResultRecordingId;

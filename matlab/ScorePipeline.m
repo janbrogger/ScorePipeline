@@ -73,7 +73,7 @@ searchResultsQuery = ['SELECT [SearchResult].SearchResultId, [SearchResult].Comm
 
 colNames = {'Id', 'Name' '# of studies'};
 data = ScoreQueryRun(searchResultsQuery);
-set(handles.searchResultsTable,'data',data,'ColumnName',colNames);
+set(handles.searchResultsTable,'data',table2cell(data),'ColumnName',colNames);
 
 % Choose default command line output for ScorePipeline
 handles.output = hObject;

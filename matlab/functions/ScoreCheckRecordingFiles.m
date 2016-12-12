@@ -5,7 +5,7 @@ function recordings = ScoreCheckRecordingFiles(searchResultId)
   recordings = ScoreQueryRun(query);  
   count = size(recordings, 1);
   for i=1:count
-      recording = recordings(i);      
-      ScoreCheckOneRecordingFile(recording{1});
+      recording = recordings.SearchResultRecordingId(i);
+      ScoreCheckOneRecordingFile(recording);
   end  
 end
