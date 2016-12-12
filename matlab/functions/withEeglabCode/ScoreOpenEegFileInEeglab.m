@@ -29,5 +29,7 @@ function ScoreOpenEegFileInEeglab(newFilePath, searchResultEventId)
         EEG.filename = ['searchResultEventId = ' num2str(searchResultEventId)];
         assignin('base','EEG',EEG);
         evalin('base', 'eeglab redraw');
+        
+        ScoreGotoEvent(searchResultEventId);                        
     end
 end
