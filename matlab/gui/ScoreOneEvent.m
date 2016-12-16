@@ -267,9 +267,10 @@ oldSearchResultRecordingId = handles.SearchResultRecordingId;
 handles = UpdateInfo(handles);
 guidata(hObject, handles);
 existingPlot = findobj(0, 'tag', 'EEGPLOT');
-if isempty(existingPlot) || (oldSearchResultRecordingId ~= handles.SearchResultRecordingId && handles.FileExists == 1)
-    %evalin('base', ['ScoreOpenEegFileInEeglab(''' handles.FilePath ''', ' num2str(handles.SearchResultEventId) ');']);      
+if isempty(existingPlot) || (oldSearchResultRecordingId ~= handles.SearchResultRecordingId && handles.FileExists == 1)    
     ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultEventId)); 
+else
+    ScoreGotoEvent(handles.SearchResultEventId);
 end
 
 
@@ -292,9 +293,10 @@ guidata(hObject, handles);
 handles = UpdateInfo(handles);
 guidata(hObject, handles);
 existingPlot = findobj(0, 'tag', 'EEGPLOT');
-if isempty(existingPlot) || (oldSearchResultRecordingId ~= handles.SearchResultRecordingId && handles.FileExists == 1)
-    %evalin('base', ['ScoreOpenEegFileInEeglab(''' handles.FilePath ''', ' num2str(handles.SearchResultEventId) ');']);      
+if isempty(existingPlot) || (oldSearchResultRecordingId ~= handles.SearchResultRecordingId && handles.FileExists == 1)    
     ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultEventId)); 
+else
+    ScoreGotoEvent(handles.SearchResultEventId);
 end
 
 

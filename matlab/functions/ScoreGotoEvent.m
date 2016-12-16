@@ -63,6 +63,13 @@ function ScoreGotoEvent(searchResultEventId)
         %skip this segment, and its gap
         timeSpanMinusGaps = timeSpanMinusGaps - boundaryGap;
     end
+    
+    
+    EPosition = findobj('tag','EPosition','parent',existingPlot); % ui handle
+    set(EPosition, 'string', num2str(timeSpanMinusGaps));
+               
+    %evalin('base','eegplot(''drawp'', 0);');    
+    %eegplot('drawp', 0);
     ScoreDebugLog(['Timespan between recording start and event to go to, when accounting for gaps: ' num2str(timeSpanMinusGaps)]);
     
           
