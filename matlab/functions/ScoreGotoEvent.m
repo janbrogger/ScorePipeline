@@ -41,7 +41,7 @@ function ScoreGotoEvent(searchResultEventId)
     ScoreDebugLog(['Event time to go to: ' datestr(eventTime)]);
     
     %ONLY FOR DEVELOPING - we fake the event time
-    eventTime = recStart + seconds(randi(1200));
+    %eventTime = recStart + seconds(randi(1200));
     
     %The rest should be OK in production
     timeSpan = eventTime-recStart;
@@ -50,8 +50,7 @@ function ScoreGotoEvent(searchResultEventId)
     %but in elapsed EEG time, we need to subtract any gaps in the EEG
     
     EEG = evalin('base','EEG');
-    boundaryEvents = EEG.event(strcmp('boundary', {EEG.event.type}));
-    segmentCount = size(boundaryEvents,2)+1;    
+    boundaryEvents = EEG.event(strcmp('boundary', {EEG.event.type}));    
     timeSpanMinusGaps = seconds(timeSpan);
     for currentSegment = 1:size(boundaryEvents,2)
         ScoreDebugLog(['Current segment: ' num2str(currentSegment)]);
@@ -69,7 +68,7 @@ function ScoreGotoEvent(searchResultEventId)
     set(EPosition, 'string', num2str(timeSpanMinusGaps));
                
     %evalin('base','eegplot(''drawp'', 0);');    
-    %eegplot('drawp', 0);
+    eegplot('drawp', 0, '', existingPlot);
     ScoreDebugLog(['Timespan between recording start and event to go to, when accounting for gaps: ' num2str(timeSpanMinusGaps)]);
     
           
