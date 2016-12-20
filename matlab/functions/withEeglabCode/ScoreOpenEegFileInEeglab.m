@@ -21,15 +21,24 @@ function ScoreOpenEegFileInEeglab(newFilePath, searchResultEventId)
         EEG.setname='test';    
         EEG = pop_select( EEG,'nochannel',{'Photic' 'Rate' 'IBI' 'Bursts' 'Suppr'});    
         ekgindex = find(strcmp({EEG.chanlocs(:).labels}, 'EKG'));
-        EEG = pop_reref( EEG, [],'exclude',ekgindex);
+        EEG = pop_reref( EEG, [],'exclude',ekgindex);  
+        
+        %Downscale EEG
+        EEG.data(ekgindex,:) = EEG.data(ekgindex,:)/5;
+        % high-pass filter at 0.5 Hz
+        %EEG = pop_eegfilt( EEG, 0.5, 0, [], [0]);
+        % low-pass filter at 70 Hz
+        %EEG = pop_eegfilt( EEG, 0, 70, [], [0]);
+        
         EEG = pop_eegfilt( EEG, 0.5, 70, [], [0], 0, 0, 'fir1', 0);
-        EEG = eeg_checkset( EEG );        
+              
         pop_eegplot( EEG, 1, 1, 1);
         clear ekgindex
         EEG.filename = ['searchResultEventId = ' num2str(searchResultEventId)];
         assignin('base','EEG',EEG);
+        eeg_checkset( EEG );  
         evalin('base', 'eeglab redraw');
-        
+                
         ScoreGotoEvent(searchResultEventId);                        
     end
 end

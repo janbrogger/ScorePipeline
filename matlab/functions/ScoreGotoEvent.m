@@ -69,7 +69,13 @@ function ScoreGotoEvent(searchResultEventId)
                
     %evalin('base','eegplot(''drawp'', 0);');    
     eegplot('drawp', 0, '', existingPlot);
-    ScoreDebugLog(['Timespan between recording start and event to go to, when accounting for gaps: ' num2str(timeSpanMinusGaps)]);
+    ScoreDebugLog(['Timespan between recording start and event to go to, when accounting for gaps: ' num2str(timeSpanMinusGaps) ' seconds']);
+    ScoreDebugLog(['Timespan between recording start and event to go to, when accounting for gaps: ' num2str(timeSpanMinusGaps*EEG.srate) ' samples'] );
     
-          
+    %latencies = [EEG.event(:).latency] / EEG.srate
+    %fprintf('%5.1f \r\n', latencies)
+    %[EEG.event(:).seconds] = [EEG.event(:).latency]' / EEG.srate;
+    %[EEG.event(:).latency2] = deal(1) 
+    %[EEG.event(:).latency2] = [[EEG.event(:).latency ] / EEG.srate]
+    %struct2table(EEG.event)
 end
