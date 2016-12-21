@@ -19,8 +19,8 @@ function [result, fullPath] = ScoreCheckOneRecordingFile(searchResultRecordingId
       result = -1;
   else  
       try 
-          fullPath = strcat(recording.FilePath2{1},  recording.FileName2{1});
-          fullPath = strrep(fullPath, '\\', '\');
+          fullPath = strcat(recording.FilePath2{1}, '\',  recording.FileName2{1});
+          %fullPath = strrep(fullPath, '\\', '\');
           if not(exist(fullPath, 'file') == 2)
               ScoreSetRecordingFileStatus(searchResultRecordingId, -1);
               ScoreSetWorkStatus(searchResultRecordingId, -1, 2);
