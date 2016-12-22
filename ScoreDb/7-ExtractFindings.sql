@@ -1,6 +1,19 @@
 USE [HolbergAnon]
 GO
 
+DELETE FROM SearchResult_Event
+DELETE FROM SearchResult_EventCoding
+DELETE FROM SearchResult_Recording
+DELETE FROM SearchResult_Description
+DELETE FROM SearchResult_Study
+DELETE FROM SearchResult
+
+DROP TABLE #TempStudy
+DROP TABLE #TempDescription
+DROP TABLE #TempRecording
+DROP TABLE #TempEventCoding
+DROP TABLE #TempEvent
+
 DBCC CHECKIDENT ('SearchResult', RESEED, 0)
 GO
 
@@ -14,26 +27,32 @@ SELECT @NewSearchResultId  = MAX(SearchResultId) FROM SearchResult
 
 
 DBCC CHECKIDENT ('SearchResult_Study', RESEED, 1)
+DBCC CHECKIDENT ('SearchResult_EventCoding', RESEED, 1)
+DBCC CHECKIDENT ('SearchResult_Event', RESEED, 1)
+DBCC CHECKIDENT ('SearchResult_Description', RESEED, 1)
+DBCC CHECKIDENT ('SearchResult_Recording', RESEED, 1)
 
 
---DROP TABLE #TempEventCoding
 --Start with EventCode 
 SELECT     EventCoding.EventCodingId, EventCoding.DescriptionId
 INTO #TempEventCoding
 		FROM EventCoding											
 		INNER JOIN EventCode ON EventCoding.EventCodeId = EventCode.EventCodeId 
 		INNER JOIN Event ON EventCoding.EventCodingId = Event.EventCodingId
-		WHERE (EventCode.Name = 'Epileptiform interictal activity' 
-		OR    EventCode.Name LIKE 'Epileptiform interictal activity%' 
-		OR    EventCode.Name = 'Physiologic pattern - Positive occipital sharp transient of sleep (POSTS)' 
-		OR    EventCode.Name = 'Physiologic pattern - Sharp transient' 
-		OR    EventCode.Name = 'Pattern of uncertain significance - BETS (Benign epileptiform transients of sleep / small sharp spikes)' 
-		OR    EventCode.Name = 'Pattern of uncertain significance - Slow-fused transient' 
-		OR    EventCode.Name = 'Pattern of uncertain significance - Sharp transient' 
-		OR    EventCode.Name = 'Pattern of uncertain significance - Small sharp spikes (Benign epileptiform transients of sleep)')
+		INNER JOIN Description ON EventCoding.DescriptionId = Description.DescriptionId
+		WHERE Description.IsDescriptionSigned = 1 AND Description.IsActive = 1 AND EventCoding.IsDeleted = 0 AND
+		(
+		 EventCode.Name = 'Epileptiform interictal activity' 
+		 OR    EventCode.Name LIKE 'Epileptiform interictal activity%' 
+		 OR    EventCode.Name = 'Physiologic pattern - Positive occipital sharp transient of sleep (POSTS)' 
+		 OR    EventCode.Name = 'Physiologic pattern - Sharp transient' 
+		 OR    EventCode.Name = 'Pattern of uncertain significance - BETS (Benign epileptiform transients of sleep / small sharp spikes)' 
+		 OR    EventCode.Name = 'Pattern of uncertain significance - Slow-fused transient' 
+		 OR    EventCode.Name = 'Pattern of uncertain significance - Sharp transient' 
+		 OR    EventCode.Name = 'Pattern of uncertain significance - Small sharp spikes (Benign epileptiform transients of sleep)'
+		)
+		
 
-
---DROP TABLE #TempEvent
 SELECT     Event.EventId, Event.RecordingId
 INTO #TempEvent
 FROM #TempEventCoding 
@@ -53,6 +72,7 @@ FROM #TempEventCoding
 INNER JOIN Description ON #TempEventCoding.DescriptionId = Description.DescriptionId
 WHERE Description.IsActive = 1 AND Description.IsDescriptionSigned = 1 AND Description.IsDeleted = 0
 ORDER BY Description.DescriptionId
+
 
 SELECT     DISTINCT(Study.StudyId)
 INTO #TempStudy
