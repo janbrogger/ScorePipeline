@@ -78,12 +78,13 @@ handles.timeSpanMinusGaps = -1;
 handles = UpdateInfo(handles);
 if handles.FileExists == 1
     SetFileOpenWaitStatus(handles);
-    openSuccess = ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultEventId)); 
-    handles.timeSpanMinusGaps = ScoreGotoEvent(handles.SearchResultEventId); 
-    EnableButtonsAfterWait(handles);
-    if not(openSuccess)
+    openSuccess = ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultEventId));         
+    if openSuccess
+        handles.timeSpanMinusGaps = ScoreGotoEvent(handles.SearchResultEventId); 
+    else 
         warning('EEG file open failure');
     end    
+    EnableButtonsAfterWait(handles);
     handles = UpdateInfo(handles);
 end
 % Choose default command line output for ScorePipeline
@@ -292,11 +293,12 @@ existingPlot = findobj(0, 'tag', 'EEGPLOT');
 if isempty(existingPlot) || (oldSearchResultRecordingId ~= handles.SearchResultRecordingId && handles.FileExists == 1)    
     SetFileOpenWaitStatus(handles);
     openSuccess = ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultEventId)); 
-    handles.timeSpanMinusGaps = ScoreGotoEvent(handles.SearchResultEventId); 
-    EnableButtonsAfterWait(handles);
-    if not(openSuccess)
+    if openSuccess
+        handles.timeSpanMinusGaps = ScoreGotoEvent(handles.SearchResultEventId); 
+    else 
         warning('EEG file open failure');
-    end
+    end    
+    EnableButtonsAfterWait(handles);
 else
     ScoreGotoEvent(handles.SearchResultEventId);
 end
@@ -326,12 +328,13 @@ guidata(hObject, handles);
 existingPlot = findobj(0, 'tag', 'EEGPLOT');
 if isempty(existingPlot) || (oldSearchResultRecordingId ~= handles.SearchResultRecordingId && handles.FileExists == 1)    
     SetFileOpenWaitStatus(handles);
-    openSuccess = ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultEventId)); 
-    handles.timeSpanMinusGaps = ScoreGotoEvent(handles.SearchResultEventId); 
-    EnableButtonsAfterWait(handles);
-    if not(openSuccess)
+    openSuccess = ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultEventId));     
+    if openSuccess
+        handles.timeSpanMinusGaps = ScoreGotoEvent(handles.SearchResultEventId); 
+    else 
         warning('EEG file open failure');
-    end
+    end    
+    EnableButtonsAfterWait(handles);
 else
     ScoreGotoEvent(handles.SearchResultEventId);
 end
