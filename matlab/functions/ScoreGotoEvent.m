@@ -1,4 +1,4 @@
-function ScoreGotoEvent(searchResultEventId)
+function timeSpanMinusGaps = ScoreGotoEvent(searchResultEventId)
     disp(['Navigating to event']);    
     
     if exist('EEG', 'var')

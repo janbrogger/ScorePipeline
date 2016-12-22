@@ -74,10 +74,12 @@ if not(handles.SearchResultId == -1) && handles.SearchResultEventId == -1
     handles.SearchResultEventId = searchResultEventId.x;
 end
 
+handles.timeSpanMinusGaps = -1;
 handles = UpdateInfo(handles);
 if handles.FileExists == 1
     SetFileOpenWaitStatus(handles);
     openSuccess = ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultEventId)); 
+    handles.timeSpanMinusGaps = ScoreGotoEvent(handles.SearchResultEventId); 
     EnableButtonsAfterWait(handles);
     if not(openSuccess)
         warning('EEG file open failure');
@@ -136,9 +138,10 @@ end
 
 data = {'SearchResultEventId' handles.SearchResultEventId;
         'Time' time.StartDateTime{1};
+        'Time in seconds minus gaps' num2str(handles.timeSpanMinusGaps, '%6.1f');
         'File path' handles.FilePath;
         'File status' fileExistsText;
-        'EEGLAB status' eeglabStatus;
+        'EEGLAB status' eeglabStatus;        
        };
 
 set(handles.oneEventProperties,'data',data,'ColumnName',colNames);
@@ -289,6 +292,7 @@ existingPlot = findobj(0, 'tag', 'EEGPLOT');
 if isempty(existingPlot) || (oldSearchResultRecordingId ~= handles.SearchResultRecordingId && handles.FileExists == 1)    
     SetFileOpenWaitStatus(handles);
     openSuccess = ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultEventId)); 
+    handles.timeSpanMinusGaps = ScoreGotoEvent(handles.SearchResultEventId); 
     EnableButtonsAfterWait(handles);
     if not(openSuccess)
         warning('EEG file open failure');
@@ -323,6 +327,7 @@ existingPlot = findobj(0, 'tag', 'EEGPLOT');
 if isempty(existingPlot) || (oldSearchResultRecordingId ~= handles.SearchResultRecordingId && handles.FileExists == 1)    
     SetFileOpenWaitStatus(handles);
     openSuccess = ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultEventId)); 
+    handles.timeSpanMinusGaps = ScoreGotoEvent(handles.SearchResultEventId); 
     EnableButtonsAfterWait(handles);
     if not(openSuccess)
         warning('EEG file open failure');

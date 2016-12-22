@@ -52,7 +52,7 @@ function openSuccess = ScoreOpenEegFileInEeglab(newFilePath, searchResultEventId
             eeg_checkset( EEG );  
             evalin('base', 'eeglab redraw');
 
-            ScoreGotoEvent(searchResultEventId); 
+            
             openSuccess = 1;
         catch
             ScoreClearEeglabStudy()
