@@ -21,28 +21,12 @@ function openSuccess = ScoreOpenEegFileInEeglab(newFilePath, searchResultEventId
             ekgindex = find(strcmp({EEG.chanlocs(:).labels}, 'EKG'));
             EEG = pop_reref( EEG, [],'exclude',ekgindex);  
 
-            eventsToChangeDuration = find(strcmp({EEG.event(:).value},'Review progress'));
-            EEG.event(eventsToChangeDuration).duration = 0;
-
-            for i=1:size(EEG.event,2)
-                for j=1:size(ScoreConfig.eventGuids)  
-                    if length(EEG.event(i).type) >= 36
-                        if strcmp(EEG.event(i).type(1:36), ScoreConfig.eventGuids(j,1))
-                            EEG.event(i).value = ScoreConfig.eventGuids{j,2};
-                            EEG.event(i).type = ScoreConfig.eventGuids{j,2};
-                        end                
-                    end
-                end
-            end
-
+            EEG = SetSomeLongEventsToZero(EEG);
+            EEG = InsertSomeEventNames(EEG);
+            
             %Downscale EEG
             EEG.data(ekgindex,:) = EEG.data(ekgindex,:)/5;
-            % high-pass filter at 0.5 Hz
-            %EEG = pop_eegfilt( EEG, 0.5, 0, [], [0]);
-            % low-pass filter at 70 Hz
-            %EEG = pop_eegfilt( EEG, 0, 70, [], [0]);        
-            %EEG = pop_eegfilt( EEG, 0.5, 70, [], [0], 0, 0, 'fir1', 0);
-
+            
 
 
             pop_eegplot( EEG, 1, 1, 1);
@@ -66,4 +50,24 @@ function ScoreClearEeglabStudy()
         assignin('base','ALLEEG', []); 
         assignin('base','EEG', []); 
         assignin('base','CURRENTSET', []);  
+end
+
+function EEG = SetSomeLongEventsToZero(EEG)
+        eventsToChangeDuration = find(strcmp({EEG.event(:).value},'Review progress'));
+        for i = eventsToChangeDuration
+            EEG.event(i).duration = 0;
+        end
+end
+
+function EEG = InsertSomeEventNames(EEG)
+    for i=1:size(EEG.event,2)
+        for j=1:size(ScoreConfig.eventGuids)  
+            if length(EEG.event(i).type) >= 36
+                if strcmp(EEG.event(i).type(1:36), ScoreConfig.eventGuids(j,1))
+                    EEG.event(i).value = ScoreConfig.eventGuids{j,2};
+                    EEG.event(i).type = ScoreConfig.eventGuids{j,2};
+                end                
+            end
+        end
+    end
 end
