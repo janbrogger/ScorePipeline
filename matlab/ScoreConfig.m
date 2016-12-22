@@ -27,7 +27,8 @@ classdef ScoreConfig
             '65BB4425-FF4C-43D3-9FBF-2C022B76C100' 'Hoster';
             '71EECE80-EBC4-41c7-BF26-E56911426FB4' 'Recording Paused';
             '799B142D-6AA8-4BF3-9E6D-9BBE3B859419' 'Anmrk Kort'
-            '1E8ABB48-B049-4147-83CC-8FE04E813530' 'Bevegelse'            
+            '1E8ABB48-B049-4147-83CC-8FE04E813530' 'Bevegelse'  
+            'DB81B5F8-8F6F-4922-BD3E-CA976FE08C10' 'Våken'
         }
     end
 end

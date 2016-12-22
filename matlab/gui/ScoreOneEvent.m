@@ -76,8 +76,13 @@ end
 
 handles = UpdateInfo(handles);
 if handles.FileExists == 1
-    %evalin('base', ['ScoreOpenEegFileInEeglab(''' handles.FilePath ''', ' num2str(handles.SearchResultEventId) ');']);      
-    ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultEventId)); 
+    SetFileOpenWaitStatus(handles);
+    openSuccess = ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultEventId)); 
+    EnableButtonsAfterWait(handles);
+    if not(openSuccess)
+        warning('EEG file open failure');
+    end    
+    handles = UpdateInfo(handles);
 end
 % Choose default command line output for ScorePipeline
 handles.output = hObject;
@@ -116,10 +121,24 @@ elseif handles.FileExists == 1
 else
     fileExistsText = 'Unknown file status';
 end
+
+eeglabStatus = 'Undefined';
+if not(exist('pop_fileio', 'file'))
+    eeglabStatus = 'EEGLAB not loaded';
+else    
+    existingPlot = findobj(0, 'tag', 'EEGPLOT');
+    if isempty(existingPlot)
+        eeglabStatus = 'EEG plot NOT FOUND';
+    else
+        eeglabStatus = 'EEG plot found';
+    end
+end
+
 data = {'SearchResultEventId' handles.SearchResultEventId;
         'Time' time.StartDateTime{1};
         'File path' handles.FilePath;
         'File status' fileExistsText;
+        'EEGLAB status' eeglabStatus;
        };
 
 set(handles.oneEventProperties,'data',data,'ColumnName',colNames);
@@ -268,10 +287,18 @@ handles = UpdateInfo(handles);
 guidata(hObject, handles);
 existingPlot = findobj(0, 'tag', 'EEGPLOT');
 if isempty(existingPlot) || (oldSearchResultRecordingId ~= handles.SearchResultRecordingId && handles.FileExists == 1)    
-    ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultEventId)); 
+    SetFileOpenWaitStatus(handles);
+    openSuccess = ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultEventId)); 
+    EnableButtonsAfterWait(handles);
+    if not(openSuccess)
+        warning('EEG file open failure');
+    end
 else
     ScoreGotoEvent(handles.SearchResultEventId);
 end
+handles = UpdateInfo(handles);
+guidata(hObject, handles);
+
 
 
 % --- Executes on button press in backButton.
@@ -294,10 +321,17 @@ handles = UpdateInfo(handles);
 guidata(hObject, handles);
 existingPlot = findobj(0, 'tag', 'EEGPLOT');
 if isempty(existingPlot) || (oldSearchResultRecordingId ~= handles.SearchResultRecordingId && handles.FileExists == 1)    
-    ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultEventId)); 
+    SetFileOpenWaitStatus(handles);
+    openSuccess = ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultEventId)); 
+    EnableButtonsAfterWait(handles);
+    if not(openSuccess)
+        warning('EEG file open failure');
+    end
 else
     ScoreGotoEvent(handles.SearchResultEventId);
 end
+handles = UpdateInfo(handles);
+guidata(hObject, handles);
 
 
 % --- Executes when selected cell(s) is changed in oneEventProperties.
@@ -308,5 +342,16 @@ function oneEventProperties_CellSelectionCallback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
-function OpenEegFile(handles)
-    evalin('base', ['ScoreOpenEegFileInEeglab(''' handles.FilePath ''', ' num2str(handles.SearchResultEventId) ');']);  
+function SetFileOpenWaitStatus(handles)
+colNames = {'Status' };
+data = {'Waiting for file to open' };
+set(handles.oneEventProperties,'data',data,'ColumnName',colNames);
+set(handles.openButton,'Enable','off') 
+set(handles.nextButton,'Enable','off') 
+set(handles.backButton,'Enable','off') 
+drawnow();
+
+function EnableButtonsAfterWait(handles)
+set(handles.nextButton,'Enable','on');
+set(handles.backButton,'Enable','on'); 
+set(handles.openButton,'Enable','on');
