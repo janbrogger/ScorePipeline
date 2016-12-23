@@ -1,29 +1,12 @@
 function varargout = ScoreOneEvent(varargin)
-% SCOREPIPELINE MATLAB code for ScorePipeline.fig
-%      SCOREPIPELINE, by itself, creates a new SCOREPIPELINE or raises the existing
-%      singleton*.
+% ScoreOneEvent MATLAB code for ScoreOneEvent.fig
+%   Displays details for one SCORE event in the SCORE pipeline.
+%   Syntax: ScoreOneEvent(searchResultId, searchResult_EventId, autoOpen)
+%   -searchResultId : an entry in SearchResult table
+%   -searchResult_EventIdId : an entry in SearchResult_Event table
+%   -autoOpen : automatically open the EEG file (default: on).
 %
-%      H = SCOREPIPELINE returns the handle to a new SCOREPIPELINE or the handle to
-%      the existing singleton*.
 %
-%      SCOREPIPELINE('CALLBACK',hObject,eventData,handles,...) calls the local
-%      function named CALLBACK in SCOREPIPELINE.M with the given input arguments.
-%
-%      SCOREPIPELINE('Property','Value',...) creates a new SCOREPIPELINE or raises
-%      the existing singleton*.  Starting from the left, property value pairs are
-%      applied to the GUI before ScoreSearchResultDetail_OpeningFcn gets called.  An
-%      unrecognized property name or invalid value makes property application
-%      stop.  All inputs are passed to ScoreSearchResultDetail_OpeningFcn via varargin.
-%
-%      *See GUI Options on GUIDE's Tools menu.  Choose "GUI allows only one
-%      instance to run (singleton)".
-%
-% See also: GUIDE, GUIDATA, GUIHANDLES
-
-% Edit the above text to modify the response to help ScorePipeline
-
-% Last Modified by GUIDE v2.5 23-Nov-2016 16:13:37
-
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
 gui_State = struct('gui_Name',       mfilename, ...
@@ -65,6 +48,18 @@ else
       handles.SearchResultEventId = varargin{2};
 end
 
+if nargin<5
+      handles.SearchResultEventId = -1;
+else
+      handles.SearchResultEventId = varargin{2};
+end
+
+if nargin<6
+    set(findobj('tag','autoOpenCheckbox'),'value', 1)
+else    
+    set(findobj('tag','autoOpenCheckbox'),'value', varargin{3})
+end    
+
 if (handles.SearchResultId == -1)
     error('Cannot show one event details, no search result ID given');
 else
@@ -81,17 +76,10 @@ end
 
 handles.timeSpanMinusGaps = -1;
 handles = UpdateInfo(handles);
-if handles.FileExists == 1
-    SetFileOpenWaitStatus(handles);
-    openSuccess = ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultEventId));         
-    if openSuccess
-        handles.timeSpanMinusGaps = ScoreGotoEvent(handles.SearchResultEventId); 
-    else 
-        warning('EEG file open failure');
-    end    
-    EnableButtonsAfterWait(handles);
-    handles = UpdateInfo(handles);
-end
+
+oldSearchResultRecordingId = handles.SearchResultRecordingId;
+CheckOpenEEG(hObject, handles, oldSearchResultRecordingId);
+
 % Choose default command line output for ScorePipeline
 handles.output = hObject;
 
@@ -275,7 +263,6 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
 % --- Executes on button press in nextButton.
 function nextButton_Callback(hObject, eventdata, handles)
 % hObject    handle to nextButton (see GCBO)
@@ -286,31 +273,13 @@ nextSearchResultEventId = ScoreQueryRun(['SELECT MIN(SearchResultEventId) FROM S
     ' WHERE SearchResult_Event.SearchResultId = ' num2str(handles.SearchResultId) ...
     ' AND SearchResult_Event.SearchResultEventId > ' num2str(handles.SearchResultEventId) ...
     ]);
+oldSearchResultRecordingId = handles.SearchResultRecordingId;
 if not(isnan(nextSearchResultEventId.x))
     handles.SearchResultEventId = nextSearchResultEventId.x;
+    handles = UpdateInfo(handles);
+    guidata(hObject, handles);
+    CheckOpenEEG(hObject, handles, oldSearchResultRecordingId);
 end
-
-guidata(hObject, handles);
-oldSearchResultRecordingId = handles.SearchResultRecordingId;
-handles = UpdateInfo(handles);
-guidata(hObject, handles);
-existingPlot = findobj(0, 'tag', 'EEGPLOT');
-if isempty(existingPlot) || (oldSearchResultRecordingId ~= handles.SearchResultRecordingId && handles.FileExists == 1)    
-    SetFileOpenWaitStatus(handles);
-    openSuccess = ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultEventId)); 
-    if openSuccess
-        handles.timeSpanMinusGaps = ScoreGotoEvent(handles.SearchResultEventId); 
-    else 
-        warning('EEG file open failure');
-    end    
-    EnableButtonsAfterWait(handles);
-else
-    ScoreGotoEvent(handles.SearchResultEventId);
-end
-handles = UpdateInfo(handles);
-guidata(hObject, handles);
-
-
 
 % --- Executes on button press in backButton.
 function backButton_Callback(hObject, eventdata, handles)
@@ -322,29 +291,13 @@ nextSearchResultEventId = ScoreQueryRun(['SELECT MAX(SearchResultEventId) FROM S
     'WHERE SearchResult_Event.SearchResultId = ' num2str(handles.SearchResultId) ...
     'AND SearchResult_Event.SearchResultEventId < ' num2str(handles.SearchResultEventId) ...
     ]);
+oldSearchResultRecordingId = handles.SearchResultRecordingId;
 if not(isnan(nextSearchResultEventId.x))
     handles.SearchResultEventId = nextSearchResultEventId.x;
+    handles = UpdateInfo(handles);
+    guidata(hObject, handles);    
+    CheckOpenEEG(hObject, handles, oldSearchResultRecordingId);
 end
-
-oldSearchResultRecordingId = handles.SearchResultRecordingId;
-guidata(hObject, handles);
-handles = UpdateInfo(handles);
-guidata(hObject, handles);
-existingPlot = findobj(0, 'tag', 'EEGPLOT');
-if isempty(existingPlot) || (oldSearchResultRecordingId ~= handles.SearchResultRecordingId && handles.FileExists == 1)    
-    SetFileOpenWaitStatus(handles);
-    openSuccess = ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultEventId));     
-    if openSuccess
-        handles.timeSpanMinusGaps = ScoreGotoEvent(handles.SearchResultEventId); 
-    else 
-        warning('EEG file open failure');
-    end    
-    EnableButtonsAfterWait(handles);
-else
-    ScoreGotoEvent(handles.SearchResultEventId);
-end
-handles = UpdateInfo(handles);
-guidata(hObject, handles);
 
 
 % --- Executes when selected cell(s) is changed in oneEventProperties.
@@ -353,6 +306,7 @@ function oneEventProperties_CellSelectionCallback(hObject, eventdata, handles)
 % eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)
 %	Indices: row and column indices of the cell(s) currently selecteds
 % handles    structure with handles and user data (see GUIDATA)
+
 
 
 function SetFileOpenWaitStatus(handles)
@@ -368,3 +322,39 @@ function EnableButtonsAfterWait(handles)
 set(handles.nextButton,'Enable','on');
 set(handles.backButton,'Enable','on'); 
 set(handles.openButton,'Enable','on');
+
+
+function openButton_Callback(hObject, eventdata, handles)
+OpenEEG(hObject, handles);
+
+
+
+function CheckOpenEEG(hObject, handles, oldSearchResultRecordingId)
+
+existingPlot = findobj(0, 'tag', 'EEGPLOT');
+if get(findobj('tag','autoOpenCheckbox'),'value') && (isempty(existingPlot) || (oldSearchResultRecordingId ~= handles.SearchResultRecordingId && handles.FileExists == 1))
+    OpenEEG(hObject, handles);
+end
+if get(findobj('tag','autoOpenCheckbox'),'value') == 0
+    existingPlot = findobj(0, 'tag', 'EEGPLOT');
+    if not(isempty(existingPlot))
+        close(existingPlot.Number)
+    end
+end
+    
+
+function OpenEEG(hObject, handles)
+SetFileOpenWaitStatus(handles);
+openSuccess = ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultEventId)); 
+if openSuccess
+    handles.timeSpanMinusGaps = ScoreGotoEvent(handles.SearchResultEventId); 
+    ScoreGotoEvent(handles.SearchResultEventId);
+else 
+    warning('EEG file open failure');
+end    
+EnableButtonsAfterWait(handles);
+handles = UpdateInfo(handles);
+guidata(hObject, handles);
+    
+
+
