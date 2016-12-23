@@ -67,6 +67,11 @@ end
 
 if (handles.SearchResultId == -1)
     error('Cannot show one event details, no search result ID given');
+else
+    searchResultTestQuery = ScoreQueryRun(['SELECT * FROM SearchResult WHERE SearchResult.SearchResultId = ' num2str(handles.SearchResultId)]);
+    if strcmp(searchResultTestQuery, 'No Data')
+        error(['SearchResult.SearchResultId=' num2str(handles.SearchResultId) ' not found']);
+    end
 end
 
 if not(handles.SearchResultId == -1) && handles.SearchResultEventId == -1    
@@ -278,8 +283,8 @@ function nextButton_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 nextSearchResultEventId = ScoreQueryRun(['SELECT MIN(SearchResultEventId) FROM SearchResult_Event ' ...
-    'WHERE SearchResult_Event.SearchResultId = ' num2str(handles.SearchResultId) ...
-    'AND SearchResult_Event.SearchResultEventId > ' num2str(handles.SearchResultEventId) ...
+    ' WHERE SearchResult_Event.SearchResultId = ' num2str(handles.SearchResultId) ...
+    ' AND SearchResult_Event.SearchResultEventId > ' num2str(handles.SearchResultEventId) ...
     ]);
 if not(isnan(nextSearchResultEventId.x))
     handles.SearchResultEventId = nextSearchResultEventId.x;
