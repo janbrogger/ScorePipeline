@@ -58,22 +58,32 @@ if not(exist('ScoreConfig.m', 'file'))
         error('Configuration file ScoreConfig.m file not found in Matlab path');
 end
 ScoreConfig;
-disp('Adding directories to matlab path if needed');
-ScoreFixMatlabPaths();
-disp('Setting session objects');
-ScoreSession;
-%This next line will output only if ScoreConfig.debug == 1
-ScoreDebugLog('Verbose output for debugging is ON');
-ScoreVerifyRequirements();
+if not(exist(ScoreConfig.scoreBasePath, 'dir'))
+    warning(['Fix your ScoreConfig.m file - the SCORE base path was not found: ' ScoreConfig.scoreBasePath]);    
+    data = {'ERROR' 'Fix your ScoreConfig.m file ' ;
+         'ERROR' ['SCORE base path not found: ' ScoreConfig.scoreBasePath];
+       };
+   set(handles.searchResultsTable,'data',data);
+   
+else    
+    disp('Adding directories to matlab path if needed');
+    ScoreFixMatlabPaths();
+    disp('Setting session objects');
+    ScoreSession;
+    %This next line will output only if ScoreConfig.debug == 1
+    ScoreDebugLog('Verbose output for debugging is ON');
+    ScoreVerifyRequirements();
 
-searchResultsQuery = ['SELECT [SearchResult].SearchResultId, [SearchResult].Comment , COUNT(SearchResult_Study.SearchResultStudyId) AS b_count' ...
-' FROM [SearchResult] ' ...
-' INNER JOIN SearchResult_Study on SearchResult_Study.SearchResultId = SearchResult_Study.SearchResultId' ...
-' GROUP BY [SearchResult].SearchResultId, [SearchResult].Comment'];
+    searchResultsQuery = ['SELECT [SearchResult].SearchResultId, [SearchResult].Comment , COUNT(SearchResult_Study.SearchResultStudyId) AS b_count' ...
+    ' FROM [SearchResult] ' ...
+    ' INNER JOIN SearchResult_Study on SearchResult_Study.SearchResultId = SearchResult_Study.SearchResultId' ...
+    ' GROUP BY [SearchResult].SearchResultId, [SearchResult].Comment'];
 
-colNames = {'Id', 'Name' '# of studies'};
-data = ScoreQueryRun(searchResultsQuery);
-set(handles.searchResultsTable,'data',table2cell(data),'ColumnName',colNames);
+    colNames = {'Id', 'Name' '# of studies'};
+    data = ScoreQueryRun(searchResultsQuery);
+    set(handles.searchResultsTable,'data',table2cell(data),'ColumnName',colNames);
+    
+end
 
 % Choose default command line output for ScorePipeline
 handles.output = hObject;
@@ -85,7 +95,6 @@ initialize_gui(hObject, handles, false);
 
 % UIWAIT makes ScorePipeline wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
-
 
 % --- Outputs from this function are returned to the command line.
 function varargout = ScorePipeline_OutputFcn(hObject, eventdata, handles)
