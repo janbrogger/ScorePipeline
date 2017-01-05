@@ -18,8 +18,26 @@ function openSuccess = ScoreOpenEegFileInEeglab(newFilePath, searchResultEventId
             EEG = pop_fileio(newFilePath);                
             EEG.setname='test';    
             EEG = pop_select( EEG,'nochannel',{'Photic' 'Rate' 'IBI' 'Bursts' 'Suppr'});    
+            
+            %Remove unused channels
+            exclIndex1 = find(strcmp({EEG.chanlocs(:).labels}, '24'));
+            exclIndex2 = find(strcmp({EEG.chanlocs(:).labels}, '25'));
+            exclIndex3 = find(strcmp({EEG.chanlocs(:).labels}, '26'));
+            exclIndex4 = find(strcmp({EEG.chanlocs(:).labels}, '27'));
+            exclIndex5 = find(strcmp({EEG.chanlocs(:).labels}, '28'));
+            exclIndex6 = find(strcmp({EEG.chanlocs(:).labels}, '29'));
+            exclIndex7 = find(strcmp({EEG.chanlocs(:).labels}, '30'));
+            exclIndex8 = find(strcmp({EEG.chanlocs(:).labels}, '31'));
+            EEG = pop_select( EEG,'nochannel',[exclIndex1  exclIndex2  exclIndex3  exclIndex4  exclIndex5  exclIndex6  exclIndex7  exclIndex8 ]);
+            EEG = eeg_checkset( EEG );
+
             ekgindex = find(strcmp({EEG.chanlocs(:).labels}, 'EKG'));
-            EEG = pop_reref( EEG, [],'exclude',ekgindex);  
+            
+            EEG = pop_reref( EEG, [],'exclude',[ekgindex exclIndex1  exclIndex2  exclIndex3  exclIndex4  exclIndex5  exclIndex6  exclIndex7  exclIndex8 ]);  
+            %notch
+            EEG = pop_eegfiltnew(EEG, 48, 52, 3300, 1, [], 0);
+            %passband
+            EEG = pop_eegfiltnew(EEG, 1, 70, 6600, 0, [], 0);
 
             EEG = SetSomeLongEventsToZero(EEG);
             EEG = InsertSomeEventNames(EEG);
