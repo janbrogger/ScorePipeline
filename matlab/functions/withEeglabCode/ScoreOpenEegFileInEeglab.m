@@ -1,5 +1,5 @@
 function openSuccess = ScoreOpenEegFileInEeglab(newFilePath, searchResultEventId)
-    disp(['Opening new EEG file ' newFilePath]);    
+    disp(['Opening new EEG file ' newFilePath ' SearchResultEventId: ' searchResultEventId] );    
     openSuccess = 0;
     %Start up EEGLAB if pop_fileio is not in the path   
     if not(exist('pop_fileio', 'file'))
@@ -17,9 +17,11 @@ function openSuccess = ScoreOpenEegFileInEeglab(newFilePath, searchResultEventId
         try 
             EEG = pop_fileio(newFilePath);                
             EEG.setname='test';    
-            EEG = pop_select( EEG,'nochannel',{'Photic' 'Rate' 'IBI' 'Bursts' 'Suppr'});    
             
-            %Remove unused channels
+            
+            EEG = pop_select( EEG,'nochannel',{'Rate' 'IBI' 'Bursts' 'Suppr'});    
+                                   
+            %Remove unused channels            
             exclIndex1 = find(strcmp({EEG.chanlocs(:).labels}, '24'));
             exclIndex2 = find(strcmp({EEG.chanlocs(:).labels}, '25'));
             exclIndex3 = find(strcmp({EEG.chanlocs(:).labels}, '26'));
@@ -32,8 +34,9 @@ function openSuccess = ScoreOpenEegFileInEeglab(newFilePath, searchResultEventId
             EEG = eeg_checkset( EEG );
 
             ekgindex = find(strcmp({EEG.chanlocs(:).labels}, 'EKG'));
+            photicindex = find(strcmp({EEG.chanlocs(:).labels}, 'Photic'));
             
-            EEG = pop_reref( EEG, [],'exclude',[ekgindex exclIndex1  exclIndex2  exclIndex3  exclIndex4  exclIndex5  exclIndex6  exclIndex7  exclIndex8 ]);  
+            EEG = pop_reref( EEG, [],'exclude',[ekgindex photicindex ]);  
             %notch
             EEG = pop_eegfiltnew(EEG, 48, 52, 3300, 1, [], 0);
             %passband
@@ -42,10 +45,10 @@ function openSuccess = ScoreOpenEegFileInEeglab(newFilePath, searchResultEventId
             EEG = SetSomeLongEventsToZero(EEG);
             EEG = InsertSomeEventNames(EEG);
             
-            %Downscale EEG
+            %Downscale EKG
             EEG.data(ekgindex,:) = EEG.data(ekgindex,:)/5;
             
-
+            
 
             pop_eegplot( EEG, 1, 1, 1);
             clear ekgindex
