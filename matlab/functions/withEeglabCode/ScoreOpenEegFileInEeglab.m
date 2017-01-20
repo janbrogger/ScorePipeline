@@ -47,14 +47,26 @@ function openSuccess = ScoreOpenEegFileInEeglab(newFilePath, searchResultEventId
             
             %Downscale EKG
             EEG.data(ekgindex,:) = EEG.data(ekgindex,:)/5;
+                        
+            %pop_eegplot( EEG, 'winlength', 30,  'selectcommand', {1,1,1});
+            %eegplot( EEG, 'winlength', 30,  'selectcommand', {1,1,1});
             
             
-
-            pop_eegplot( EEG, 1, 1, 1);
+            eegplot( EEG.data, ...
+                'winlength', 10,  ...
+                'selectcommand', {1,1,1}, ...
+                'srate', EEG.srate, ...
+                'title', 'SCORE Pipeline EEG plot', ...
+                'command' , '[EEGTMP LASTCOM] = eeg_eegrej(EEG,eegplot2event(TMPREJ, -1));if ~isempty(LASTCOM),  [ALLEEG EEG CURRENTSET tmpcom] = pop_newset(ALLEEG, EEGTMP, CURRENTSET);  if ~isempty(tmpcom),     EEG = eegh(LASTCOM, EEG);     eegh(tmpcom);     eeglab(''redraw'');  end;end;clear EEGTMP tmpcom;' , ...
+                'events', EEG.event, ...
+                'limits', [EEG.xmin EEG.xmax]*1000 ...
+                );            
+        
             clear ekgindex
             EEG.filename = ['searchResultEventId = ' num2str(searchResultEventId)];
             assignin('base','EEG',EEG);
-            eeg_checkset( EEG );  
+            eeg_checkset( EEG );                          
+            
             evalin('base', 'eeglab redraw');
 
             
