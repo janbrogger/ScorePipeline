@@ -57,6 +57,7 @@ disp('Reading ScoreConfig.m');
 if not(exist('ScoreConfig.m', 'file'))
         error('Configuration file ScoreConfig.m file not found in Matlab path');
 end
+setdbprefs('datareturnformat','table')
 ScoreConfig;
 if not(exist(ScoreConfig.scoreBasePath, 'dir'))
     warning(['Fix your ScoreConfig.m file - the SCORE base path was not found: ' ScoreConfig.scoreBasePath]);    
@@ -81,7 +82,11 @@ else
 
     colNames = {'Id', 'Name' '# of studies'};
     data = ScoreQueryRun(searchResultsQuery);
-    set(handles.searchResultsTable,'data',table2cell(data),'ColumnName',colNames);
+    if strcmp(data,'No Data') == 0
+        set(handles.searchResultsTable,'data',table2cell(data),'ColumnName',colNames);
+    else
+        set(handles.searchResultsTable,'data',[],'ColumnName',colNames);
+    end
     
 end
 

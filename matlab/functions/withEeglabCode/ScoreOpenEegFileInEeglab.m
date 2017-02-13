@@ -7,8 +7,13 @@ function openSuccess = ScoreOpenEegFileInEeglab(newFilePath, searchResultEventId
     end
     %Close any existing plot
     existingPlot = findobj(0, 'tag', 'EEGPLOT');
-    if not(isempty(existingPlot))
+    
+    if size(existingPlot,1) == 1
         close(existingPlot.Number)
+    elseif size(existingPlot,1) > 1
+        for i = 1:size(existingPlot,1)    
+            close(existingPlot(i).Number)
+        end
     end
     
     if not(exist(newFilePath, 'file'))

@@ -125,8 +125,12 @@ else
     existingPlot = findobj(0, 'tag', 'EEGPLOT');
     if isempty(existingPlot)
         eeglabStatus = 'EEG plot NOT FOUND';
-    else
+    elseif size(existingPlot,1) == 1
         eeglabStatus = 'EEG plot found';
+    elseif size(existingPlot,1) >1
+        eeglabStatus = 'EEG plot found';
+    else
+        eeglabStatus = 'EEG plot NOT found';
     end
 end
 
@@ -241,28 +245,6 @@ function initialize_gui(fig_handle, handles, isreset)
 guidata(handles.figure1, handles);
 
 
-% --- Executes on selection change in searchResultsListBox.
-function searchResultsListBox_Callback(hObject, eventdata, handles)
-% hObject    handle to searchResultsListBox (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: contents = cellstr(get(hObject,'String')) returns searchResultsListBox contents as cell array
-%        contents{get(hObject,'Value')} returns selected item from searchResultsListBox
-
-
-% --- Executes during object creation, after setting all properties.
-function searchResultsListBox_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to searchResultsListBox (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: listbox controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
 % --- Executes on button press in nextButton.
 function nextButton_Callback(hObject, eventdata, handles)
 % hObject    handle to nextButton (see GCBO)
@@ -331,7 +313,7 @@ OpenEEG(hObject, handles);
 
 function CheckOpenEEG(hObject, handles, oldSearchResultRecordingId)
 
-existingPlot = findobj(0, 'tag', 'EEGPLOT');
+existingPlot = ScoreGetEeglabPlot();
 if get(findobj('tag','autoOpenCheckbox'),'value') && (isempty(existingPlot) || (oldSearchResultRecordingId ~= handles.SearchResultRecordingId && handles.FileExists == 1))
     OpenEEG(hObject, handles);
 end
@@ -373,7 +355,27 @@ str=get(hObject,'String');
 if isempty(str2num(str))
     set(hObject,'string','0');
     warndlg('Input must be numerical');
+else
+    physicalSizeOfScaleMarkerInCm = str2num(str);
+    existingPlot = ScoreGetEeglabPlot();
+    if not(isempty(existingPlot)) && size(existingPlot,1)==1
+        ax1 = findobj('tag','eegaxis','parent',existingPlot);  % axes handle
+        g = get(existingPlot,'UserData');  
+        data = get(ax1, 'userdata');
+        ESpacing = findobj('tag','ESpacing','parent',existingPlot);   % ui handle        
+        g.spacing = str2num(get(ESpacing,'string'));  
+        
+        lines = findobj('type','Line','parent',ax1);
+        %firstLine = lines(1);
+        %position = getpixelposition(handle)
+        
+        currentScale = g.spacing/physicalSizeOfScaleMarkerInCm;
+        newText = strcat(['Vertical EEG scale: ' num2str(currentScale) ' µV/cm']);
+        set(handles.verticalCalculatedEegScale, 'String', newText);
+        guidata(hObject, handles);
+    end    
 end
+
 
 
 % --- Executes during object creation, after setting all properties.
