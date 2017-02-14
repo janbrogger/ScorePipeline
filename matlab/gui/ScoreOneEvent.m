@@ -83,7 +83,7 @@ oldSearchResultRecordingId = handles.SearchResultRecordingId;
 % Choose default command line output for ScorePipeline
 handles.output = hObject;
 
-handles = StartScaleTimer(handles);
+handles = StartScaleTimer(hObject, handles);
 set(handles.verticalScaleMenu,'String',char('Undefined', '10', '20', '30', '40', '50', '70', '100', '200', '300', '500', '700', '1000', '2000'));
 
 % Update handles structure
@@ -93,9 +93,10 @@ initialize_gui(hObject, handles, false);
 % UIWAIT makes ScorePipeline wait for user response (see UIRESUME)
 % uiwait(handles.oneEventDetails);
 
-function handles = StartScaleTimer(handles)
+function handles = StartScaleTimer(hObject, handles)
 if isfield(handles, 'UpdateScaleInfoTimer')
     stop(handles.UpdateScaleInfoTimer);
+    delete(handles.UpdateScaleInfoTimer);
 end    
 handles.UpdateScaleInfoTimer = timer();
 set(handles.UpdateScaleInfoTimer,...
@@ -103,7 +104,8 @@ set(handles.UpdateScaleInfoTimer,...
     'TimerFcn', @(x,y)UpdateScaleInfo(), ...
     'ExecutionMode','fixedSpacing', ...
     'Period', 1, ...    
-    'BusyMode', 'drop')
+    'BusyMode', 'drop');
+guidata(hObject, handles);
 start(handles.UpdateScaleInfoTimer);
 
 function handles = UpdateInfo(handles)
@@ -244,7 +246,7 @@ set(handles.openButton,'Enable','on');
 
 function openButton_Callback(hObject, eventdata, handles)
 OpenEEG(hObject, handles);
-handles = StartScaleTimer(handles);
+handles = StartScaleTimer(hObject, handles);
 
 
 
@@ -349,7 +351,7 @@ if not(isempty(handles))
         warndlg('Input must be numerical');
     else
         physicalSizeOfScaleMarkerInCm = str2num(verticalScaleEditString);
-        existingPlot = ScoreGetEeglabPlot();
+        existingPlot = ScoreGetEeglabPlot(0);
         if not(isempty(existingPlot)) && size(existingPlot,1)==1
             currentEegPlotPosition = getpixelposition(existingPlot);
             if isfield(handles,'verticalScaleValidForEegPlotPosition') ...
