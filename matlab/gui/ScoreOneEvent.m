@@ -84,7 +84,7 @@ oldSearchResultRecordingId = handles.SearchResultRecordingId;
 handles.output = hObject;
 
 handles = StartScaleTimer(handles);
-
+set(handles.verticalScaleMenu,'String',char('Undefined', '10', '20', '30', '40', '50', '70', '100', '200', '300', '500', '700', '1000', '2000'));
 
 % Update handles structure
 guidata(hObject, handles);
@@ -300,7 +300,6 @@ if not(isfield(handles, 'UpdateScaleInfoTimer'))
     StartScaleTimer(handles);
 end    
 
-stop(handles.UpdateScaleInfoTimer);
 str=get(handles.verticalScaleEdit,'String');
 
 if isempty(str2num(str))
@@ -317,7 +316,6 @@ else
 end     
 handles = UpdateScaleInfo(handles);
 guidata(hObject, handles);
-start(handles.UpdateScaleInfoTimer);
 
 
 
@@ -345,12 +343,12 @@ end
 
 %if handles is empty, no figure found, means that figure has closed
 if not(isempty(handles)) 
-    str=get(handles.verticalScaleEdit,'String');
-    if isempty(str2num(str))
+    verticalScaleEditString=get(handles.verticalScaleEdit,'String');
+    if isempty(str2num(verticalScaleEditString))
         set(handles.verticalScaleEdit,'string','0');
         warndlg('Input must be numerical');
     else
-        physicalSizeOfScaleMarkerInCm = str2num(str);
+        physicalSizeOfScaleMarkerInCm = str2num(verticalScaleEditString);
         existingPlot = ScoreGetEeglabPlot();
         if not(isempty(existingPlot)) && size(existingPlot,1)==1
             currentEegPlotPosition = getpixelposition(existingPlot);
@@ -369,11 +367,8 @@ if not(isempty(handles))
                 verticalSizeOfPlotInPixels = axisPosition(4);        
                 %sprintf('%g', verticalSizeOfPlotInPixels)
 
-                %Get data about the SCORE scale eye
-                scoreEyeAxis = findobj('tag','eyeaxes','parent',existingPlot); 
-                scoreEyeAxisVerticalScaleInMicrovolts = g.spacing*4;
-                scoreEyeAxisPosition = getpixelposition(scoreEyeAxis);
-                scoreEyeAxisVerticalScaleInPixels = scoreEyeAxisPosition(4);
+                %Get data about the SCORE scale eye                
+                scoreEyeAxisVerticalScaleInMicrovolts = g.spacing*4;                
                 scoreEyeAxisVerticalScaleInMicroVoltsPerCentimeter = scoreEyeAxisVerticalScaleInMicrovolts/physicalSizeOfScaleMarkerInCm;
 
                 newText = strcat(['Vertical EEG scale: ' num2str(scoreEyeAxisVerticalScaleInMicroVoltsPerCentimeter) ' µV/cm']);
@@ -399,3 +394,61 @@ function oneEventDetails_DeleteFcn(hObject, eventdata, handles)
 if isfield(handles, 'UpdateScaleInfoTimer')
     stop(handles.UpdateScaleInfoTimer);
 end    
+
+
+% --- Executes on selection change in verticalScaleMenu.
+function verticalScaleMenu_Callback(hObject, eventdata, handles)
+% hObject    handle to verticalScaleMenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns verticalScaleMenu contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from verticalScaleMenu
+
+verticalScaleEdit=get(handles.verticalScaleEdit,'String');
+if isempty(str2num(verticalScaleEdit)) 
+    set(handles.verticalScaleMenu,'Value',1);
+elseif str2num(verticalScaleEdit) == 0
+    set(handles.verticalScaleMenu,'Value',1);
+else
+    selectedIndex = get(handles.verticalScaleMenu,'Value');
+    allItems = get(handles.verticalScaleMenu,'String');
+    targetVerticalPhysicalScaleInMicroVoltsPerCm = str2num(allItems(selectedIndex,:));    
+        
+    physicalSizeOfScaleMarkerInCm=str2num(get(handles.verticalScaleEdit,'String'));
+    existingPlot = ScoreGetEeglabPlot();
+    
+    if not(isempty(targetVerticalPhysicalScaleInMicroVoltsPerCm)) ...
+        && not(isempty(physicalSizeOfScaleMarkerInCm)) ...
+        && physicalSizeOfScaleMarkerInCm>0 ...
+        && not(isempty(existingPlot)) ...
+        && size(existingPlot,1)==1 
+                        
+        g = get(existingPlot,'UserData');  
+        ESpacing = findobj('tag','ESpacing','parent',existingPlot);   % ui handle        
+        g.spacing = str2num(get(ESpacing,'string'));  
+                
+        targetScoreEyeAxisVerticalScaleInMicrovolts = targetVerticalPhysicalScaleInMicroVoltsPerCm*physicalSizeOfScaleMarkerInCm;
+        
+        g.spacing = targetScoreEyeAxisVerticalScaleInMicrovolts/4;
+        set(ESpacing,'string',num2str(g.spacing,4))  % update edit box        
+        %set(existingPlot,'UserData', g);         
+        set(0, 'CurrentFigure', existingPlot)
+        evalin('base', 'eegplot(''draws'',0);');
+        %ScoreInsertVerticalScaleEye();
+        %eegplot('drawp', 0);  % redraw background
+    end
+end
+
+
+% --- Executes during object creation, after setting all properties.
+function verticalScaleMenu_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to verticalScaleMenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end

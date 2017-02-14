@@ -9,8 +9,8 @@ function ScoreInsertVerticalScaleEye()
     if isempty(existingPlot)        
         warning('No EEG plot open in EEGLAB, cannot insert SCORE scale eye');    
     else
-        %eegplot('scaleeye', 'off', existingPlot);
-
+        %eegplot('scaleeye', 'off', existingPlot);        
+        
         %Code taken mostly from eegplot.m
         g = get(existingPlot,'UserData');	
         eyeaxes = findobj('tag','eyeaxes','parent',existingPlot);
