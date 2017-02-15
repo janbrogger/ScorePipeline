@@ -93,11 +93,14 @@ initialize_gui(hObject, handles, false);
 % UIWAIT makes ScorePipeline wait for user response (see UIRESUME)
 % uiwait(handles.oneEventDetails);
 
-function handles = StartScaleTimer(hObject, handles)
+function StopScaleTimerIfExist(hObject, handles)
 if isfield(handles, 'UpdateScaleInfoTimer')
     stop(handles.UpdateScaleInfoTimer);
     delete(handles.UpdateScaleInfoTimer);
 end    
+
+function handles = StartScaleTimer(hObject, handles)
+StopScaleTimerIfExist(hObject, handles);
 handles.UpdateScaleInfoTimer = timer();
 set(handles.UpdateScaleInfoTimer,...
     'Name','UpdateScaleInfoTimer', ...
@@ -381,8 +384,7 @@ if not(isempty(handles))
             end
         else
             newText = strcat(['Vertical EEG scale: unknown (no plot, or >1 plot)']);
-            set(handles.verticalCalculatedEegScale, 'String', newText);
-            stop(handles.UpdateScaleInfoTimer);
+            set(handles.verticalCalculatedEegScale, 'String', newText);            
         end    
     end    
 end
@@ -393,10 +395,7 @@ function oneEventDetails_DeleteFcn(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-if isfield(handles, 'UpdateScaleInfoTimer')
-    stop(handles.UpdateScaleInfoTimer);
-end    
-
+StopScaleTimerIfExist(hObject, handles);
 
 % --- Executes on selection change in verticalScaleMenu.
 function verticalScaleMenu_Callback(hObject, eventdata, handles)
@@ -437,7 +436,7 @@ else
         %set(existingPlot,'UserData', g);         
         set(0, 'CurrentFigure', existingPlot)
         evalin('base', 'eegplot(''draws'',0);');
-        %ScoreInsertVerticalScaleEye();
+        ScoreInsertVerticalScaleEye();
         %eegplot('drawp', 0);  % redraw background
     end
 end
@@ -454,3 +453,13 @@ function verticalScaleMenu_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes when user attempts to close oneEventDetails.
+function oneEventDetails_CloseRequestFcn(hObject, eventdata, handles)
+% hObject    handle to oneEventDetails (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: delete(hObject) closes the figure
+StopScaleTimerIfExist(hObject, handles);
