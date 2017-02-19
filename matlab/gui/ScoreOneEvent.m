@@ -95,8 +95,11 @@ initialize_gui(hObject, handles, false);
 
 function StopScaleTimerIfExist(hObject, handles)
 if isfield(handles, 'UpdateScaleInfoTimer')
-    stop(handles.UpdateScaleInfoTimer);
-    delete(handles.UpdateScaleInfoTimer);
+    try 
+        stop(handles.UpdateScaleInfoTimer);
+        delete(handles.UpdateScaleInfoTimer);
+    catch
+    end
 end    
 
 function handles = StartScaleTimer(hObject, handles)
@@ -354,40 +357,73 @@ if not(isempty(handles))
         warndlg('Input must be numerical');
     else
         physicalSizeOfScaleMarkerInCm = str2num(verticalScaleEditString);
-        existingPlot = ScoreGetEeglabPlot(0);
-        if not(isempty(existingPlot)) && size(existingPlot,1)==1
-            currentEegPlotPosition = getpixelposition(existingPlot);
-            if isfield(handles,'verticalScaleValidForEegPlotPosition') ...
-                && not(isempty(handles.verticalScaleValidForEegPlotPosition)) ...
-                && all(currentEegPlotPosition == handles.verticalScaleValidForEegPlotPosition)
-
-                ax1 = findobj('tag','eegaxis','parent',existingPlot);  % axes handle
-                g = get(existingPlot,'UserData');  
-                ESpacing = findobj('tag','ESpacing','parent',existingPlot);   % ui handle        
-                g.spacing = str2num(get(ESpacing,'string'));  
-
-                %Get data about the whole plot
-                verticalSizeOfPlotInMicroVolts = ax1.YLim(2)-ax1.YLim(2);
-                axisPosition = getpixelposition(ax1);
-                verticalSizeOfPlotInPixels = axisPosition(4);        
-                %sprintf('%g', verticalSizeOfPlotInPixels)
-
-                %Get data about the SCORE scale eye                
-                scoreEyeAxisVerticalScaleInMicrovolts = g.spacing*4;                
-                scoreEyeAxisVerticalScaleInMicroVoltsPerCentimeter = scoreEyeAxisVerticalScaleInMicrovolts/physicalSizeOfScaleMarkerInCm;
-
-                newText = strcat(['Vertical EEG scale: ' num2str(scoreEyeAxisVerticalScaleInMicroVoltsPerCentimeter) ' µV/cm']);
-                set(handles.verticalCalculatedEegScale, 'String', newText);            
-            else            
-                newText = strcat(['Vertical EEG scale: unknown (plot moved or resized)']);
-                set(handles.verticalCalculatedEegScale, 'String', newText);
-            end
+        
+        if HasEnoughInfoToCalculateVerticalscale(handles)
+            existingPlot = ScoreGetEeglabPlot(0);
+            SetVerticalScaleInfoWhenEnoughInfo(existingPlot, handles);
+            CheckIfCurrentVerticalPlotScaleMatchesPreviousSelection(handles)       ;                                
         else
-            newText = strcat(['Vertical EEG scale: unknown (no plot, or >1 plot)']);
-            set(handles.verticalCalculatedEegScale, 'String', newText);            
+            SetVerticalScaleInfo(handles, 'Vertical EEG scale: unknown (no plot, or >1 plot)');            
+            UnselectVerticalScaleMenuBecauseMissing(handles);
         end    
     end    
 end
+
+function value = HasEnoughInfoToCalculateVerticalscale(handles)    
+    existingPlot = ScoreGetEeglabPlot(0);
+    
+        
+    value = not(isempty(existingPlot))  ...
+            && size(existingPlot,1)==1 ...
+            && isfield(handles,'verticalScaleValidForEegPlotPosition') ...
+            && not(isempty(handles.verticalScaleValidForEegPlotPosition)) ...
+            && all(getpixelposition(existingPlot) == handles.verticalScaleValidForEegPlotPosition);
+
+function SetVerticalScaleInfoWhenEnoughInfo(existingPlot, handles)
+    verticalScaleEditString=get(handles.verticalScaleEdit,'String');
+    physicalSizeOfScaleMarkerInCm = str2num(verticalScaleEditString);
+
+    ax1 = findobj('tag','eegaxis','parent',existingPlot);  % axes handle
+    g = get(existingPlot,'UserData');  
+    ESpacing = findobj('tag','ESpacing','parent',existingPlot);   % ui handle        
+    g.spacing = str2num(get(ESpacing,'string'));  
+
+    %Get data about the whole plot
+    verticalSizeOfPlotInMicroVolts = ax1.YLim(2)-ax1.YLim(2);
+    axisPosition = getpixelposition(ax1);
+    verticalSizeOfPlotInPixels = axisPosition(4);                        
+
+    %Get data about the SCORE scale eye                
+    scoreEyeAxisVerticalScaleInMicrovolts = g.spacing*4;                
+    physicalVerticalScaleInMicroVoltsPerCentimeter = scoreEyeAxisVerticalScaleInMicrovolts/physicalSizeOfScaleMarkerInCm;
+
+    newText = strcat(['Vertical EEG scale: ' sprintf('%4.0f',physicalVerticalScaleInMicroVoltsPerCentimeter) ' µV/cm']);
+    SetVerticalScaleInfo(handles, newText);
+
+function SetVerticalScaleInfo(handles, text)
+    set(handles.verticalCalculatedEegScale, 'String', text);        
+    
+function UnselectVerticalScaleMenuBecauseMissing(handles)
+    set(handles.verticalScaleMenu,'Value', 1);
+    
+%This is to handle the case where the user did select a scale of e.g. 100
+%µV/cm, then resizes the plot window then restores it back to a previous 
+%size
+function CheckIfCurrentVerticalPlotScaleMatchesPreviousSelection(handles)
+    if isfield(handles,'targetVerticalPhysicalScaleInMicroVoltsPerCm') && not(isempty(handles.targetVerticalPhysicalScaleInMicroVoltsPerCm)) 
+        allVerticalScaleMenuItems = get(handles.verticalScaleMenu,'String');                    
+        selectedVerticalScaleMenuIndex = get(handles.verticalScaleMenu,'Value');
+        for i=1:size(allVerticalScaleMenuItems)
+            thisVerticalScaleMenuItem = str2num(allVerticalScaleMenuItems(i,:));
+            if not(isempty(thisVerticalScaleMenuItem)) ...
+                && thisVerticalScaleMenuItem == handles.targetVerticalPhysicalScaleInMicroVoltsPerCm ...
+                && i ~= selectedVerticalScaleMenuIndex
+                set(handles.verticalScaleMenu,'Value',i);
+                break;
+            end
+        end
+    end                                
+
 
 % --- Executes during object deletion, before destroying properties.
 function oneEventDetails_DeleteFcn(hObject, eventdata, handles)
@@ -405,16 +441,21 @@ function verticalScaleMenu_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns verticalScaleMenu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from verticalScaleMenu
+thisFigure = gcf;
+SetEegPlotScale(hObject, handles);
+figure(thisFigure);
 
+
+function handles = SetEegPlotScale(hObject, handles)
 verticalScaleEdit=get(handles.verticalScaleEdit,'String');
 if isempty(str2num(verticalScaleEdit)) 
     set(handles.verticalScaleMenu,'Value',1);
 elseif str2num(verticalScaleEdit) == 0
     set(handles.verticalScaleMenu,'Value',1);
 else
-    selectedIndex = get(handles.verticalScaleMenu,'Value');
-    allItems = get(handles.verticalScaleMenu,'String');
-    targetVerticalPhysicalScaleInMicroVoltsPerCm = str2num(allItems(selectedIndex,:));    
+    selectedVerticalScaleMenuIndex = get(handles.verticalScaleMenu,'Value');
+    allVerticalScaleMenuItems = get(handles.verticalScaleMenu,'String');
+    targetVerticalPhysicalScaleInMicroVoltsPerCm = str2num(allVerticalScaleMenuItems(selectedVerticalScaleMenuIndex,:));    
         
     physicalSizeOfScaleMarkerInCm=str2num(get(handles.verticalScaleEdit,'String'));
     existingPlot = ScoreGetEeglabPlot();
@@ -436,10 +477,12 @@ else
         %set(existingPlot,'UserData', g);         
         set(0, 'CurrentFigure', existingPlot)
         evalin('base', 'eegplot(''draws'',0);');
-        ScoreInsertVerticalScaleEye();
-        %eegplot('drawp', 0);  % redraw background
+        ScoreInsertVerticalScaleEye();        
+        handles.targetVerticalPhysicalScaleInMicroVoltsPerCm = targetVerticalPhysicalScaleInMicroVoltsPerCm;
+        guidata(hObject, handles);
     end
-end
+end    
+
 
 
 % --- Executes during object creation, after setting all properties.
@@ -463,3 +506,4 @@ function oneEventDetails_CloseRequestFcn(hObject, eventdata, handles)
 
 % Hint: delete(hObject) closes the figure
 StopScaleTimerIfExist(hObject, handles);
+delete(hObject);
