@@ -59,14 +59,11 @@ function ScoreInsertVerticalScaleEye()
         %the next line is the horisontal left cap line
         plot(Xl(4,:),Yl(4,:),'color',DEFAULT_AXIS_COLOR,'clipping','off', 'tag','eyeline'); hold on;
         %the next line is the horisontal line
-        hline = plot(Xl(5,:),Yl(5,:),'color',DEFAULT_AXIS_COLOR,'clipping','off', 'tag','eyeline'); hold on;
+        plot(Xl(5,:),Yl(5,:),'color',DEFAULT_AXIS_COLOR,'clipping','off', 'tag','eyeline'); hold on;
         %the next line is the horisontal right cap line
         plot(Xl(6,:),Yl(6,:),'color',DEFAULT_AXIS_COLOR,'clipping','off', 'tag','eyeline'); hold on;
         
-        HSCALETEXT_YFACTOR1 = 23;                
-                
-        heyeline = findobj('tag', 'eyeline', 'parent', eyeaxes);
-        
+        HSCALETEXT_YFACTOR1 = 23;                                
         
         %set(eyeaxes,'units','pixels');
         eyelinePix = getpixelposition(eyeaxes);        
@@ -74,7 +71,7 @@ function ScoreInsertVerticalScaleEye()
         eegaxisPix = getpixelposition(ax1);
         eegAxisPixWidth = eegaxisPix(3);
         secondsOnHeyeline = g.winlength/eegAxisPixWidth*heyelinePixWidth;
-        text(.8,-YLim(2)/HSCALETEXT_YFACTOR1+Yl(6), strcat(sprintf('%3.1f',secondsOnHeyeline),' ', HSPACING_UNITS_STRING),...
+        text(.8,-YLim(2)/HSCALETEXT_YFACTOR1+Yl(6), [sprintf('%3.1f',secondsOnHeyeline),' ', HSPACING_UNITS_STRING],...
              'HorizontalAlignment','center','FontSize',10, 'tag', 'thescale')
         
         set(eyeaxes, 'tag', 'eyeaxes');
