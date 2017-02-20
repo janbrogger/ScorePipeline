@@ -85,6 +85,7 @@ handles.output = hObject;
 
 handles = StartScaleTimer(hObject, handles);
 set(handles.verticalScaleMenu,'String',char('Undefined', '10', '20', '30', '40', '50', '70', '100', '200', '300', '500', '700', '1000', '2000'));
+set(handles.horisontalScaleMenu,'String',char('Undefined', '10', '20', '30', '60', '200'));
 
 % Update handles structure
 guidata(hObject, handles);
@@ -507,3 +508,49 @@ function oneEventDetails_CloseRequestFcn(hObject, eventdata, handles)
 % Hint: delete(hObject) closes the figure
 StopScaleTimerIfExist(hObject, handles);
 delete(hObject);
+
+
+
+function horisontalScaleEdit_Callback(hObject, eventdata, handles)
+% hObject    handle to horisontalScaleEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of horisontalScaleEdit as text
+%        str2double(get(hObject,'String')) returns contents of horisontalScaleEdit as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function horisontalScaleEdit_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to horisontalScaleEdit (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on selection change in horisontalScaleMenu.
+function horisontalScaleMenu_Callback(hObject, eventdata, handles)
+% hObject    handle to horisontalScaleMenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: contents = cellstr(get(hObject,'String')) returns horisontalScaleMenu contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from horisontalScaleMenu
+
+
+% --- Executes during object creation, after setting all properties.
+function horisontalScaleMenu_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to horisontalScaleMenu (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: popupmenu controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
