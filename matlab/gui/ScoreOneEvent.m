@@ -95,8 +95,14 @@ initialize_gui(hObject, handles, false);
 % uiwait(handles.oneEventDetails);
 
 function StopScaleTimerIfExist(hObject, handles)
-if isfield(handles, 'UpdateScaleInfoTimer')
-    try 
+timers = timerfindall('name', 'UpdateScaleInfoTimer');
+for i=1:size(timers,1)
+    stop(timers(i));
+    delete(timers(i));
+end    
+if isfield(handles, 'UpdateScaleInfoTimer')    
+    try        
+        
         stop(handles.UpdateScaleInfoTimer);
         delete(handles.UpdateScaleInfoTimer);
     catch
@@ -288,6 +294,7 @@ if ~isempty(existingPlot)
     set(existingPlot,'ResizeFcn',@eegPlotResized_CallBack);    
 end
 guidata(hObject, handles);
+StartScaleTimer(hObject, handles);
     
 
 function eegPlotResized_CallBack(src,evt)
@@ -406,32 +413,15 @@ function SetVerticalScaleInfoWhenEnoughInfo(existingPlot, handles)
     scoreEyeAxisVerticalScaleInMicrovolts = g.spacing*4;                
     physicalVerticalScaleInMicroVoltsPerCentimeter = scoreEyeAxisVerticalScaleInMicrovolts/physicalSizeOfScaleMarkerInCm;
 
-    newText = strcat(['Vertical EEG scale: ' sprintf('%4.0f',physicalVerticalScaleInMicroVoltsPerCentimeter) ' µV/cm']);
+    newText = strcat(['Calc. vertical EEG scale: ' sprintf('%4.0f',physicalVerticalScaleInMicroVoltsPerCentimeter) ' µV/cm']);
     SetVerticalScaleInfo(handles, newText);
     
 function SetHorisontalScaleInfoWhenEnoughInfo(existingPlot, handles)
-    horisontalScaleEditString=get(handles.horisontalScaleEdit,'String');
-    physicalSizeOfScaleMarkerInCm = str2double(horisontalScaleEditString);
-
-    ax1 = findobj('tag','eegaxis','parent',existingPlot);  % axes handle
     g = get(existingPlot,'UserData');  
-    ESpacing = findobj('tag','ESpacing','parent',existingPlot);   % ui handle        
-    g.spacing = str2double(get(ESpacing,'string'));  
+    horisontalScaleOfEegPlotInCm=str2num(get(handles.horisontalScaleEdit,'String'));                
+    physicalHorisontalScaleInMillimetersPerSecond = horisontalScaleOfEegPlotInCm*10/g.winlength;
 
-    %Get data about the whole plot
-    horisontalSizeOfPlotInSamples = ax1.XLim(2)-ax1.XLim(2);    
-    axisPosition = getpixelposition(ax1);    
-    
-    eyeaxes = findobj('tag','eyeaxes','parent',existingPlot);
-    eyelinePix = getpixelposition(eyeaxes);        
-    heyelinePixWidth = eyelinePix(3);
-    eegaxisPix = getpixelposition(ax1);
-    eegAxisPixWidth = eegaxisPix(3);
-    secondsOnHeyeline = g.winlength/eegAxisPixWidth*heyelinePixWidth;
-    
-    physicalHorisontalScaleInMillimetersPerSecond = physicalSizeOfScaleMarkerInCm*10/secondsOnHeyeline;
-
-    newText = strcat(['Horisontal EEG scale: ' sprintf('%4.0f',physicalHorisontalScaleInMillimetersPerSecond) ' mm/s']);
+    newText = strcat(['Calc. horisontal EEG scale: ' sprintf('%4.0f',physicalHorisontalScaleInMillimetersPerSecond) ' mm/s']);
     SetHorisontalScaleInfo(handles, newText);    
 
 function SetVerticalScaleInfo(handles, text)
@@ -460,6 +450,7 @@ function CheckIfCurrentVerticalPlotScaleMatchesPreviousSelection(handles)
                 && thisVerticalScaleMenuItem == handles.targetVerticalPhysicalScaleInMicroVoltsPerCm ...
                 && i ~= selectedVerticalScaleMenuIndex
                 set(handles.verticalScaleMenu,'Value',i);
+                SetVerticalEegPlotScale(handles)
                 break;
             end
         end
@@ -501,11 +492,11 @@ function verticalScaleMenu_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns verticalScaleMenu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from verticalScaleMenu
 thisFigure = gcf;
-SetVerticalEegPlotScale(hObject, handles);
+SetVerticalEegPlotScale(handles);
 figure(thisFigure);
 
 
-function handles = SetVerticalEegPlotScale(hObject, handles)
+function handles = SetVerticalEegPlotScale(handles)
 verticalScaleEdit=get(handles.verticalScaleEdit,'String');
 if isempty(str2double(verticalScaleEdit)) 
     set(handles.verticalScaleMenu,'Value',1);
@@ -538,7 +529,8 @@ else
         evalin('base', 'eegplot(''draws'',0);');
         ScoreInsertScaleEyes();        
         handles.targetVerticalPhysicalScaleInMicroVoltsPerCm = targetVerticalPhysicalScaleInMicroVoltsPerCm;
-        guidata(hObject, handles);
+        guidata(existingPlot, handles);
+        UpdateScaleInfo(handles);
     end
 end    
 
@@ -619,7 +611,7 @@ function horisontalScaleMenu_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns horisontalScaleMenu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from horisontalScaleMenu
-SetHorisontalEegPlotScale(hObject, handles);
+SetHorisontalEegPlotScale(handles);
 
 % --- Executes during object creation, after setting all properties.
 function horisontalScaleMenu_CreateFcn(hObject, eventdata, handles)
@@ -634,7 +626,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
-function handles = SetHorisontalEegPlotScale(hObject, handles)
+function handles = SetHorisontalEegPlotScale(handles)
 horisontalScaleEdit=get(handles.verticalScaleEdit,'String');
 if isempty(str2double(horisontalScaleEdit)) 
     set(handles.horisontalScaleMenu,'Value',1);
@@ -655,11 +647,15 @@ else
         && size(existingPlot,1)==1 
                         
         g = get(existingPlot,'UserData');  
+        g.winlength = (physicalSizeOfScaleMarkerInCm*10)/targetHorisontalPhysicalScaleInMillimetersPerSecond;
                                 
         set(0, 'CurrentFigure', existingPlot)
-        evalin('base', 'eegplot(''draws'',0);');
+        
+        set(existingPlot, 'UserData', g);                
+        evalin('base', 'eegplot(''drawp'',0);');
         ScoreInsertScaleEyes();        
         handles.targetHorisontalPhysicalScaleInMillimetersPerSecond = targetHorisontalPhysicalScaleInMillimetersPerSecond;
-        guidata(hObject, handles);
+        guidata(existingPlot, handles);
+        UpdateScaleInfo(handles);
     end
 end    
