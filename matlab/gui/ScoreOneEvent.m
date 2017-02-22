@@ -278,6 +278,11 @@ end
     
 
 function OpenEEG(hObject, handles)
+existingPlot = ScoreGetEeglabPlot(0);
+if ~isempty(existingPlot)
+    previousWindowStyle = get(existingPlot,'WindowStyle')
+    previousPosition = get(existingPlot,'Position')
+end    
 SetFileOpenWaitStatus(handles);
 openSuccess = ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultEventId)); 
 if openSuccess
@@ -285,6 +290,11 @@ if openSuccess
     ScoreGotoEvent(handles.SearchResultEventId);
 else 
     warning('EEG file open failure');
+end    
+newPlot = ScoreGetEeglabPlot(0);
+if ~isempty(existingPlot) && ~isempty(newPlot)
+    set(newPlot ,'WindowStyle', previousWindowStyle)
+    set(newPlot,'Position', previousPosition)
 end    
 EnableButtonsAfterWait(handles);
 handles = UpdateInfo(handles);
