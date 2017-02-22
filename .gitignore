@@ -258,3 +258,4 @@ matlab/NicoletSDK_20110718/
 *.asv
 #/matlab/ScoreConfig.m
 Thumbs.db
+/matlab/ScoreSavedEegScaling.mat

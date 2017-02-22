@@ -90,6 +90,7 @@ set(handles.horisontalScaleMenu,'String',char('Undefined', '10', '20', '30', '60
 % Update handles structure
 guidata(hObject, handles);
 initialize_gui(hObject, handles, false);
+ScoreRestoreEEGScaling(hObject, handles, 0);
 
 % UIWAIT makes ScorePipeline wait for user response (see UIRESUME)
 % uiwait(handles.oneEventDetails);
@@ -259,6 +260,7 @@ set(handles.openButton,'Enable','on');
 
 function openButton_Callback(hObject, eventdata, handles)
 OpenEEG(hObject, handles);
+ScoreRestoreEEGScaling(hObject, handles, 0);
 handles = StartScaleTimer(hObject, handles);
 
 
@@ -342,6 +344,7 @@ else
 end     
 handles = UpdateScaleInfo(handles);
 guidata(hObject, handles);
+ScoreSaveEegScaling(handles);
 
 
 % --- Executes during object creation, after setting all properties.
@@ -451,7 +454,8 @@ function UnselectHorisontalScaleMenuBecauseMissing(handles)
 %µV/cm, then resizes the plot window then restores it back to a previous 
 %size
 function CheckIfCurrentVerticalPlotScaleMatchesPreviousSelection(handles)
-    if isfield(handles,'targetVerticalPhysicalScaleInMicroVoltsPerCm') && not(isempty(handles.targetVerticalPhysicalScaleInMicroVoltsPerCm)) 
+    if isfield(handles,'targetVerticalPhysicalScaleInMicroVoltsPerCm') ...
+            && not(isempty(handles.targetVerticalPhysicalScaleInMicroVoltsPerCm)) 
         allVerticalScaleMenuItems = get(handles.verticalScaleMenu,'String');                    
         selectedVerticalScaleMenuIndex = get(handles.verticalScaleMenu,'Value');
         for i=1:size(allVerticalScaleMenuItems)
@@ -501,7 +505,8 @@ function verticalScaleMenu_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns verticalScaleMenu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from verticalScaleMenu
 thisFigure = gcf;
-SetVerticalEegPlotScale(hObject, handles);
+handles = SetVerticalEegPlotScale(hObject, handles);
+ScoreSaveEegScaling(handles);
 figure(thisFigure);
 
 
@@ -539,6 +544,7 @@ else
         ScoreInsertScaleEyes();        
         handles.targetVerticalPhysicalScaleInMicroVoltsPerCm = targetVerticalPhysicalScaleInMicroVoltsPerCm;
         guidata(hObject, handles);
+        
         UpdateScaleInfo(handles);
     end
 end    
@@ -598,6 +604,7 @@ else
 end     
 handles = UpdateScaleInfo(handles);
 guidata(hObject, handles);
+ScoreSaveEegScaling(handles);
 
 % --- Executes during object creation, after setting all properties.
 function horisontalScaleEdit_CreateFcn(hObject, eventdata, handles)
@@ -620,7 +627,8 @@ function horisontalScaleMenu_Callback(hObject, eventdata, handles)
 
 % Hints: contents = cellstr(get(hObject,'String')) returns horisontalScaleMenu contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from horisontalScaleMenu
-SetHorisontalEegPlotScale(hObject, handles);
+handles = SetHorisontalEegPlotScale(hObject, handles);
+ScoreSaveEegScaling(handles);
 
 % --- Executes during object creation, after setting all properties.
 function horisontalScaleMenu_CreateFcn(hObject, eventdata, handles)
