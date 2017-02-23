@@ -280,10 +280,11 @@ end
     
 
 function OpenEEG(hObject, handles)
+StopScaleTimerIfExist(hObject, handles);
 existingPlot = ScoreGetEeglabPlot(0);
 if ~isempty(existingPlot)
-    previousWindowStyle = get(existingPlot,'WindowStyle')
-    previousPosition = get(existingPlot,'Position')
+    previousWindowStyle = get(existingPlot,'WindowStyle');
+    previousPosition = get(existingPlot,'Position');
 end    
 SetFileOpenWaitStatus(handles);
 openSuccess = ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultEventId)); 
@@ -300,11 +301,19 @@ if ~isempty(existingPlot) && ~isempty(newPlot)
 end    
 EnableButtonsAfterWait(handles);
 handles = UpdateInfo(handles);
+guidata(hObject, handles);
 
-existingPlot = ScoreGetEeglabPlot();
-if ~isempty(existingPlot)
-    set(existingPlot,'ResizeFcn',@eegPlotResized_CallBack);    
-end
+if ~isempty(newPlot)
+    set(0, 'CurrentFigure', newPlot);
+    
+    CheckIfCurrentVerticalPlotScaleMatchesPreviousSelection(handles);
+    CheckIfCurrentHorisontalPlotScaleMatchesPreviousSelection(handles);    
+    thisFigure = gcf;
+    handles = SetVerticalEegPlotScale(hObject, handles);    
+    handles = SetHorisontalEegPlotScale(hObject, handles);
+    set(newPlot,'ResizeFcn',@eegPlotResized_CallBack);    
+    figure(thisFigure);
+end    
 guidata(hObject, handles);
 StartScaleTimer(hObject, handles);
     
@@ -374,7 +383,7 @@ if not(isempty(handles))
     if HasEnoughInfoToCalculateVerticalScale(handles)
         existingPlot = ScoreGetEeglabPlot(0);
         SetVerticalScaleInfoWhenEnoughInfo(existingPlot, handles);
-        CheckIfCurrentVerticalPlotScaleMatchesPreviousSelection(handles)       ;                                
+        CheckIfCurrentVerticalPlotScaleMatchesPreviousSelection(handles);
     else
         SetVerticalScaleInfo(handles, 'Vertical EEG scale: unknown');            
         UnselectVerticalScaleMenuBecauseMissing(handles);
@@ -539,7 +548,7 @@ else
         g.spacing = targetScoreEyeAxisVerticalScaleInMicrovolts/4;
         set(ESpacing,'string',num2str(g.spacing,4))  % update edit box        
         %set(existingPlot,'UserData', g);         
-        set(0, 'CurrentFigure', existingPlot)
+        set(0, 'CurrentFigure', existingPlot);
         evalin('base', 'eegplot(''draws'',0);');
         ScoreInsertScaleEyes();        
         handles.targetVerticalPhysicalScaleInMicroVoltsPerCm = targetVerticalPhysicalScaleInMicroVoltsPerCm;
@@ -659,6 +668,7 @@ else
     
     if not(isempty(targetHorisontalPhysicalScaleInMillimetersPerSecond)) ...
         && not(isempty(physicalSizeOfScaleMarkerInCm)) ...
+        && not(isnan(targetHorisontalPhysicalScaleInMillimetersPerSecond)) ...
         && physicalSizeOfScaleMarkerInCm>0 ...
         && not(isempty(existingPlot)) ...
         && size(existingPlot,1)==1 
