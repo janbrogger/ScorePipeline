@@ -1,5 +1,5 @@
 function varargout = ScoreOneEvent(varargin)
-% ScoreOneEvent MATLAB code for ScoreOneEvent.fig
+% ScoreOneEvent 
 %   Displays details for one SCORE event in the SCORE pipeline.
 %   Syntax: ScoreOneEvent(searchResultId, searchResult_EventId, autoOpen)
 %   -searchResultId : an entry in SearchResult table

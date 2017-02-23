@@ -22,7 +22,7 @@ function varargout = ScoreSearchResultDetail(varargin)
 
 % Edit the above text to modify the response to help ScorePipeline
 
-% Last Modified by GUIDE v2.5 23-Nov-2016 15:42:09
+% Last Modified by GUIDE v2.5 23-Feb-2017 11:53:30
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -302,3 +302,11 @@ UpdateFilesTimerTick(handles);
 function UpdateFilesTimerTick(handles)
 UpdateInfo(handles);
 drawnow();
+
+
+% --- Executes on button press in annotationConfig.
+function annotationConfig_Callback(hObject, eventdata, handles)
+% hObject    handle to annotationConfig (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+ScoreSearchResultDetailAnnotationConfig(handles.SearchResultId);
