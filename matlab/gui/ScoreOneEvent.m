@@ -173,8 +173,19 @@ data = {'SearchResultEventId' handles.SearchResultEventId;
         'EEGLAB status' eeglabStatus;        
        };
 
-set(handles.oneEventProperties,'data',data,'ColumnName',colNames);
-
+set(handles.oneEventProperties,'data',data,'ColumnName',colNames);   
+   
+customAnnotations = ScoreGetAnnotationsForOneProject(handles.SearchResultId);
+customAnnotations2 = customAnnotations(:,{'SearchResultAnnotationConfigId', 'FieldName'});
+colNames = {'Id' 'Field name' 'Value'};
+set(handles.measureTable,'ColumnName',colNames);   
+for i=1:size(customAnnotations2)
+    data2(i,1) = string(customAnnotations2(i,1).SearchResultAnnotationConfigId);
+    data2(i,2) = string(customAnnotations2(i,2).FieldName);
+    data2(i,3) = string('');
+end   
+data2 = cellstr(data2);
+set(handles.measureTable,'data',data2);   
 
 
 % --- Outputs from this function are returned to the command line.
@@ -686,3 +697,15 @@ else
         UpdateScaleInfo(handles);
     end
 end    
+
+
+% --- Executes when entered data in editable cell(s) in oneEventProperties.
+function oneEventProperties_CellEditCallback(hObject, eventdata, handles)
+% hObject    handle to oneEventProperties (see GCBO)
+% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)
+%	Indices: row and column indices of the cell(s) edited
+%	PreviousData: previous data for the cell(s) edited
+%	EditData: string(s) entered by the user
+%	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
+%	Error: error string when failed to convert EditData to appropriate value for Data
+% handles    structure with handles and user data (see GUIDATA)
