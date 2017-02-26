@@ -18,9 +18,11 @@ function data = ScoreMouseDown(varargin)
         if  size(lines(i).XData,2)>2 
             actualIndex = actualIndex+1;
             if actualIndex == selectedChannelIndex
-                set(lines(i),'LineWidth', 2);
+                set(lines(i),'LineWidth', 2);                
+                set(lines(i),'Color', 'red');
             else
-                set(lines(i),'LineWidth', 1);
+                set(lines(i),'LineWidth', 1);                
+                set(lines(i),'Color', 'black');
             end                        
         end
     end        
