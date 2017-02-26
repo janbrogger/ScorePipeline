@@ -65,11 +65,8 @@ function openSuccess = ScoreOpenEegFileInEeglab(newFilePath, searchResultEventId
                 'scale', 'off', ...
                 'selectcommand', {'ScoreMouseDown();', 'ScoreMouseMove();', 'ScoreMouseUp();'}, ...
                 'ctrlselectcommand', {'disp(''ctrlmousedown'');', '', 'disp(''ctrlmouseup'');'} ...
-                );            
-        
-            figh = ScoreGetEeglabPlot(0);
-            set(figh, 'windowbuttonmotionfcn', {@ScoreMouseMove});
-            
+                );                                
+                        
             ScoreInsertScaleEyes();
             clear ekgindex
             EEG.filename = ['searchResultEventId = ' num2str(searchResultEventId)];
@@ -77,7 +74,8 @@ function openSuccess = ScoreOpenEegFileInEeglab(newFilePath, searchResultEventId
             eeg_checkset( EEG );                          
             
             evalin('base', 'eeglab redraw');
-
+            figh = ScoreGetEeglabPlot(0);
+            set(figh, 'windowbuttonmotionfcn', {@ScoreMouseMove});
             
             openSuccess = 1;
         catch

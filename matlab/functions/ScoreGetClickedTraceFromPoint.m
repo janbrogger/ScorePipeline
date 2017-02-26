@@ -8,6 +8,7 @@ function [clickedTime, clickedSample, selectedChannelIndex, clickedEegValue] = S
     ax1 = findobj('tag', 'eegaxis', 'parent', gcf);
     XLim = get(ax1, 'XLim');
     YLim = get(ax1, 'YLim');    
+    %disp(size(point));
     
     if point(1,1) > 0 && ...
         point(1,1) >= g.time && ...
