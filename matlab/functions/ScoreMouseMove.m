@@ -26,7 +26,7 @@ function ScoreMouseMove(varargin)
         end
         plot(eegaxis, [currentSample-g.time*g.srate currentSample-g.time*g.srate],[ ylim(1) ylim(2)], ...
             'tag', 'vlineindicator', 'Color', 'blue', ...
-            'linewidth', 2);
+            'linewidth', 1);
         hold(eegaxis, 'off');
     
         lines = findobj('type', 'Line', 'parent', eegaxis);
@@ -34,7 +34,7 @@ function ScoreMouseMove(varargin)
         maxXDataSize = 0;
         for i = 1:size(lines, 1)
             if size(lines(i).XData,2) > maxXDataSize
-                maxXDataSize = size(lines(i).XData,2);
+                maxXDataSize = size(lines(i).XData,2);                
             end
         end
         for i = 1:size(lines, 1)
@@ -42,10 +42,10 @@ function ScoreMouseMove(varargin)
                 if  size(lines(i).XData,2)==maxXDataSize
                     actualIndex = actualIndex+1;
                     if actualIndex == currentChannelIndex
-                        set(lines(i),'LineWidth', 2);                
+                        set(lines(i),'LineWidth', 1);                
                         set(lines(i),'Color', 'red');
                     else
-                        set(lines(i),'LineWidth', 1);                
+                        set(lines(i),'LineWidth', 0.5);                
                         set(lines(i),'Color', 'black');
                     end                        
                 end
