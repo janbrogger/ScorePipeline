@@ -1,4 +1,4 @@
 function data = ScoreMouseUp(varargin)
     data = [];
-    disp('mouseup');
+    %disp('mouseup');
 end

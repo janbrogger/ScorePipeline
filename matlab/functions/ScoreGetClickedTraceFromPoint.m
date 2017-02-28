@@ -23,7 +23,7 @@ function [clickedTime, clickedSample, selectedChannelIndex, clickedEegValue] = S
         end
 
         clickedYValue = point(1,2);        
-        disp(['Clicked EEG value: ' num2str(clickedYValue)]);
+        %disp(['Clicked EEG value: ' num2str(clickedYValue)]);
 
         EEG = evalin('base','EEG');
         thisColumnOfData = EEG.data(:,clickedSample);    

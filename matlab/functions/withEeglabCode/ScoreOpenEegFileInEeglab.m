@@ -43,9 +43,9 @@ function openSuccess = ScoreOpenEegFileInEeglab(newFilePath, searchResultEventId
             
             EEG = pop_reref( EEG, [],'exclude',[ekgindex photicindex ]);  
             %notch
-            %EEG = pop_eegfiltnew(EEG, 48, 52, 3300, 1, [], 0);
+            EEG = pop_eegfiltnew(EEG, 48, 52, 3300, 1, [], 0);
             %passband
-            %EEG = pop_eegfiltnew(EEG, 1, 70, 6600, 0, [], 0);
+            EEG = pop_eegfiltnew(EEG, 1, 70, 6600, 0, [], 0);
 
             EEG = SetSomeLongEventsToZero(EEG);
             EEG = InsertSomeEventNames(EEG);
