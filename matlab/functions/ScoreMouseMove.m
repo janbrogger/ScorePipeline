@@ -18,6 +18,7 @@ function ScoreMouseMove(varargin)
         %disp(['Current time position at left is ' num2str(g.time) ' , at right is ' num2str(g.time+g.winlength*g.srate)]);
         %disp([' Selected channel ' EEG.chanlocs(selectedChannelIndex).labels ' ,closest EEG value ' num2str(clickedEegValue) ]);
                 
+        %plot vertical line indicator
         hold(eegaxis, 'on');
         vlineindicator = findobj('tag', 'vlineindicator', 'parent', eegaxis);
         if ~isempty(vlineindicator)
@@ -30,9 +31,15 @@ function ScoreMouseMove(varargin)
     
         lines = findobj('type', 'Line', 'parent', eegaxis);
         actualIndex = 0;
+        maxXDataSize = 0;
+        for i = 1:size(lines, 1)
+            if size(lines(i).XData,2) > maxXDataSize
+                maxXDataSize = size(lines(i).XData,2);
+            end
+        end
         for i = 1:size(lines, 1)
             if  ~strcmp(get(lines(i),'tag'),'vlineindicator')
-                if  size(lines(i).XData,2)>2 
+                if  size(lines(i).XData,2)==maxXDataSize
                     actualIndex = actualIndex+1;
                     if actualIndex == currentChannelIndex
                         set(lines(i),'LineWidth', 2);                
@@ -54,12 +61,16 @@ function ScoreMouseMove(varargin)
             end
             numberOfChannels = size(EEG.data,1);            
             upsideDownChannelIndex = numberOfChannels-g.scoreClickedChannelIndex;
-            yvalue1 = EEG.data(g.scoreClickedChannelIndex,g.scoreClickedSample) ...
+            xPlotData = min(g.scoreClickedSample-g.time*g.srate,currentSample-g.time*g.srate): ...
+                        max(g.scoreClickedSample-g.time*g.srate,currentSample-g.time*g.srate);
+            xData = min(g.scoreClickedSample,currentSample) ...
+                :max(g.scoreClickedSample,currentSample);
+            yData = EEG.data(g.scoreClickedChannelIndex,xData)...
                 +g.spacing*(upsideDownChannelIndex+1);
+            yvalue1 = EEG.data(g.scoreClickedChannelIndex,g.scoreClickedSample);                
             plot(eegaxis, ...
-                [g.scoreClickedSample-g.time*g.srate ...
-                 currentSample-g.time*g.srate], ...
-                [yvalue1 yvalue1 ], ...
+                xPlotData, ...
+                yData, ...
                 'tag', 'selectindicator', 'Color', 'green', ...
                 'linewidth', 2);
             hold(eegaxis, 'off');
