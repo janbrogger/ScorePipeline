@@ -9,8 +9,10 @@ function ScoreMouseMove(varargin)
         
     [currentTime, currentSample, currentChannelIndex, currentEegValue] = ScoreGetClickedTraceFromPoint(cp);        
     
-    if ~isfield(g, 'scoreAnnotationState') || isempty(g.scoreAnnotationState)
-            g.scoreAnnotationState = 'WaitingForFirstClick';        
+    if isstruct(g)
+        if ~isfield(g, 'scoreAnnotationState') || isempty(g.scoreAnnotationState)
+                g.scoreAnnotationState = 'WaitingForFirstClick';        
+        end
     end
     
     if ~isempty(currentTime)
