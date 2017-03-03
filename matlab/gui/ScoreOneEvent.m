@@ -85,7 +85,7 @@ handles.output = hObject;
 
 handles = StartScaleTimer(hObject, handles);
 set(handles.verticalScaleMenu,'String',char('Undefined', '10', '20', '30', '40', '50', '70', '100', '200', '300', '500', '700', '1000', '2000'));
-set(handles.horisontalScaleMenu,'String',char('Undefined', '10', '20', '30', '60', '200'));
+set(handles.horisontalScaleMenu,'String',char('Undefined', '10', '20', '30', '60', '100', '200', '300', '500'));
 
 % Update handles structure
 guidata(hObject, handles);
