@@ -31,28 +31,19 @@ function ScoreMouseMove(varargin)
             'linewidth', 1);
         hold(eegaxis, 'off');
     
-        lines = findobj('type', 'Line', 'parent', eegaxis);
-        actualIndex = 0;
-        maxXDataSize = 0;
-        for i = 1:size(lines, 1)
-            if size(lines(i).XData,2) > maxXDataSize
-                maxXDataSize = size(lines(i).XData,2);                
-            end
+        [matchline, nomatchlines] = ...
+            ScoreFindLineOfEegPlotFromDataChannel(...
+                currentChannelIndex, eegaxis);
+        if ~isempty(matchline)
+            set(matchline,'LineWidth', 1);                
+            set(matchline,'Color', 'red');
         end
-        for i = 1:size(lines, 1)
-            if  ~strcmp(get(lines(i),'tag'),'vlineindicator')
-                if  size(lines(i).XData,2)==maxXDataSize
-                    actualIndex = actualIndex+1;
-                    if actualIndex == currentChannelIndex
-                        set(lines(i),'LineWidth', 1);                
-                        set(lines(i),'Color', 'red');
-                    else
-                        set(lines(i),'LineWidth', 0.5);                
-                        set(lines(i),'Color', 'black');
-                    end                        
-                end
-            end
-        end    
+        
+        for i = 1:size(nomatchlines, 2)
+            set(nomatchlines(i),'LineWidth', 0.5);                
+            set(nomatchlines(i),'Color', 'black');
+        end
+            
         
         %Plot to indicate the selection of current segment of EEG
         if strcmp(g.scoreAnnotationState, 'WaitingForSecondClick')            
@@ -79,13 +70,12 @@ function ScoreMouseMove(varargin)
         end
         
     else
-        lines = findobj('type', 'Line', 'parent', eegaxis);
-        for i = 1:size(lines, 1)
-            if  ~strcmp(get(lines(i),'tag'),'vlineindicator') ...
-                && ~strcmp(get(lines(i),'tag'),'selectindicator')
-                set(lines(i),'LineWidth', 1);
-                set(lines(i),'Color', 'black');
-            end
+        [matchline, nomatchlines] = ...
+            ScoreFindLineOfEegPlotFromDataChannel(...
+                [], eegaxis);        
+        for i = 1:size(nomatchlines, 1)            
+            set(nomatchlines(i),'LineWidth',0.5);
+            set(nomatchlines(i),'Color', 'black');            
         end        
     end    
 end

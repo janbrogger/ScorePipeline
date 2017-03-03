@@ -23,7 +23,14 @@ function data = ScoreMouseDown(varargin)
             g.scoreClickedChannelIndex= selectedChannelIndex;
             g.scoreClickedEegValue = clickedEegValue;
         elseif strcmp(g.scoreAnnotationState, 'WaitingForSecondClick')
-            g.scoreAnnotationState = 'WaitingForFirstClick';
+            g.scoreAnnotationState = 'WaitingForFirstClick';            
+            clickedSamples(1) = g.scoreClickedSample;
+            clickedSamples(2) = clickedSample;
+            clickedChannel = g.scoreClickedChannelIndex;
+            dataSegment = EEG.data(clickedChannel, clickedSamples(1):clickedSamples(2));
+            [ymax ymaxsample] = max(dataSegment);
+            
+            
         end
     end
     
