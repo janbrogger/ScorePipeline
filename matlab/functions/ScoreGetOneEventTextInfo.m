@@ -19,12 +19,29 @@ function text = ScoreGetOneEventTextInfo(searchResultEventId, useHTMLBreak)
         'AND SearchResult_Event.SearchResultEventId=' num2str(searchResultEventId) ]);
     
     %disp(data);
-    text = [ data.EventCodeName(1) ];
-    for i=1:numel(data.EventPropertyTypeName)
-        if useHTMLBreak
-            text = [text '<BR>'];
+    text = '';
+    if ~strcmp(data, 'No Data')
+        text = [ data.EventCodeName(1) ];
+        for i=1:numel(data.EventPropertyTypeName)
+            if useHTMLBreak
+                text = [text '<BR>'];
+            end
+            text = [text data.EventPropertyTypeName(i) ':' data.EventPropertyCodeName(i)];        
         end
-        text = [text data.EventPropertyTypeName(i) ':' data.EventPropertyCodeName(i)];        
+        text = strjoin(text);
+    else        
+        shoppingBasketQuery = ['SELECT  ' ... 
+        'SearchResult_Event.SearchResultEventId, ' ...
+        'EventCode.Name AS EventCodeName, ' ...
+        'EventCode.Code AS EventCodeCode ' ...        
+        'FROM   SearchResult_Event  INNER JOIN ' ...
+        'Event ON SearchResult_Event.EventId = Event.EventId INNER JOIN ' ...
+        'EventCoding ON Event.EventCodingId = EventCoding.EventCodingId INNER JOIN ' ...
+        'EventCode ON EventCoding.EventCodeId = EventCode.EventCodeId   ' ...          
+         ];
+        data = ScoreQueryRun([shoppingBasketQuery ...             
+            'WHERE SearchResult_Event.SearchResultEventId=' num2str(searchResultEventId) ]);
+        text = [ data.EventCodeName(1) ];
+        text = strjoin(text);
     end
-    text = strjoin(text);
 end
