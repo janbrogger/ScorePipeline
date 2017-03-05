@@ -170,10 +170,15 @@ data = {'SearchResultEventId' handles.SearchResultEventId;
         'Time in seconds minus gaps' num2str(handles.timeSpanMinusGaps, '%6.1f');
         'File path' handles.FilePath;
         'File status' fileExistsText;
-        'EEGLAB status' eeglabStatus;        
+        'EEGLAB status' eeglabStatus;                
        };
 
 set(handles.oneEventProperties,'data',data,'ColumnName',colNames);   
+
+eventText = ScoreGetOneEventTextInfo(handles.SearchResultEventId, 1);
+eventText = ['<HTML>' eventText '</HTML>'];
+set(handles.scoreText, 'String', eventText);
+set(handles.scoreText,'Enable','off') 
    
 customAnnotations = ScoreGetAnnotationsForOneProject(handles.SearchResultId);
 customAnnotations2 = customAnnotations(:,{'SearchResultAnnotationConfigId', 'FieldName'});
