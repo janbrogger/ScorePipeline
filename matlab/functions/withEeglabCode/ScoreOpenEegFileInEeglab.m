@@ -40,7 +40,7 @@ function openSuccess = ScoreOpenEegFileInEeglab(newFilePath, searchResultEventId
 
             ekgindex = find(strcmp({EEG.chanlocs(:).labels}, 'EKG'));
             photicindex = find(strcmp({EEG.chanlocs(:).labels}, 'Photic'));
-            
+            EEG.data = -EEG.data;
             EEG = pop_reref( EEG, [],'exclude',[ekgindex photicindex ]);  
             %notch
             EEG = pop_eegfiltnew(EEG, 48, 52, 3300, 1, [], 0);
