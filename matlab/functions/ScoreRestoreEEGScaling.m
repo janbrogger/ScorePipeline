@@ -12,11 +12,7 @@ function ScoreRestoreEEGScaling(hObject, handles, printWarning)
     fileName = 'ScoreSavedEegScaling.mat';
     pathAndFileName = [directory fileName];
     
-    if not(exist(pathAndFileName , 'file'))
-        if printWarning
-            warning('Cannot restore EEG scaling - no file found');            
-        end        
-    end
+    
     
     verticalScaleEdit = [];
     verticalScaleValidForEegPlotPosition = [];
@@ -25,16 +21,24 @@ function ScoreRestoreEEGScaling(hObject, handles, printWarning)
     horisontalScaleValidForEegPlotPosition = [];
     targetHorisontalPhysicalScaleInMillimetersPerSecond = [];
     
-    load(pathAndFileName);        
+    if not(exist(pathAndFileName , 'file'))
+        if printWarning
+            warning('Cannot restore EEG scaling - no file found');            
+        end        
+    else
+        load(pathAndFileName);                    
+    end
+    
     handles.verticalScaleValidForEegPlotPosition = ...
-        verticalScaleValidForEegPlotPosition;
+            verticalScaleValidForEegPlotPosition;
     handles.targetVerticalPhysicalScaleInMicroVoltsPerCm = ...
         targetVerticalPhysicalScaleInMicroVoltsPerCm;
-        
+
     handles.horisontalScaleValidForEegPlotPosition = ...
         horisontalScaleValidForEegPlotPosition;
     handles.targetHorisontalPhysicalScaleInMillimetersPerSecond = ...
         targetHorisontalPhysicalScaleInMillimetersPerSecond;
+    
     
     guidata(hObject, handles);
     
