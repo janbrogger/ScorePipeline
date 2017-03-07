@@ -291,12 +291,14 @@ set(handles.oneEventProperties,'data',data,'ColumnName',colNames);
 set(handles.openButton,'Enable','off') 
 set(handles.nextButton,'Enable','off') 
 set(handles.backButton,'Enable','off') 
+set(handles.navigationSlider,'Enable','off') 
 drawnow();
 
 function EnableButtonsAfterWait(handles)
 set(handles.nextButton,'Enable','on');
 set(handles.backButton,'Enable','on'); 
 set(handles.openButton,'Enable','on');
+set(handles.navigationSlider,'Enable','on') 
 
 
 function openButton_Callback(hObject, eventdata, handles)
