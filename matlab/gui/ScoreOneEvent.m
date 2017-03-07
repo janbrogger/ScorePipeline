@@ -87,13 +87,36 @@ handles = StartScaleTimer(hObject, handles);
 set(handles.verticalScaleMenu,'String',char('Undefined', '10', '20', '30', '40', '50', '70', '100', '200', '300', '500', '700', '1000', '2000'));
 set(handles.horisontalScaleMenu,'String',char('Undefined', '10', '20', '30', '60', '100', '200', '300', '500'));
 
+
 % Update handles structure
 guidata(hObject, handles);
+UpdateNavigationSlider(handles);
 initialize_gui(hObject, handles, false);
 ScoreRestoreEEGScaling(hObject, handles, 0);
 
 % UIWAIT makes ScorePipeline wait for user response (see UIRESUME)
 % uiwait(handles.oneEventDetails);
+
+function UpdateNavigationSlider(handles)
+
+searchResultEventCount = ScoreQueryRun(['SELECT COUNT(SearchResultEventId) FROM SearchResult_Event WHERE SearchResult_Event.SearchResultId = ' num2str(handles.SearchResultId)]);
+set(handles.navigationSlider,'SliderStep', [1/searchResultEventCount.x 10/searchResultEventCount.x]);
+set(handles.navigationSlider,'Min', 1);
+set(handles.navigationSlider,'Max', searchResultEventCount.x);
+
+rowNumberQuery = ['SELECT Row# FROM ( ' ...
+    'SELECT SearchResultEventId, ROW_NUMBER() OVER(ORDER BY SearchResultEventId ASC) AS Row# ' ...
+    'FROM SearchResult_Event WHERE SearchResult_Event.SearchResultId = ' ...
+    num2str(handles.SearchResultId) ') q ' ...
+    'WHERE SearchResultEventId=' num2str(handles.SearchResultEventId) ];
+rowNumberData = ScoreQueryRun(rowNumberQuery);
+
+if ~strcmp(rowNumberData, 'No Data')
+    set(handles.navigationSlider,'Value', rowNumberData.Row_);
+end    
+
+
+
 
 function StopScaleTimerIfExist(hObject, handles)
 timers = timerfindall('name', 'UpdateScaleInfoTimer');
@@ -716,3 +739,49 @@ function oneEventProperties_CellEditCallback(hObject, eventdata, handles)
 %	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
 %	Error: error string when failed to convert EditData to appropriate value for Data
 % handles    structure with handles and user data (see GUIDATA)
+
+
+% --- Executes on slider movement.
+function navigationSlider_Callback(hObject, eventdata, handles)
+% hObject    handle to navigationSlider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'Value') returns position of slider
+%        get(hObject,'Min') and get(hObject,'Max') to determine range of slider
+
+targetRowNumber = round(get(handles.navigationSlider, 'value'),0);
+set(handles.navigationSlider, 'Value', targetRowNumber);
+fprintf('%16.0f\n', targetRowNumber);
+
+navigateQuery = ['SELECT SearchResultEventId, Row# FROM ' ...
+	'( SELECT SearchResultEventId, ROW_NUMBER() OVER(ORDER BY SearchResultEventId ASC) AS Row# ' ...
+	'  FROM SearchResult_Event WHERE SearchResult_Event.SearchResultId = ' ...
+       num2str(handles.SearchResultId) ') q ' ...
+	'  WHERE Row#=' num2str(targetRowNumber) ];
+navigateData = ScoreQueryRun(navigateQuery);
+
+if ~strcmp(navigateData, 'No Data')
+    nextSearchResultEventId = navigateData.SearchResultEventId;
+    oldSearchResultRecordingId = handles.SearchResultRecordingId;
+    if not(isnan(nextSearchResultEventId))
+        handles.SearchResultEventId = nextSearchResultEventId;
+        handles = UpdateInfo(handles);
+        guidata(hObject, handles);
+        CheckOpenEEG(hObject, handles, oldSearchResultRecordingId);
+    end
+end    
+
+
+
+
+% --- Executes during object creation, after setting all properties.
+function navigationSlider_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to navigationSlider (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: slider controls usually have a light gray background.
+if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor',[.9 .9 .9]);
+end
