@@ -189,11 +189,12 @@ else
 end
 
 data = {'SearchResultEventId' handles.SearchResultEventId;
-        'Time' time.StartDateTime{1};
+        'Event time' time.StartDateTime{1};
         'Time in seconds minus gaps' num2str(handles.timeSpanMinusGaps, '%6.1f');
         'File path' handles.FilePath;
         'File status' fileExistsText;
-        'EEGLAB status' eeglabStatus;                
+        'EEGLAB status' eeglabStatus;    
+        'Current EEG position' '';
        };
 
 set(handles.oneEventProperties,'data',data,'ColumnName',colNames);   
@@ -302,7 +303,7 @@ set(handles.navigationSlider,'Enable','on')
 
 
 function openButton_Callback(hObject, eventdata, handles)
-OpenEEG(hObject, handles);
+handles = OpenEEG(hObject, handles);
 ScoreRestoreEEGScaling(hObject, handles, 0);
 handles = StartScaleTimer(hObject, handles);
 
@@ -322,7 +323,7 @@ if get(findobj('tag','autoOpenCheckbox'),'value') == 0
 end
     
 
-function OpenEEG(hObject, handles)
+function handles = OpenEEG(hObject, handles)
 StopScaleTimerIfExist(hObject, handles);
 existingPlot = ScoreGetEeglabPlot(0);
 if ~isempty(existingPlot)
@@ -332,8 +333,8 @@ end
 SetFileOpenWaitStatus(handles);
 openSuccess = ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultEventId)); 
 if openSuccess
-    handles.timeSpanMinusGaps = ScoreGotoEvent(handles.SearchResultEventId); 
-    ScoreGotoEvent(handles.SearchResultEventId);
+    [handles.timeSpanMinusGaps, handles.recStart, handles.eventTime] = ...
+        ScoreGotoEvent(handles.SearchResultEventId);     
 else 
     warning('EEG file open failure');
 end    
@@ -439,7 +440,30 @@ if not(isempty(handles))
     else
         SetHorisontalScaleInfo(handles, 'Horisontal EEG scale: unknown');            
         UnselectHorisontalScaleMenuBecauseMissing(handles);
-    end        
+    end      
+    
+    existingPlot = ScoreGetEeglabPlot(0);
+    %handles.timeSpanMinusGaps, handles.recStart, handles.eventTime
+    if ~isempty(existingPlot)
+        g = get(existingPlot, 'UserData');
+        if ~isempty(g) && isfield(g, 'time') &&  ~isempty(g.time) ...
+            && isfield(handles, 'recStart') ...
+            && ~isempty(handles.recStart) ...
+            && isfield(handles, 'eventTime') ...
+            && ~isempty(handles.eventTime)
+            currentTimeSeconds = g.time;
+            currentDateTime = handles.recStart+seconds(currentTimeSeconds);
+            stateInfo = get(handles.oneEventProperties,'data');                                     
+            stateInfo{size(stateInfo,1),1} = 'Current EEG position';
+            stateInfo{size(stateInfo,1),2} = datestr(currentDateTime);
+            set(handles.oneEventProperties,'data',stateInfo); 
+            
+            %set(handles.measureTable,'data',data2);   
+            %handles.timeSpanMinusGaps
+        end
+        
+    end
+    
 end
 
 function value = HasEnoughInfoToCalculateVerticalScale(handles)    
