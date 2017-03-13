@@ -52,6 +52,13 @@ function openSuccess = ScoreOpenEegFileInEeglab(newFilePath, searchResultEventId
             
             %Downscale EKG
             EEG.data(ekgindex,:) = EEG.data(ekgindex,:)/5;
+            
+            %Order columns
+            montageOrder = {'Fp1', 'Fp2', 'F3', 'F4', 'F7', 'F8', ...
+                'f11', 'F12', 'C3', 'C4', 'T7', 'T8', 'P3', 'P4', ...
+                'P7', 'P8', 'P11', 'P12', 'O1', 'O2', 'A1', 'A2' ...
+                'Fz', 'Cz', 'EKG'};
+            EEG = ScoreOrderChannels(EEG, montageOrder);
                                    
             eegplot( EEG.data, ...
                 'winlength', 10,  ...
@@ -78,7 +85,7 @@ function openSuccess = ScoreOpenEegFileInEeglab(newFilePath, searchResultEventId
             set(figh, 'windowbuttonmotionfcn', {@ScoreMouseMove});
             
             openSuccess = 1;
-        catch
+        catch ME
             ScoreClearEeglabStudy()
         end
     end
