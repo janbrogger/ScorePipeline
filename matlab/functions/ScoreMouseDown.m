@@ -23,13 +23,22 @@ function data = ScoreMouseDown(varargin)
             g.scoreClickedChannelIndex= selectedChannelIndex;
             g.scoreClickedEegValue = clickedEegValue;
         elseif strcmp(g.scoreAnnotationState, 'WaitingForSecondClick')
+            %We have a second click, so we now have a start and stop
             g.scoreAnnotationState = 'WaitingForFirstClick';            
             clickedSamples(1) = g.scoreClickedSample;
             clickedSamples(2) = clickedSample;
             clickedChannel = g.scoreClickedChannelIndex;
             dataSegment = EEG.data(clickedChannel, clickedSamples(1):clickedSamples(2));
             [ymax ymaxsample] = max(dataSegment);
-            
+            allFigures = findall(0,'type','figure');
+            oneEventDetails = findobj(allFigures, 'tag', 'oneEventDetails');
+            if ~isempty(oneEventDetails)                
+                handles = guidata(oneEventDetails);
+                if isfield(handles, 'SearchResultEventId')                    
+                    ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, 1,'',clickedSamples(1), 0);
+                    ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, 2,'',clickedSamples(2), 0);                    
+                end
+            end
             
         end
     end
