@@ -74,6 +74,7 @@ else
     %This next line will output only if ScoreConfig.debug == 1
     ScoreDebugLog('Verbose output for debugging is ON');
     ScoreVerifyRequirements();
+    uiwait(ScoreSelectUser());
 
     searchResultsQuery = ['SELECT [SearchResult].SearchResultId, [SearchResult].Comment , COUNT(SearchResult_Study.SearchResultStudyId) AS b_count' ...
     ' FROM [SearchResult] ' ...
