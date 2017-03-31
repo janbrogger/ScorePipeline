@@ -206,17 +206,22 @@ eventText = ['<HTML><head><title>nothing</title></head><body>' eventText '<BR>' 
 set(handles.scoreText, 'String', eventText);
 set(handles.scoreText,'Enable','off') 
    
-customAnnotations = ScoreGetAnnotationsForOneProject(handles.SearchResultId);
-customAnnotations2 = customAnnotations(:,{'SearchResultAnnotationConfigId', 'FieldName'});
-colNames = {'Id' 'Field name' 'Value'};
+customAnnotations = ScoreGetAnnotationsForOneEvent(handles.SearchResultEventId);
+%customAnnotations2 = customAnnotations(:,{'SearchResultAnnotationConfigId', 'FieldName'});
+colNames = fields(customAnnotations);
 set(handles.measureTable,'ColumnName',colNames);   
-for i=1:size(customAnnotations2)
-    data2(i,1) = string(customAnnotations2(i,1).SearchResultAnnotationConfigId);
-    data2(i,2) = string(customAnnotations2(i,2).FieldName);
-    data2(i,3) = string('');
+for i=1:size(customAnnotations,1)
+    for j=1:size(customAnnotations,2)
+        disp([i ' ' j ' ' string(customAnnotations{i,j})]);
+        data2(i,j) = string(customAnnotations{i,j});        
+        if ismissing(data2(i,j))
+            %disp('XXmissingXX');
+            data2(i,j) = '';
+        end
+    end
 end   
 data2 = cellstr(data2);
-set(handles.measureTable,'data',data2);   
+set(handles.measureTable,'data',data2);
 
 
 % --- Outputs from this function are returned to the command line.
