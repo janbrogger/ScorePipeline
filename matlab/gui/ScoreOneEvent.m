@@ -205,7 +205,11 @@ locationText = ScoreGetOneEventLocationTextInfo(handles.SearchResultEventId, 1);
 eventText = ['<HTML><head><title>nothing</title></head><body>' eventText '<BR>' locationText '</body></HTML>'];
 set(handles.scoreText, 'String', eventText);
 set(handles.scoreText,'Enable','off') 
+UpdateCustomAnnotations(handles)
+handles.UpdateCustomAnnotations = @UpdateCustomAnnotations;
    
+
+function UpdateCustomAnnotations(handles)
 customAnnotations = ScoreGetAnnotationsForOneEvent(handles.SearchResultEventId);
 %customAnnotations2 = customAnnotations(:,{'SearchResultAnnotationConfigId', 'FieldName'});
 colNames = fields(customAnnotations);
@@ -215,7 +219,6 @@ for i=1:size(customAnnotations,1)
         disp([i ' ' j ' ' string(customAnnotations{i,j})]);
         data2(i,j) = string(customAnnotations{i,j});        
         if ismissing(data2(i,j))
-            %disp('XXmissingXX');
             data2(i,j) = '';
         end
     end

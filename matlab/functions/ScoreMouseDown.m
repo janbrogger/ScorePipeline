@@ -37,6 +37,7 @@ function data = ScoreMouseDown(varargin)
                 if isfield(handles, 'SearchResultEventId')                    
                     ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, 1,'',clickedSamples(1), 0);
                     ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, 2,'',clickedSamples(2), 0);                    
+                    handles.UpdateCustomAnnotations(handles);
                 end
             end
             

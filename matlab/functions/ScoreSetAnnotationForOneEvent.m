@@ -12,8 +12,6 @@ if isnan(existing.x)
     ' INSERT INTO SearchResult_Event_Annotation (SearchResultEventId, SearchResultAnnotationConfigId, ValueText, ValueInt, ValueFloat) ' ...
     'VALUES (' num2str(searchResultEventId) ', ' num2str(searchResultAnnotationConfigId) ...
     ', ''' valueText ''',' num2str(valueInt) ', ' num2str(valueFloat) ');']; 
-
-    disp(sql);
     data = ScoreQueryRun(sql);        
 else   
     existingId = existing.x;
@@ -23,7 +21,6 @@ else
            ', ValueFloat = ' num2str(valueFloat) ' ' ...
            'WHERE SearchResult_Event_Annotation.SearchResultEventAnnotationId = ' ...
            num2str(existingId) ];
-    disp(sql);
     data = ScoreQueryRun(sql);  
 end        
 end
