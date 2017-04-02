@@ -22,7 +22,7 @@ function varargout = ScorePipeline(varargin)
 
 % Edit the above text to modify the response to help ScorePipeline
 
-% Last Modified by GUIDE v2.5 06-Dec-2016 18:10:38
+% Last Modified by GUIDE v2.5 02-Apr-2017 21:54:07
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -76,19 +76,19 @@ else
     ScoreVerifyRequirements();
     uiwait(ScoreSelectUser());
 
-    searchResultsQuery = ['SELECT [SearchResult].SearchResultId, [SearchResult].Comment , COUNT(SearchResult_Study.SearchResultStudyId) AS b_count' ...
-    ' FROM [SearchResult] ' ...
-    ' INNER JOIN SearchResult_Study on SearchResult_Study.SearchResultId = SearchResult_Study.SearchResultId' ...
-    ' GROUP BY [SearchResult].SearchResultId, [SearchResult].Comment'];
+    searchResultsQuery = [...    
+    'SELECT [SearchResult].SearchResultId, [User].UserName, [SearchResult].Comment , COUNT(SearchResult_Study.SearchResultStudyId) AS b_count FROM [SearchResult]   ' ...
+    'INNER JOIN SearchResult_Study on SearchResult_Study.SearchResultId = SearchResult_Study.SearchResultId  ' ...
+    'INNER JOIN [User] on [SearchResult].UserId = [User].UserId GROUP BY [SearchResult].SearchResultId, [SearchResult].Comment, [User].UserName ' ...
+    ];
 
-    colNames = {'Id', 'Name' '# of studies'};
+    colNames = {'Id', 'User', 'Name', 'Comment', '# of studies'};
     data = ScoreQueryRun(searchResultsQuery);
     if strcmp(data,'No Data') == 0
         set(handles.searchResultsTable,'data',table2cell(data),'ColumnName',colNames);
     else
         set(handles.searchResultsTable,'data',[],'ColumnName',colNames);
-    end
-    
+    end    
 end
 
 % Choose default command line output for ScorePipeline
@@ -111,87 +111,6 @@ function varargout = ScorePipeline_OutputFcn(hObject, eventdata, handles)
 
 % Get default command line output from handles structure
 varargout{1} = handles.output;
-
-
-% --- Executes during object creation, after setting all properties.
-function density_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to density (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-function density_Callback(hObject, eventdata, handles)
-% hObject    handle to density (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of density as text
-%        str2double(get(hObject,'String')) returns contents of density as a double
-density = str2double(get(hObject, 'String'));
-if isnan(density)
-    set(hObject, 'String', 0);
-    errordlg('Input must be a number','Error');
-end
-
-% Save the new density value
-handles.metricdata.density = density;
-guidata(hObject,handles)
-
-% --- Executes during object creation, after setting all properties.
-function volume_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to volume (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: popupmenu controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
-
-
-
-function volume_Callback(hObject, eventdata, handles)
-% hObject    handle to volume (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of volume as text
-%        str2double(get(hObject,'String')) returns contents of volume as a double
-volume = str2double(get(hObject, 'String'));
-if isnan(volume)
-    set(hObject, 'String', 0);
-    errordlg('Input must be a number','Error');
-end
-
-% Save the new volume value
-handles.metricdata.volume = volume;
-guidata(hObject,handles)
-
-% --- Executes on button press in calculate.
-function calculate_Callback(hObject, eventdata, handles)
-% hObject    handle to calculate (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-mass = handles.metricdata.density * handles.metricdata.volume;
-set(handles.mass, 'String', mass);
-
-% --- Executes on button press in reset.
-function reset_Callback(hObject, eventdata, handles)
-% hObject    handle to reset (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-initialize_gui(gcbf, handles, true);
-
 
 % --------------------------------------------------------------------
 function initialize_gui(fig_handle, handles, isreset)
@@ -265,3 +184,10 @@ function figure1_CloseRequestFcn(hObject, eventdata, handles)
 
 % Hint: delete(hObject) closes the figure
 delete(hObject);
+
+
+% --- Executes on button press in subsample.
+function subsample_Callback(hObject, eventdata, handles)
+% hObject    handle to subsample (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
