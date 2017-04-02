@@ -22,7 +22,7 @@ function varargout = ScoreSelectUser(varargin)
 
 % Edit the above text to modify the response to help ScoreSelectUser
 
-% Last Modified by GUIDE v2.5 31-Mar-2017 15:11:14
+% Last Modified by GUIDE v2.5 02-Apr-2017 22:44:04
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -74,20 +74,27 @@ function varargout = ScoreSelectUser_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
 
 userListSql = [...
-'SELECT DISTINCT       [User].UserName ' ...
+'SELECT DISTINCT [User].UserId, [User].UserName ' ...
 'FROM            [User] INNER JOIN ' ...
 '                         User_Role ON [User].UserId = User_Role.UserId INNER JOIN ' ...
 '                         Role ON User_Role.RoleId = Role.RoleId ' ...
 'WHERE Role.Name = ''Physician'' OR Role.Name = ''Administrator'' ' ...    
     ];
 userList = ScoreQueryRun(userListSql); 
-username=getenv('USERNAME');
-defaultSelection = 1;
-foundCurrentUser = find(contains(userList.UserName,username));
-if ~isempty(foundCurrentUser)
-    defaultSelection = foundCurrentUser;
+
+colNames = {'Id', 'User name'};
+if strcmp(userList,'No Data') == 0
+    set(handles.userList,'data',table2cell(userList),'ColumnName',colNames);
+else
+    set(handles.userList,'data',[],'ColumnName',colNames);
 end    
-set(handles.userList,'String',userList.UserName, 'Value', defaultSelection);
+
+%username=getenv('USERNAME');
+defaultSelection = 1;
+%foundCurrentUser = find(contains(userList.UserName,username));
+%if ~isempty(foundCurrentUser)
+%    defaultSelection = foundCurrentUser;
+%end    
 
 
 % --------------------------------------------------------------------
@@ -104,12 +111,16 @@ function ok_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-userList = get(handles.userList,'String');
-selectedUserIndex = get(handles.userList,'Value');
-currentUser = char(userList(selectedUserIndex));
-assignin('base', 'scoreUser', currentUser);
-close(gcf) ;
-
+if isfield(handles, 'datatable_row')
+    tableData = get(handles.userList, 'data');
+    userId = tableData{handles.datatable_row,1};    
+    userName = tableData{handles.datatable_row,2};    
+    assignin('base', 'scoreUser', userName);
+    assignin('base', 'scoreUserId', userId);
+    close(gcf) ;
+else
+    msgbox({'Select an user first.'});
+end
 
 % --- Executes on selection change in userList.
 function userList_Callback(hObject, eventdata, handles)
@@ -132,3 +143,13 @@ function userList_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes when selected cell(s) is changed in userList.
+function userList_CellSelectionCallback(hObject, eventdata, handles)
+% hObject    handle to userList (see GCBO)
+% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)
+%	Indices: row and column indices of the cell(s) currently selecteds
+% handles    structure with handles and user data (see GUIDATA)
+handles.datatable_row = eventdata.Indices(1);
+guidata(hObject, handles);
