@@ -6,6 +6,11 @@ function ScoreFixMatlabPaths()
 
     ScoreFixMatlabPath('matlab\functions');
     ScoreFixMatlabPath('matlab\functions\withEeglabCode');
+    ScoreFixMatlabPath('matlab\functions\annotations');
+    ScoreFixMatlabPath('matlab\functions\basicDatabase');
+    ScoreFixMatlabPath('matlab\functions\findingInfo');
+    ScoreFixMatlabPath('matlab\functions\initialUtil');
+    ScoreFixMatlabPath('matlab\functions\workStatus');
     ScoreFixMatlabPath('matlab\gui');
 end
 
