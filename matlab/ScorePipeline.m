@@ -75,20 +75,7 @@ else
     ScoreDebugLog('Verbose output for debugging is ON');
     ScoreVerifyRequirements();
     uiwait(ScoreSelectUser());
-
-    searchResultsQuery = [...    
-    'SELECT [SearchResult].SearchResultId, [User].UserName, [SearchResult].Comment , COUNT(SearchResult_Study.SearchResultStudyId) AS b_count FROM [SearchResult]   ' ...
-    'INNER JOIN SearchResult_Study on SearchResult_Study.SearchResultId = SearchResult_Study.SearchResultId  ' ...
-    'INNER JOIN [User] on [SearchResult].UserId = [User].UserId GROUP BY [SearchResult].SearchResultId, [SearchResult].Comment, [User].UserName ' ...
-    ];
-
-    colNames = {'Id', 'User', 'Name', 'Comment', '# of studies'};
-    data = ScoreQueryRun(searchResultsQuery);
-    if strcmp(data,'No Data') == 0
-        set(handles.searchResultsTable,'data',table2cell(data),'ColumnName',colNames);
-    else
-        set(handles.searchResultsTable,'data',[],'ColumnName',colNames);
-    end    
+    UpdateTable(handles);
 end
 
 % Choose default command line output for ScorePipeline
@@ -119,6 +106,21 @@ function initialize_gui(fig_handle, handles, isreset)
 
 guidata(handles.figure1, handles);
 
+function UpdateTable(handles)
+    searchResultsQuery = [...    
+    'SELECT [SearchResult].SearchResultId, [SearchResult].Comment , COUNT(SearchResult_Study.SearchResultStudyId) AS b_count ,[User].UserName ' ...
+    'FROM [SearchResult]   ' ...
+    'LEFT  JOIN SearchResult_Study on [SearchResult].SearchResultId = SearchResult_Study.SearchResultId  ' ...
+    'INNER JOIN [User] on [SearchResult].UserId = [User].UserId GROUP BY [SearchResult].SearchResultId, [SearchResult].Comment, [User].UserName ' ...
+    ];
+
+    colNames = {'Id', 'User', 'Name', 'Comment', '# of studies'};
+    data = ScoreQueryRun(searchResultsQuery);
+    if strcmp(data,'No Data') == 0
+        set(handles.searchResultsTable,'data',table2cell(data),'ColumnName',colNames);
+    else
+        set(handles.searchResultsTable,'data',[],'ColumnName',colNames);
+    end    
 
 % --- Executes during object creation, after setting all properties.
 function searchResultsListBox_CreateFcn(hObject, eventdata, handles)
@@ -172,7 +174,11 @@ function searchResultsTable_CellSelectionCallback(hObject, eventdata, handles)
 % eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)
 %	Indices: row and column indices of the cell(s) currently selecteds
 % handles    structure with handles and user data (see GUIDATA)
-handles.datatable_row = eventdata.Indices(1);
+if ~isempty(eventdata.Indices)
+    handles.datatable_row = eventdata.Indices(1);
+else
+    handles.datatable_row = [];
+end    
 guidata(hObject, handles);
 
 
@@ -191,3 +197,24 @@ function subsample_Callback(hObject, eventdata, handles)
 % hObject    handle to subsample (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
+
+if isfield(handles, 'datatable_row')
+    tableData = get(handles.searchResultsTable, 'data');
+    searchResultId = tableData{handles.datatable_row,1};
+else
+    msgbox({'Select an item first.'});
+end
+
+
+numberToSample = inputdlg('Enter a number to sample', 'Subsample search results',1 );
+if ~isempty(numberToSample)
+    numberToSample = str2num(numberToSample{1});
+    if isempty(numberToSample)
+        warning('Entry is not a number')
+    else
+        ScoreSubsampleProject(searchResultId, numberToSample);
+        UpdateTable(handles);
+    end
+else
+    warning('Nothing was entered')
+end
