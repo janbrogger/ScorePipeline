@@ -91,6 +91,7 @@ set(handles.horisontalScaleMenu,'String',char('Undefined', '10', '20', '30', '60
 % Update handles structure
 guidata(hObject, handles);
 UpdateNavigationSlider(handles);
+UpdateWorkState(handles);
 initialize_gui(hObject, handles, false);
 ScoreRestoreEEGScaling(hObject, handles, 0);
 
@@ -115,8 +116,22 @@ if ~strcmp(rowNumberData, 'No Data')
     set(handles.navigationSlider,'Value', rowNumberData.Row_);
 end    
 
+function UpdateWorkState(handles)
+workStateQuery = ['SELECT * FROM SearchResult_Event_UserWorkstate ' ...
+    'WHERE SearchResultEventId=' num2str(handles.SearchResultEventId) ];
+workStateData = ScoreQueryRun(workStateQuery);
 
-
+if strcmp(workStateData, 'No Data')
+    set(handles.workstate0,'Value',1);
+else    
+    if workStateData.Workstate == 0
+        set(handles.workstate0,'Value',1);
+    elseif workStateData.Workstate == 1
+        set(handles.workstate1,'Value',1);
+    elseif workStateData.Workstate == 2
+        set(handles.workstate2,'Value',1);    
+    end
+end  
 
 function StopScaleTimerIfExist(hObject, handles)
 timers = timerfindall('name', 'UpdateScaleInfoTimer');
@@ -261,9 +276,11 @@ oldSearchResultRecordingId = handles.SearchResultRecordingId;
 if not(isnan(nextSearchResultEventId.x))
     handles.SearchResultEventId = nextSearchResultEventId.x;
     handles = UpdateInfo(handles);
+    UpdateWorkState(handles);
     guidata(hObject, handles);
     CheckOpenEEG(hObject, handles, oldSearchResultRecordingId);
 end
+
 
 % --- Executes on button press in backButton.
 function backButton_Callback(hObject, eventdata, handles)
@@ -279,6 +296,7 @@ oldSearchResultRecordingId = handles.SearchResultRecordingId;
 if not(isnan(nextSearchResultEventId.x))
     handles.SearchResultEventId = nextSearchResultEventId.x;
     handles = UpdateInfo(handles);
+    UpdateWorkState(handles);
     guidata(hObject, handles);    
     CheckOpenEEG(hObject, handles, oldSearchResultRecordingId);
 end
@@ -353,6 +371,7 @@ if ~isempty(existingPlot) && ~isempty(newPlot)
 end    
 EnableButtonsAfterWait(handles);
 handles = UpdateInfo(handles);
+UpdateWorkState(handles);
 guidata(hObject, handles);
 
 if ~isempty(newPlot)
@@ -801,6 +820,7 @@ if ~strcmp(navigateData, 'No Data')
     if not(isnan(nextSearchResultEventId))
         handles.SearchResultEventId = nextSearchResultEventId;
         handles = UpdateInfo(handles);
+        UpdateWorkState(handles);
         guidata(hObject, handles);
         CheckOpenEEG(hObject, handles, oldSearchResultRecordingId);
     end
@@ -819,3 +839,25 @@ function navigationSlider_CreateFcn(hObject, eventdata, handles)
 if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
+
+
+% --- Executes when selected object is changed in workStateGroup.
+function workStateGroup_SelectionChangedFcn(hObject, eventdata, handles)
+% hObject    handle to the selected object in workStateGroup 
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+selectedObject = get(handles.workStateGroup, 'SelectedObject');
+value = 0;
+if strcmp(selectedObject.Tag, 'workstate0')
+    value = 0;
+elseif strcmp(selectedObject.Tag, 'workstate1')    
+    value = 1;
+elseif strcmp(selectedObject.Tag, 'workstate2')    
+    value = 2;    
+end    
+
+userId = evalin('base', 'scoreUserId');
+ScoreSetUserAnnotationWorkStatus(handles.SearchResultEventId, userId, value)    
+
+
+
