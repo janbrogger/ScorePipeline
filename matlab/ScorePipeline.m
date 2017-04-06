@@ -74,7 +74,9 @@ else
     %This next line will output only if ScoreConfig.debug == 1
     ScoreDebugLog('Verbose output for debugging is ON');
     ScoreVerifyRequirements();
-    uiwait(ScoreSelectUser());
+    if ~ismember('scoreUser',evalin('base','who')) || ~ismember('scoreUserId',evalin('base','who'))
+        uiwait(ScoreSelectUser());
+    end
     UpdateTable(handles);
 end
 
@@ -116,7 +118,7 @@ function UpdateTable(handles)
 
     colNames = {'Id', 'User', 'Name', 'Comment', '# of studies'};
     data = ScoreQueryRun(searchResultsQuery);
-    if strcmp(data,'No Data') == 0
+    if strcmp(data,'No Data') == 0 && data ~= 0
         set(handles.searchResultsTable,'data',table2cell(data),'ColumnName',colNames);
     else
         set(handles.searchResultsTable,'data',[],'ColumnName',colNames);
