@@ -10,6 +10,6 @@ function data = ScoreGetAnnotationsForOneEvent(searchResultEventId)
     '                         SearchResult_AnnotationConfig.SearchResultAnnotationConfigId = SearchResult_Event_Annotation.SearchResultAnnotationConfigId ' ...
     'WHERE        (SearchResult_Event.SearchResultEventId = ' num2str(searchResultEventId) ');' ...
     ];
-    disp(sql);
+    %disp(sql);
     data = ScoreQueryRun(sql);        
 end
