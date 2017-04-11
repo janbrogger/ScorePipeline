@@ -1,0 +1,19 @@
+function text = ScoreOpenReportForSearchResultEvent(searchResultEventId)
+
+    reportQuery = ['SELECT Description.DescriptionId, Description.Pdf ' ...
+        'FROM  SearchResult_Event  ' ...
+        'INNER JOIN Event ON SearchResult_Event.EventId = Event.EventId ' ...
+        'INNER JOIN EventCoding ON Event.EventCodingId = EventCoding.EventCodingId ' ...
+        'INNER JOIN Description ON EventCoding.DescriptionId = Description.DescriptionId ' ...
+        'WHERE SearchResult_Event.SearchResultEventId = ' num2str(searchResultEventId)  ...        
+         ];
+    data = ScoreQueryRun(reportQuery);
+    
+    %disp(data);
+    text = '';
+    if ~strcmp(data, 'No Data')                
+        pdf = data.Pdf;
+    else
+        warning('No report found');
+    end
+end

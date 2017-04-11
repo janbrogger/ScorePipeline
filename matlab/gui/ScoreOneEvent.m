@@ -319,6 +319,7 @@ set(handles.openButton,'Enable','off')
 set(handles.nextButton,'Enable','off') 
 set(handles.backButton,'Enable','off') 
 set(handles.navigationSlider,'Enable','off') 
+set(handles.report,'Enable','off') 
 drawnow();
 
 function EnableButtonsAfterWait(handles)
@@ -326,6 +327,7 @@ set(handles.nextButton,'Enable','on');
 set(handles.backButton,'Enable','on'); 
 set(handles.openButton,'Enable','on');
 set(handles.navigationSlider,'Enable','on') 
+set(handles.report,'Enable','on') 
 
 
 function openButton_Callback(hObject, eventdata, handles)
@@ -860,4 +862,10 @@ userId = evalin('base', 'scoreUserId');
 ScoreSetUserAnnotationWorkStatus(handles.SearchResultEventId, userId, value)    
 
 
+% --- Executes on button press in report.
+function report_Callback(hObject, eventdata, handles)
+% hObject    handle to report (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+ScoreOpenReportForSearchResultEvent(handles.SearchResultEventId);
 
