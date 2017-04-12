@@ -276,6 +276,7 @@ oldSearchResultRecordingId = handles.SearchResultRecordingId;
 if not(isnan(nextSearchResultEventId.x))
     handles.SearchResultEventId = nextSearchResultEventId.x;
     handles = UpdateInfo(handles);
+    UpdateNavigationSlider(handles);
     UpdateWorkState(handles);
     guidata(hObject, handles);
     CheckOpenEEG(hObject, handles, oldSearchResultRecordingId);
@@ -296,6 +297,7 @@ oldSearchResultRecordingId = handles.SearchResultRecordingId;
 if not(isnan(nextSearchResultEventId.x))
     handles.SearchResultEventId = nextSearchResultEventId.x;
     handles = UpdateInfo(handles);
+    UpdateNavigationSlider(handles);
     UpdateWorkState(handles);
     guidata(hObject, handles);    
     CheckOpenEEG(hObject, handles, oldSearchResultRecordingId);
