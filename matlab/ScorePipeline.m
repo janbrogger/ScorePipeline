@@ -114,7 +114,8 @@ function UpdateTable(handles)
     'FROM [SearchResult]   ' ...
     'LEFT JOIN SearchResult_Study on [SearchResult].SearchResultId = SearchResult_Study.SearchResultId  '   ...  
     'LEFT JOIN [User] on [SearchResult].UserId = [User].UserId '     ...
-    'GROUP BY SearchResult.SearchResultId, SearchResult.Comment, [User].UserName'
+    'GROUP BY SearchResult.SearchResultId, SearchResult.Comment, [User].UserName ' ...
+    'ORDER BY SearchResult.SearchResultId '
     ];
 
     colNames = {'Id', 'Comment', '# of studies', 'User'};
@@ -152,7 +153,14 @@ function deleteButton_Callback(hObject, eventdata, handles)
 % hObject    handle to deleteButton (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-h = msgbox({'This must be manually in the database for now.' 'Delete a row in the SearchResult table.'});
+if isfield(handles, 'datatable_row')
+    tableData = get(handles.searchResultsTable, 'data');
+    searchResultId = tableData{handles.datatable_row,1};
+    ScoreDeleteSearchResult(searchResultId);
+    UpdateTable(handles);
+else
+    msgbox({'Select an item first.'});
+end
 
 
 % --- Executes on button press in openButton.

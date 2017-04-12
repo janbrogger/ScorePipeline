@@ -27,6 +27,8 @@ GO
 
 ALTER TABLE [dbo].[SearchResult_AnnotationConfig]  WITH CHECK ADD  CONSTRAINT [FK_SearchResult_AnnotationConfig_SearchResult] FOREIGN KEY([SearchResultId])
 REFERENCES [dbo].[SearchResult] ([SearchResultId])
+ON UPDATE CASCADE
+ON DELETE CASCADE
 GO
 
 ALTER TABLE [dbo].[SearchResult_AnnotationConfig] CHECK CONSTRAINT [FK_SearchResult_AnnotationConfig_SearchResult]
