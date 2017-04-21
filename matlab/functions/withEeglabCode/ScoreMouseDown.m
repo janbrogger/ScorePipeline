@@ -38,22 +38,16 @@ function data = ScoreMouseDown(varargin)
                     configData = ScoreGetAnnotationsForOneProject(handles.SearchResultId);
                     if ~strcmp(configData,'No Data')
                         [searchResultAnnotationConfigIdSampleStart, searchResultAnnotationConfigIdSampleEnd] = GetClickableAnnotationConfig(handles.SearchResultId);                        
-                        isUpdated = 0;
                         if ~isempty(searchResultAnnotationConfigIdSampleStart)
                             ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, searchResultAnnotationConfigIdSampleStart,'',clickedSamples(1), 0);                            
-                            isUpdated = 1;
                         end
                         if ~isempty(searchResultAnnotationConfigIdSampleEnd)
                             ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, searchResultAnnotationConfigIdSampleEnd,'',clickedSamples(2), 0);                    
-                            isUpdated = 1;
-                        end           
-                        
-                        if isUpdated == 1
-                            handles.UpdateCustomAnnotations(handles);
-                        end
+                        end                                   
                     end                     
                     
                 end
+                handles.UpdateCustomAnnotations(handles);
             end
             
         end

@@ -241,6 +241,8 @@ if ~strcmp(customAnnotations, 'No Data')
     end   
     data2 = cellstr(data2);
     set(handles.measureTable,'data',data2);
+else    
+    set(handles.measureTable,'data',[]);
 end
 
 
