@@ -884,3 +884,26 @@ function report_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 ScoreOpenReportForSearchResultEvent(handles.SearchResultEventId);
 
+
+
+% --- Executes when entered data in editable cell(s) in measureTable.
+function measureTable_CellEditCallback(hObject, eventdata, handles)
+% hObject    handle to measureTable (see GCBO)
+% eventdata  structure with the following fields (see MATLAB.UI.CONTROL.TABLE)
+%	Indices: row and column indices of the cell(s) edited
+%	PreviousData: previous data for the cell(s) edited
+%	EditData: string(s) entered by the user
+%	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
+%	Error: error string when failed to convert EditData to appropriate value for Data
+% handles    structure with handles and user data (see GUIDATA)
+disp('cell edited');
+tableData = get(hObject,'data');
+tableColumns = get(hObject, 'ColumnName');
+editedColumn = tableColumns(eventdata.Indices(2));
+configIdColumn = find(contains(tableColumns,'SearchResultAnnotationConfigId'));
+configId = tableData(eventdata.Indices(1), configIdColumn);
+if ~isempty(configId)    
+    %now check the value type and actual value before storing it    
+    ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, configId,'',0, 0);                            
+end
+
