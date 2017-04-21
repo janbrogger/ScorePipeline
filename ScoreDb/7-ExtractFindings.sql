@@ -20,7 +20,7 @@ GO
 
 DELETE FROM SearchResult
 INSERT INTO [dbo].[SearchResult] ([SearchSavedId], [DatePerformed],[Comment])
-     VALUES (null,'20161122 20:40:00','Manual insert of epi/non-epi sharps search, not using SCORE')
+     VALUES (null,'20161122 20:40:00','Manual insert of epi/non-epi sharps search, not using SCORE search function')
 
 DECLARE @NewSearchResultId int
 SELECT @NewSearchResultId  = MAX(SearchResultId) FROM SearchResult
@@ -34,7 +34,7 @@ DBCC CHECKIDENT ('SearchResult_Recording', RESEED, 1)
 
 
 --Start with EventCode 
-SELECT     EventCoding.EventCodingId, EventCoding.DescriptionId
+SELECT  DISTINCT   EventCoding.EventCodingId, EventCoding.DescriptionId
 INTO #TempEventCoding
 		FROM EventCoding											
 		INNER JOIN EventCode ON EventCoding.EventCodeId = EventCode.EventCodeId 
@@ -51,13 +51,14 @@ INTO #TempEventCoding
 		 OR    EventCode.Name = 'Pattern of uncertain significance - Sharp transient' 
 		 OR    EventCode.Name = 'Pattern of uncertain significance - Small sharp spikes (Benign epileptiform transients of sleep)'
 		)
-		
+		ORDER BY EventCoding.EventCodingId
 
-SELECT     Event.EventId, Event.RecordingId
+SELECT  DISTINCT #TempEventCoding.EventCodingId, Event.EventId, Event.RecordingId
 INTO #TempEvent
 FROM #TempEventCoding 
 INNER JOIN Event ON #TempEventCoding.EventCodingId = Event.EventCodingId
-WHERE Event.IsDeleted = 0
+WHERE Event.IsDeleted = 0 AND Event.IsFakeEvent = 0
+ORDER BY #TempEventCoding.EventCodingId
 
 SELECT     DISTINCT(Recording.RecordingId)
 INTO #TempRecording
