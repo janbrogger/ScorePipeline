@@ -241,6 +241,15 @@ if ~strcmp(customAnnotations, 'No Data')
     end   
     data2 = cellstr(data2);
     set(handles.measureTable,'data',data2);
+    isEditableList = [];
+    for j=1:size(colNames)
+            isEditable = 0;
+            if contains(colNames(j),"Value")
+                isEditable = 1;
+            end
+            isEditableList = [isEditableList isEditable];
+    end
+    set(handles.measureTable,'ColumnEditable',logical(isEditableList))
 else    
     set(handles.measureTable,'data',[]);
 end
