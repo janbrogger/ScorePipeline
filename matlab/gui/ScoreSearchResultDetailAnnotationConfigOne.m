@@ -64,6 +64,9 @@ if(size(varargin, 2) >= 2)
     if (existingData.HasString == 1)
         set(handles.dataTypeGroup,'SelectedObject',handles.dataTypeString);
     end
+    if (existingData.HasBit == 1)
+        set(handles.dataTypeGroup,'SelectedObject',handles.dataTypeBit);
+    end
 end
 guidata(hObject, handles);
 
@@ -158,16 +161,20 @@ hasString = 0;
 if get(handles.dataTypeGroup,'SelectedObject') == handles.dataTypeString
     hasString = 1;
 end
+hasBit = 0;
+if get(handles.dataTypeGroup,'SelectedObject') == handles.dataTypeBit
+    hasBit = 1;
+end
 if isfield(handles, 'SearchResultAnnotationConfigId') && ~isempty(handles.SearchResultAnnotationConfigId)    
     ScoreSetAnnotationConfig(handles.SearchResultAnnotationConfigId, ... 
         get(handles.fieldName,'String'), ...
         get(handles.fieldComment,'String'), ...
-        hasInteger, hasFloat, hasString);
+        hasInteger, hasFloat, hasString, hasBit);
 else
     ScoreCreateAnnotationConfig(handles.SearchResultId, ...
         get(handles.fieldName,'String'), ...
         get(handles.fieldComment,'String'), ...
-        hasInteger, hasFloat, hasString);
+        hasInteger, hasFloat, hasString, hasBit);
 end
 
 handles.output = get(hObject,'String');

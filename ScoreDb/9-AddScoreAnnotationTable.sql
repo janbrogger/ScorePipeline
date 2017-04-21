@@ -15,6 +15,7 @@ CREATE TABLE [dbo].[SearchResult_Event_Annotation](
 	[ValueText] [nvarchar](255) NULL,
 	[ValueInt] [int] NULL,
 	[ValueFloat] [float] NULL,	
+	[ValueBit] [bit] NOT NULL,
  CONSTRAINT [PK_SearchResult_Event_Annotation] PRIMARY KEY CLUSTERED 
 (
 	[SearchResultEventAnnotationId] ASC
@@ -30,7 +31,8 @@ GO
 ALTER TABLE [dbo].[SearchResult_Event_Annotation] CHECK CONSTRAINT [FK_SearchResult_Event_Annotation]
 GO
 
-
+ALTER TABLE [dbo].[SearchResult_Event_Annotation] ADD  CONSTRAINT [DF_SearchResult_Event_Annotation_ValueBit]  DEFAULT ((0)) FOR [ValueBit]
+GO
 
 ALTER TABLE [dbo].[SearchResult_Event_Annotation]  WITH CHECK ADD  CONSTRAINT [FK_SearchResult_Event_Config] FOREIGN KEY([SearchResultAnnotationConfigId])
 REFERENCES [dbo].[SearchResult_AnnotationConfig] ([SearchResultAnnotationConfigId])

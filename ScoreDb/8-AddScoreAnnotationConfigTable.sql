@@ -17,12 +17,16 @@ CREATE TABLE [dbo].[SearchResult_AnnotationConfig](
 	[HasInteger] [bit] NOT NULL,
 	[HasFloat] [bit] NOT NULL,
 	[HasString] [bit] NOT NULL,
+	[HasBit] [bit] NOT NULL,
  CONSTRAINT [PK_SearchResult_AnnotationConfig] PRIMARY KEY CLUSTERED 
 (
 	[SearchResultAnnotationConfigId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 
+GO
+
+ALTER TABLE [dbo].[SearchResult_AnnotationConfig] ADD  CONSTRAINT [DF_SearchResult_AnnotationConfig_HasBit]  DEFAULT ((0)) FOR [HasBit]
 GO
 
 ALTER TABLE [dbo].[SearchResult_AnnotationConfig]  WITH CHECK ADD  CONSTRAINT [FK_SearchResult_AnnotationConfig_SearchResult] FOREIGN KEY([SearchResultId])
