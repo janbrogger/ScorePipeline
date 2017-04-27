@@ -220,7 +220,7 @@ locationText = ScoreGetOneEventLocationTextInfo(handles.SearchResultEventId, 1);
 eventText = ['<HTML><head><title>nothing</title></head><body>' eventText '<BR>' locationText '</body></HTML>'];
 set(handles.scoreText, 'String', eventText);
 set(handles.scoreText,'Enable','off') 
-UpdateCustomAnnotations(handles)
+UpdateCustomAnnotations(handles);
 handles.UpdateCustomAnnotations = @UpdateCustomAnnotations;
    
 
@@ -896,14 +896,28 @@ function measureTable_CellEditCallback(hObject, eventdata, handles)
 %	NewData: EditData or its converted form set on the Data property. Empty if Data was not changed
 %	Error: error string when failed to convert EditData to appropriate value for Data
 % handles    structure with handles and user data (see GUIDATA)
-disp('cell edited');
 tableData = get(hObject,'data');
 tableColumns = get(hObject, 'ColumnName');
 editedColumn = tableColumns(eventdata.Indices(2));
-configIdColumn = find(contains(tableColumns,'SearchResultAnnotationConfigId'));
-configId = tableData(eventdata.Indices(1), configIdColumn);
-if ~isempty(configId)    
+configId = str2num(tableData{eventdata.Indices(1), find(contains(tableColumns,'SearchResultAnnotationConfigId'))});
+valueInt = str2num(tableData{eventdata.Indices(1), find(contains(tableColumns,'ValueInt'))});
+valueFloat = str2num(tableData{eventdata.Indices(1), find(contains(tableColumns,'ValueFloat'))});
+valueText = tableData{eventdata.Indices(1), find(contains(tableColumns,'ValueText'))};
+valueBit = str2num(tableData{eventdata.Indices(1), find(contains(tableColumns,'ValueBit'))});
+hasInteger = str2num(tableData{eventdata.Indices(1), find(contains(tableColumns,'HasInteger'))});
+hasFloat = str2num(tableData{eventdata.Indices(1), find(contains(tableColumns,'HasFloat'))});
+hasText = str2num(tableData{eventdata.Indices(1), find(contains(tableColumns,'HasString'))});
+hasBit = str2num(tableData{eventdata.Indices(1), find(contains(tableColumns,'HasBit'))});
+
+if ~isempty(configId)        
     %now check the value type and actual value before storing it    
-    ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, configId,'',0, 0);                            
+    if (strcmp(editedColumn, 'ValueInt') && hasInteger) ...
+        || (strcmp(editedColumn, 'ValueFloat') && hasFloat) ...
+        || (strcmp(editedColumn, 'ValueText') && hasText) ...
+        || (strcmp(editedColumn, 'ValueBit') && hasBit) 
+        ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, ...
+            configId, valueText, valueInt, valueFloat, valueBit);                            
+    end
+    UpdateCustomAnnotations(handles);
 end
 
