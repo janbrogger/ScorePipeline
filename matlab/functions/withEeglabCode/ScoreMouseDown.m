@@ -37,13 +37,30 @@ function data = ScoreMouseDown(varargin)
                 if isfield(handles, 'SearchResultEventId')                    
                     configData = ScoreGetAnnotationsForOneProject(handles.SearchResultId);
                     if ~strcmp(configData,'No Data')
-                        [searchResultAnnotationConfigIdSampleStart, searchResultAnnotationConfigIdSampleEnd] = GetClickableAnnotationConfig(handles.SearchResultId);                        
+                        [searchResultAnnotationConfigIdSampleStart, searchResultAnnotationConfigIdSampleEnd, searchResultAnnotationConfigIdScreenshot] = GetClickableAnnotationConfig(handles.SearchResultId);                        
                         if ~isempty(searchResultAnnotationConfigIdSampleStart)
-                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, searchResultAnnotationConfigIdSampleStart,'',clickedSamples(1), 0);                            
+                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, searchResultAnnotationConfigIdSampleStart,'ValueInt',clickedSamples(1));
                         end
                         if ~isempty(searchResultAnnotationConfigIdSampleEnd)
-                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, searchResultAnnotationConfigIdSampleEnd,'',clickedSamples(2), 0);                    
-                        end                                   
+                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, searchResultAnnotationConfigIdSampleEnd,'ValueInt',clickedSamples(2));
+                        end    
+                        if ~isempty(searchResultAnnotationConfigIdScreenshot)
+                            tempFileName = tempname();
+                            [pathstr, name, ext] = fileparts(tempFileName);
+                            tempFileName = [pathstr name '.png'];                        
+                            print(tempFileName,'-dpng','-r0')
+                            disp(tempFileName);
+                            fileID = fopen(tempFileName,'r');
+                            if fileID ~= -1            
+                                png = fread(fileID);
+                                fclose(fileID);                            
+                                %ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, ...
+                                %    searchResultAnnotationConfigIdScreenshot, ...
+                                %    '',clickedSamples(2), 0, 0, png);                    
+                            else
+                                warning(['Could not read screenshot file ' tempFileName]);
+                            end                            
+                        end                            
                     end                     
                     
                 end
