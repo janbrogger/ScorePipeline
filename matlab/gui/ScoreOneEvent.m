@@ -232,9 +232,13 @@ if ~strcmp(customAnnotations, 'No Data')
     set(handles.measureTable,'ColumnName',colNames);   
     for i=1:size(customAnnotations,1)
         for j=1:size(customAnnotations,2)
-            %disp([i ' ' j ' ' string(customAnnotations{i,j})]);
-            data2(i,j) = string(customAnnotations{i,j});        
-            if ismissing(data2(i,j))
+            %disp([i ' ' j ' ' string(customAnnotations{i,j})]);            
+            if ~strcmp(colNames(j), 'ValueBlob')
+                data2(i,j) = string(customAnnotations{i,j});        
+                if ismissing(data2(i,j))
+                    data2(i,j) = '';
+                end
+            else
                 data2(i,j) = '';
             end
         end
