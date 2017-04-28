@@ -18,6 +18,7 @@ CREATE TABLE [dbo].[SearchResult_AnnotationConfig](
 	[HasFloat] [bit] NOT NULL,
 	[HasString] [bit] NOT NULL,
 	[HasBit] [bit] NOT NULL,
+	[HasBlob] [bit] NOT NULL,
  CONSTRAINT [PK_SearchResult_AnnotationConfig] PRIMARY KEY CLUSTERED 
 (
 	[SearchResultAnnotationConfigId] ASC
