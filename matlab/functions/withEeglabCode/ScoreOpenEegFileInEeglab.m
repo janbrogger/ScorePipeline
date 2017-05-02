@@ -24,9 +24,8 @@ function openSuccess = ScoreOpenEegFileInEeglab(newFilePath, searchResultEventId
             EEG.setname='test';    
             
             
-            EEG = pop_select( EEG,'nochannel',{'Rate' 'IBI' 'Bursts' 'Suppr'});    
-                                   
-            %Remove unused channels            
+            disp('Removing unused channels');
+            EEG = pop_select( EEG,'nochannel',{'Rate' 'IBI' 'Bursts' 'Suppr'});                                                   
             exclIndex1 = find(strcmp({EEG.chanlocs(:).labels}, '24'));
             exclIndex2 = find(strcmp({EEG.chanlocs(:).labels}, '25'));
             exclIndex3 = find(strcmp({EEG.chanlocs(:).labels}, '26'));
@@ -40,17 +39,22 @@ function openSuccess = ScoreOpenEegFileInEeglab(newFilePath, searchResultEventId
 
             ekgindex = find(strcmp({EEG.chanlocs(:).labels}, 'EKG'));
             photicindex = find(strcmp({EEG.chanlocs(:).labels}, 'Photic'));
+            disp('Flipping data');
             EEG.data = -EEG.data;
+            disp('Rereferencing data');
             EEG = pop_reref( EEG, [],'exclude',[ekgindex photicindex ]);  
             %notch
-            EEG = pop_eegfiltnew(EEG, 48, 52, 3300, 1, [], 0);
+            disp('Filtering data');
+            EEG = pop_eegfilt(EEG, 48, 52, 3300, 1, [], 0);
             %passband
-            EEG = pop_eegfiltnew(EEG, 1, 70, 6600, 0, [], 0);
+            EEG = pop_eegfilt(EEG, 1, 70, 6600, 0, [], 0);
 
+            disp('Fixing some events');
             EEG = SetSomeLongEventsToZero(EEG);
             EEG = InsertSomeEventNames(EEG);
             
             %Downscale EKG
+            disp('Downscaling EKG');
             EEG.data(ekgindex,:) = EEG.data(ekgindex,:)/5;
             
             %Order columns

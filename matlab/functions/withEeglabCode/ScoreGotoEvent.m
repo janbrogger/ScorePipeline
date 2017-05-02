@@ -22,33 +22,17 @@ function [timeSpanMinusGaps, recStart, eventTime] = ScoreGotoEvent(searchResultE
             ' WHERE SearchResultEventId = ' num2str(searchResultEventId)]);
         eventTime = datetime(eventTime.yy,eventTime.mm,eventTime.dd,eventTime.hh,eventTime.mi,eventTime.ss,eventTime.ms);
 
-        recStart = ScoreQueryRun(['SELECT ' ...
-              '  DATEPART(yyyy, Recording.Start) AS yy ' ...
-              ' ,DATEPART(mm, Recording.Start)   AS mm ' ...
-              ' ,DATEPART(dd, Recording.Start)   AS dd' ...
-              ' ,DATEPART(HH, Recording.Start)   AS hh' ...
-              ' ,DATEPART(mi, Recording.Start)   AS mi' ...
-              ' ,DATEPART(ss, Recording.Start)   AS ss' ...
-              ' ,DATEPART(ms, Recording.Start)   AS ms' ...
-              ' FROM SearchResult_Event ' ...
-              ' INNER JOIN Event ON SearchResult_Event.EventId = Event.EventId ' ...
-              ' INNER JOIN Recording ON Event.RecordingId= Recording.RecordingId ' ...        
-              ' WHERE SearchResultEventId = ' num2str(searchResultEventId)]);
-        recStart = datetime(recStart.yy,recStart.mm,recStart.dd,recStart.hh,recStart.mi,recStart.ss,recStart.ms);    
+        EEG = evalin('base','EEG');
+        recStart = EEG.startDateTime;   
 
         ScoreDebugLog(['Recording start: ' datestr(recStart)]);
         ScoreDebugLog(['Event time to go to: ' datestr(eventTime)]);
-
-        %ONLY FOR DEVELOPING - we fake the event time
-        %eventTime = recStart + seconds(randi(1200));
-
-        %The rest should be OK in production
+        
         timeSpan = eventTime-recStart;
-        ScoreDebugLog(['Timespan between recording start and event to go to: ' num2str(seconds(timeSpan))]);
+        ScoreDebugLog(['Timespan between recording start and event to go to, before gaps: ' num2str(seconds(timeSpan))]);
         %We have now calculated the time interval in calendar time
         %but in elapsed EEG time, we need to subtract any gaps in the EEG
 
-        EEG = evalin('base','EEG');
         boundaryEvents = EEG.event(strcmp('boundary', {EEG.event.type}));    
         timeSpanMinusGaps = seconds(timeSpan);
         for currentSegment = 1:size(boundaryEvents,2)
