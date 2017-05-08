@@ -16,7 +16,7 @@ CREATE TABLE [dbo].[SearchResult_Event_Annotation](
 	[ValueText] [nvarchar](255) NULL,
 	[ValueInt] [int] NULL,
 	[ValueFloat] [float] NULL,	
-	[ValueBit] [bit] NOT NULL,
+	[ValueBit] [bit]  NULL,
 	[ValueBlob] [nvarchar](max) NULL,
  CONSTRAINT [PK_SearchResult_Event_Annotation] PRIMARY KEY CLUSTERED 
 (

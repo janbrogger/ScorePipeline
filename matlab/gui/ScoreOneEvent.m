@@ -905,27 +905,25 @@ tableColumns = get(hObject, 'ColumnName');
 editedColumn = tableColumns(eventdata.Indices(2));
 configId = str2num(tableData{eventdata.Indices(1), find(contains(tableColumns,'SearchResultAnnotationConfigId'))});
 
-hasInteger = str2num(tableData{eventdata.Indices(1), find(contains(tableColumns,'HasInteger'))});
-hasFloat = str2num(tableData{eventdata.Indices(1), find(contains(tableColumns,'HasFloat'))});
-hasText = str2num(tableData{eventdata.Indices(1), find(contains(tableColumns,'HasString'))});
-hasBit = str2num(tableData{eventdata.Indices(1), find(contains(tableColumns,'HasBit'))});
+fieldType = tableData{eventdata.Indices(1), find(contains(tableColumns,'FieldType'))};
 
-if ~isempty(configId)        
+if ~isempty(configId) && strcmp(editedColumn,'Value')        
+    valueAsString = tableData{eventdata.Indices(1), find(contains(tableColumns,'Value'))};
     %now check the value type and actual value before storing it    
-    if (strcmp(editedColumn, 'ValueInt') && hasInteger)
-        valueInt = str2num(tableData{eventdata.Indices(1), find(contains(tableColumns,'ValueInt'))});
+    if (strcmp(fieldType, 'Int'))
+        valueInt = str2num(valueAsString);
         ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, ...
             configId, 'ValueInt', valueInt);
-    elseif (strcmp(editedColumn, 'ValueFloat') && hasFloat) 
-        valueFloat = str2num(tableData{eventdata.Indices(1), find(contains(tableColumns,'ValueFloat'))});
+    elseif (strcmp(fieldType, 'Float')) 
+        valueFloat = str2num(valueAsString);
         ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, ...
             configId, 'ValueFloat', valueFloat);
-    elseif (strcmp(editedColumn, 'ValueText') && hasText) 
-        valueText = tableData{eventdata.Indices(1), find(contains(tableColumns,'ValueText'))};
+    elseif (strcmp(fieldType, 'Text')) 
+        valueText = valueAsString;
         ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, ...
             configId, 'ValueText', valueText);        
-    elseif (strcmp(editedColumn, 'ValueBit') && hasBit) 
-        valueBit = str2num(tableData{eventdata.Indices(1), find(contains(tableColumns,'ValueBit'))});
+    elseif (strcmp(fieldType, 'Bit')) 
+        valueBit = str2num(valueAsString);
         ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, ...
             configId, 'ValueBit', valueBit);                    
     end                
