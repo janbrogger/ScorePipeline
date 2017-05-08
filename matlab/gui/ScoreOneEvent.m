@@ -225,7 +225,7 @@ handles.UpdateCustomAnnotations = @UpdateCustomAnnotations;
    
 
 function UpdateCustomAnnotations(handles)
-customAnnotations = ScoreGetAnnotationsForOneEvent(handles.SearchResultEventId);
+customAnnotations = ScoreGetAnnotationsForOneEvent(handles.SearchResultEventId, handles.SearchResultId);
 %customAnnotations2 = customAnnotations(:,{'SearchResultAnnotationConfigId', 'FieldName'});
 if ~strcmp(customAnnotations, 'No Data')
     colNames = fields(customAnnotations);

@@ -10,6 +10,7 @@ GO
 
 CREATE TABLE [dbo].[SearchResult_Event_Annotation](
 	[SearchResultEventAnnotationId] [int] IDENTITY(1,1) NOT NULL,
+	[UserId] [int] NOT NULL,
 	[SearchResultEventId] [int] NOT NULL,
 	[SearchResultAnnotationConfigId] [int] NOT NULL,	
 	[ValueText] [nvarchar](255) NULL,
@@ -39,6 +40,10 @@ ALTER TABLE [dbo].[SearchResult_Event_Annotation]  WITH CHECK ADD  CONSTRAINT [F
 REFERENCES [dbo].[SearchResult_AnnotationConfig] ([SearchResultAnnotationConfigId])
 ON UPDATE CASCADE
 ON DELETE CASCADE
+GO
+
+ALTER TABLE [dbo].[SearchResult_Event_Annotation]  WITH CHECK ADD  CONSTRAINT [FK_SearchResult_Event_Annotation_User] FOREIGN KEY([UserId])
+REFERENCES [dbo].[User] ([UserId])
 GO
 
 ALTER TABLE [dbo].[SearchResult_Event_Annotation] CHECK CONSTRAINT [FK_SearchResult_Event_Config]

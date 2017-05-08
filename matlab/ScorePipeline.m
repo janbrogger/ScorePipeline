@@ -74,9 +74,12 @@ else
     %This next line will output only if ScoreConfig.debug == 1
     ScoreDebugLog('Verbose output for debugging is ON');
     ScoreVerifyRequirements();
-    if ~ismember('scoreUser',evalin('base','who')) || ~ismember('scoreUserId',evalin('base','who'))
+    [scoreUserId, scoreUserName] = ScoreGetCurrentUser(0);
+    if isempty(scoreUserId) || isempty(scoreUserName)
         uiwait(ScoreSelectUser());
     end
+    
+    disp(['Current SCORE user is:' scoreUserName ' (UserId: ' num2str(scoreUserId) ')']);
     UpdateTable(handles);
 end
 

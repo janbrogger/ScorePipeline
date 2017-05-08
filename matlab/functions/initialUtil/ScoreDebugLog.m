@@ -1,5 +1,5 @@
 function ScoreDebugLog(message)
     if (ScoreConfig.debug == 1)
-        disp(message)
+        disp(['DEBUG: ' message]);
     end
 end
