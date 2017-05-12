@@ -1,8 +1,12 @@
 USE HolbergAnon
+--Drop some temp tables
 IF OBJECT_ID('tempdb..#PivotBase') IS NOT NULL DROP TABLE #PivotBase
 IF OBJECT_ID('tempdb..#PivotBase2') IS NOT NULL DROP TABLE #PivotBase2
+IF OBJECT_ID('tempdb..#Columns') IS NOT NULL DROP TABLE #Columns
 IF OBJECT_ID('tempdb..##PivotResult') IS NOT NULL DROP TABLE ##PivotResult
 GO
+
+--The base query
 SELECT        
  --SearchResult.SearchResultId,
  --SearchResult.Comment AS SearchResultComment,
@@ -21,24 +25,24 @@ SELECT
  --SearchResult_AnnotationConfig.HasBlob, 
  --SearchResult_AnnotationConfig.HasBit,
  --SearchResult_Event_Annotation.ValueText,
- --SearchResult_Event_Annotation.ValueInt ,
+ --SearchResult_Event_Annotation.ValueInt, 
  --SearchResult_Event_Annotation.ValueFloat,
  --SearchResult_Event_Annotation.ValueBit,
  --SearchResult_Event_Annotation.ValueBlob,  
- --CAST(CASE 
- --	WHEN SearchResult_AnnotationConfig.HasInteger=1 THEN CONVERT(nvarchar(max), SearchResult_Event_Annotation.ValueInt)
- -- WHEN SearchResult_AnnotationConfig.HasString=1 THEN CONVERT(nvarchar(max), SearchResult_Event_Annotation.ValueText)
- -- WHEN SearchResult_AnnotationConfig.HasFloat=1 THEN CONVERT(nvarchar(max), SearchResult_Event_Annotation.ValueFloat)
- -- WHEN SearchResult_AnnotationConfig.HasBit=1 THEN CONVERT(nvarchar(max), SearchResult_Event_Annotation.ValueBit)	
- -- WHEN SearchResult_AnnotationConfig.HasBlob=1 THEN CONVERT(nvarchar(max), SearchResult_Event_Annotation.ValueBlob)	
- -- ELSE NULL
- -- END as nvarchar(max)) AS Value,
  CAST(CASE 
-	WHEN SearchResult_AnnotationConfig.HasInteger=1 THEN CONVERT(float, SearchResult_Event_Annotation.ValueInt)	
-	WHEN SearchResult_AnnotationConfig.HasFloat=1 THEN SearchResult_Event_Annotation.ValueFloat
-	WHEN SearchResult_AnnotationConfig.HasBit=1 THEN CONVERT(float, SearchResult_Event_Annotation.ValueBit)		
-	ELSE -1
- END as float) AS ValueNumeric
+  WHEN SearchResult_AnnotationConfig.HasInteger=1 THEN CONVERT(nvarchar(max), SearchResult_Event_Annotation.ValueInt)
+  WHEN SearchResult_AnnotationConfig.HasString=1 THEN CONVERT(nvarchar(max), SearchResult_Event_Annotation.ValueText)
+  WHEN SearchResult_AnnotationConfig.HasFloat=1 THEN CONVERT(nvarchar(max), SearchResult_Event_Annotation.ValueFloat)
+  WHEN SearchResult_AnnotationConfig.HasBit=1 THEN CONVERT(nvarchar(max), SearchResult_Event_Annotation.ValueBit)	
+  WHEN SearchResult_AnnotationConfig.HasBlob=1 THEN CONVERT(nvarchar(max), SearchResult_Event_Annotation.ValueBlob)	
+  ELSE NULL
+  END as nvarchar(max)) AS Value
+ --CAST(CASE 
+ -- WHEN SearchResult_AnnotationConfig.HasInteger=1 THEN CONVERT(float, SearchResult_Event_Annotation.ValueInt)	
+ -- WHEN SearchResult_AnnotationConfig.HasFloat=1 THEN SearchResult_Event_Annotation.ValueFloat
+ -- WHEN SearchResult_AnnotationConfig.HasBit=1 THEN CONVERT(float, SearchResult_Event_Annotation.ValueBit)		
+ -- ELSE NULL
+ -- END as float) AS ValueNumeric
 INTO #PivotBase 
 FROM SearchResult_Event 
 INNER JOIN SearchResult ON SearchResult_Event.SearchResultId = SearchResult.SearchResultId 
@@ -51,33 +55,37 @@ Event.EventId,
 SearchResult_Event.SearchResultEventId, 
 SearchResult_AnnotationConfig.SearchResultAnnotationConfigId
 
+--For development - drop null values
 --SELECT * FROM #PivotBase WHERE Value IS NOT NULL
-SELECT * INTO #PivotBase2 FROM #PivotBase  WHERE ValueNumeric IS NOT NULL  AND ValueNumeric > -1
-SELECT * FROM #PivotBase2 
+SELECT * INTO #PivotBase2 FROM #PivotBase  WHERE Value IS NOT NULL  
+--SELECT * FROM #PivotBase2 
 
 
+SELECT DISTINCT FieldName As AnnotationFieldName INTO #Columns FROM SearchResult_AnnotationConfig ORDER BY FieldName
+--The definitions of columns on which to pivot
 DECLARE @Columns AS VARCHAR(MAX)
-SELECT @Columns = COALESCE(@Columns + ',[Annotation' + CAST(AnnotationFieldName as varchar) + ']',  '[Annotation' + cast(AnnotationFieldName as varchar)+ ']')  FROM (SELECT Distinct AnnotationFieldName FROM #PivotBase) AS B
+SELECT @Columns = COALESCE(@Columns + ',[' + CAST(AnnotationFieldName as varchar) + ']',  '[' + cast(AnnotationFieldName as varchar)+ ']')  FROM #Columns AS B
 PRINT @Columns
 
+--Build the pivot query
 DECLARE @PivotSQl AS VARCHAR(MAX)
 SET @PivotSQl = 
 	N'SELECT  '+
 	--N'SearchResultId,'+
 	--N'SearchResultComment,'+
 	--N'SearchResultEventId, '+
-	N'src.EventId, '+
+	N'piv.EventId, '+
 	--N'EventStart,'+
 	--N'EventStop,'+
-	--N'EventDuration,'+
+	--N'EventDuration,'+	
 	@Columns+
 	N' INTO ##PivotResult ' +
 	N' FROM (SELECT * FROM #PivotBase2) AS src '+
 	N' PIVOT('+
-    N'  MAX(src.ValueNumeric)'+
+    N'  MIN(src.Value)'+
 	N'  FOR AnnotationFieldName'+
     N'  IN (' + @Columns + ')'+
-	N') AS piv'
+	N') AS piv ' 
 PRINT @PivotSql
 
 EXEC(@PivotSql)
