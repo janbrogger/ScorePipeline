@@ -1,6 +1,7 @@
 USE HolbergAnon
 IF OBJECT_ID('tempdb..#PivotBase') IS NOT NULL DROP TABLE #PivotBase
 IF OBJECT_ID('tempdb..#PivotBase2') IS NOT NULL DROP TABLE #PivotBase2
+IF OBJECT_ID('tempdb..##PivotResult') IS NOT NULL DROP TABLE ##PivotResult
 GO
 SELECT        
  --SearchResult.SearchResultId,
@@ -24,13 +25,20 @@ SELECT
  --SearchResult_Event_Annotation.ValueFloat,
  --SearchResult_Event_Annotation.ValueBit,
  --SearchResult_Event_Annotation.ValueBlob,  
+ --CAST(CASE 
+ --	WHEN SearchResult_AnnotationConfig.HasInteger=1 THEN CONVERT(nvarchar(max), SearchResult_Event_Annotation.ValueInt)
+ -- WHEN SearchResult_AnnotationConfig.HasString=1 THEN CONVERT(nvarchar(max), SearchResult_Event_Annotation.ValueText)
+ -- WHEN SearchResult_AnnotationConfig.HasFloat=1 THEN CONVERT(nvarchar(max), SearchResult_Event_Annotation.ValueFloat)
+ -- WHEN SearchResult_AnnotationConfig.HasBit=1 THEN CONVERT(nvarchar(max), SearchResult_Event_Annotation.ValueBit)	
+ -- WHEN SearchResult_AnnotationConfig.HasBlob=1 THEN CONVERT(nvarchar(max), SearchResult_Event_Annotation.ValueBlob)	
+ -- ELSE NULL
+ -- END as nvarchar(max)) AS Value,
  CAST(CASE 
-	WHEN SearchResult_AnnotationConfig.HasInteger=1 THEN CONVERT(nvarchar, SearchResult_Event_Annotation.ValueInt)
-	WHEN SearchResult_AnnotationConfig.HasString=1 THEN CONVERT(nvarchar, SearchResult_Event_Annotation.ValueText)
-	WHEN SearchResult_AnnotationConfig.HasFloat=1 THEN CONVERT(nvarchar, SearchResult_Event_Annotation.ValueFloat)
-	WHEN SearchResult_AnnotationConfig.HasBit=1 THEN CONVERT(nvarchar, SearchResult_Event_Annotation.ValueBit)	
-	ELSE NULL
- END as varchar(80)) AS Value
+	WHEN SearchResult_AnnotationConfig.HasInteger=1 THEN CONVERT(float, SearchResult_Event_Annotation.ValueInt)	
+	WHEN SearchResult_AnnotationConfig.HasFloat=1 THEN SearchResult_Event_Annotation.ValueFloat
+	WHEN SearchResult_AnnotationConfig.HasBit=1 THEN CONVERT(float, SearchResult_Event_Annotation.ValueBit)		
+	ELSE -1
+ END as float) AS ValueNumeric
 INTO #PivotBase 
 FROM SearchResult_Event 
 INNER JOIN SearchResult ON SearchResult_Event.SearchResultId = SearchResult.SearchResultId 
@@ -44,8 +52,9 @@ SearchResult_Event.SearchResultEventId,
 SearchResult_AnnotationConfig.SearchResultAnnotationConfigId
 
 --SELECT * FROM #PivotBase WHERE Value IS NOT NULL
-SELECT * INTO #PivotBase2 FROM #PivotBase  WHERE Value IS NOT NULL 
+SELECT * INTO #PivotBase2 FROM #PivotBase  WHERE ValueNumeric IS NOT NULL  AND ValueNumeric > -1
 SELECT * FROM #PivotBase2 
+
 
 DECLARE @Columns AS VARCHAR(MAX)
 SELECT @Columns = COALESCE(@Columns + ',[Annotation' + CAST(AnnotationFieldName as varchar) + ']',  '[Annotation' + cast(AnnotationFieldName as varchar)+ ']')  FROM (SELECT Distinct AnnotationFieldName FROM #PivotBase) AS B
@@ -57,17 +66,19 @@ SET @PivotSQl =
 	--N'SearchResultId,'+
 	--N'SearchResultComment,'+
 	--N'SearchResultEventId, '+
-	N'EventId, '+
+	N'src.EventId, '+
 	--N'EventStart,'+
 	--N'EventStop,'+
 	--N'EventDuration,'+
 	@Columns+
-	N' FROM (SELECT * FROM #PivotBase) AS src '+
+	N' INTO ##PivotResult ' +
+	N' FROM (SELECT * FROM #PivotBase2) AS src '+
 	N' PIVOT('+
-    N'  MAX(Value)'+
+    N'  MAX(src.ValueNumeric)'+
 	N'  FOR AnnotationFieldName'+
     N'  IN (' + @Columns + ')'+
 	N') AS piv'
 PRINT @PivotSql
 
 EXEC(@PivotSql)
+SELECT * FROM ##PivotResult
