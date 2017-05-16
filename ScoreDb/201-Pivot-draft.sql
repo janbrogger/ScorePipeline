@@ -5,8 +5,9 @@ IF OBJECT_ID('tempdb..#PivotBase2') IS NOT NULL DROP TABLE #PivotBase2
 IF OBJECT_ID('tempdb..#Columns') IS NOT NULL DROP TABLE #Columns
 IF OBJECT_ID('tempdb..##PivotResult') IS NOT NULL DROP TABLE ##PivotResult
 IF OBJECT_ID('tempdb..##PivotResult2') IS NOT NULL DROP TABLE ##PivotResult2
-IF OBJECT_ID('tempdb..#AnnotationsAndUsers') IS NOT NULL DROP TABLE #AnnotationsAndUsers
 IF OBJECT_ID('tempdb..#AnnotationUsers') IS NOT NULL DROP TABLE #AnnotationUsers
+IF OBJECT_ID('tempdb..#AnnotationFields') IS NOT NULL DROP TABLE #AnnotationFields
+IF OBJECT_ID('tempdb..#AnnotationsAndUsers') IS NOT NULL DROP TABLE #AnnotationsAndUsers
 GO
 
 --The base query
@@ -96,53 +97,3 @@ PRINT @PivotSql
 EXEC(@PivotSql)
 SELECT * FROM ##PivotResult
 
---Now merge userid into it
-SELECT DISTINCT CONCAT(FieldName,'_',[User].UserId ) AS ColumnName, FieldName As AnnotationFieldName, [User].UserId  INTO #AnnotationsAndUsers 
-FROM SearchResult_AnnotationConfig 
-CROSS JOIN [User] 
-WHERE [User].UserName=N'jcbr' OR [User].UserName=N'eivaan'
-ORDER BY FieldName
---*SELECT * FROM #AnnotationsAndUsers
-	
-SELECT * INTO #AnnotationUsers FROM [User] 
-	WHERE [User].UserName='jcbr' OR [User].UserName='eivaan'
-
-DECLARE @UserIds AS VARCHAR(MAX)
-SELECT @UserIds = COALESCE(@UserIds + ',[P' + CAST(UserId as varchar) + ']',  '[P' + cast(UserId as varchar)+ ']')   FROM #AnnotationUsers
-DECLARE @UserIds2 AS VARCHAR(MAX)
-SELECT @UserIds2 = COALESCE(@UserIds2 + ',[U' + CAST(UserId as varchar) + ']',  '[U' + cast(UserId as varchar)+ ']')   FROM #AnnotationUsers
-
-PRINT @UserIds
-PRINT @UserIds2
-
---SELECT DISTINCT CONCAT(FieldName,'_',#AnnotationUsers.UserId ) AS ColumnName, FieldName As AnnotationFieldName, #AnnotationUsers.UserId  	
---	FROM SearchResult_AnnotationConfig  CROSS JOIN #AnnotationUsers
-
---SELECT DISTINCT SearchResult_AnnotationConfig.FieldName FROM SearchResult_AnnotationConfig 
-
-SELECT EventId, CONCAT('P',UserId) AS UserId1, CONCAT('U',UserId) AS UserId2, SpikeStartSample, SpikeEndSample FROM ##PivotResult
-
-DECLARE @PivotSql2 AS VARCHAR(MAX)
-SET @PivotSql2 = 
-	N'SELECT  '+	
-	N'EventId, '+
-	N'MAX([P2]) AS SpikeStartSample_2, ' +
-	N'MAX([P25]) AS SpikeStartSample_25, ' +
-	N'MAX([U2]) AS SpikeEndSample_2, ' +
-	N'MAX([U25]) AS SpikeEndSample_25 ' +
-	N' INTO ##PivotResult2 ' +
-	N' FROM (SELECT EventId, CONCAT(''P'',UserId) AS UserId1, CONCAT(''U'',UserId) AS UserId2, SpikeStartSample, SpikeEndSample FROM ##PivotResult) AS src '+
-	N' PIVOT('+
-    N'  MIN(SpikeStartSample)'+
-	N'  FOR UserId1'+
-    N'  IN ('+ @UserIds +')'+
-	N') AS piv1 ' +
-	N' PIVOT('+
-    N'  MIN(SpikeEndSample)'+
-	N'  FOR UserId2'+
-    N'  IN ('+ @UserIds2 +')'+
-	N') AS piv2 ' +
-	N' GROUP BY EventId '
-PRINT @PivotSql2
-EXEC(@PivotSql2)
-SELECT * FROM ##PivotResult2
