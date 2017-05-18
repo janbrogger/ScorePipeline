@@ -71,6 +71,8 @@ SELECT @PivotResultWithUserIdMultiplexSql = CONCAT(
 	'SearchResultComment,'+
 	'PatientId,'+
 	'PatientDetailsId,'+
+	'PatientGenderId,'+
+	'PatientGender,'+
 	'PatientDateOfBirthYear,'+
 	'PatientAgeYears,'+
 	'StudyId,'+
@@ -85,6 +87,15 @@ SELECT @PivotResultWithUserIdMultiplexSql = CONCAT(
 	'IsSignedByPhysician,'+
 	'IsSignedBySupervisingPhysician,'+
 	'IsSignedByTechnician,'+
+	'ReportPhysicianId,'+
+	'ReportPhysician,'+
+	'ReportSupervisingId,'+
+	'ReportSupervising,'+
+	'ReportTechnicianId,'+
+	'ReportTechnician,'+
+	'ReportSummary,'+
+	'ReportComments,'+
+	'ReportSignedFinalTime,'+
 	'SearchResultEventId,'+	
 	'EventCodingId,'+
 	'EventCodeId,'+
@@ -107,6 +118,8 @@ SET @PivotSql2 =
 	'SearchResultComment,'+
 	'PatientId,'+
 	'PatientDetailsId,'+
+	'PatientGenderId,'+
+	'PatientGender,'+
 	'PatientDateOfBirthYear,'+
 	'PatientAgeYears,'+
 	'StudyId,'+
@@ -118,6 +131,15 @@ SET @PivotSql2 =
 	'IsSignedByPhysician,'+
 	'IsSignedBySupervisingPhysician,'+
 	'IsSignedByTechnician,'+
+	'ReportPhysicianId,'+
+	'ReportPhysician,'+
+	'ReportSupervisingId,'+
+	'ReportSupervising,'+
+	'ReportTechnicianId,'+
+	'ReportTechnician,'+
+	'ReportSummary,'+
+	'ReportComments,'+
+	'ReportSignedFinalTime,'+
 	'RecordingStart,'+
 	'RecordingStop,'+
 	'RecordingDuration,'+
@@ -140,6 +162,8 @@ SET @PivotSql2 =
 	'SearchResultComment,'+
 	'PatientId,'+
 	'PatientDetailsId,'+
+	'PatientGenderId,'+
+	'PatientGender,'+
 	'PatientDateOfBirthYear,'+
 	'PatientAgeYears,'+
 	'StudyId,'+
@@ -151,6 +175,15 @@ SET @PivotSql2 =
 	'IsSignedByPhysician,'+
 	'IsSignedBySupervisingPhysician,'+
 	'IsSignedByTechnician,'+
+	'ReportPhysicianId,'+
+	'ReportPhysician,'+
+	'ReportSupervisingId,'+
+	'ReportSupervising,'+
+	'ReportTechnicianId,'+
+	'ReportTechnician,'+
+	'ReportSummary,'+
+	'ReportComments,'+
+	'ReportSignedFinalTime,'+
 	'RecordingStart,'+
 	'RecordingStop,'+
 	'RecordingDuration,'+
