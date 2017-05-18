@@ -67,8 +67,30 @@ PRINT @PivotPart
 DECLARE @PivotResultWithUserIdMultiplexSql AS VARCHAR(MAX)
 SELECT @PivotResultWithUserIdMultiplexSql = CONCAT(
 	'SELECT '+
-	'SearchResultId, SearchResultComment,'+
+	'SearchResultId,'+
+	'SearchResultComment,'+
+	'PatientId,'+
+	'PatientDetailsId,'+
+	'PatientDateOfBirthYear,'+
+	'PatientAgeYears,'+
+	'StudyId,'+
+	'StudyTypeId,'+
+	'StudyTypeName,'+
+	'DescriptionId,'+
+	'DescriptionDate,'+
+	'RecordingStart,'+
+	'RecordingStop,'+
+	'RecordingDuration,'+
+	'IsDescriptionSigned,'+
+	'IsSignedByPhysician,'+
+	'IsSignedBySupervisingPhysician,'+
+	'IsSignedByTechnician,'+
 	'SearchResultEventId,'+	
+	'EventCodingId,'+
+	'EventCodeId,'+
+	'EventCodeName,'+
+	'CodesetId,'+
+	'CodesetCollectionId,'+
 	'EventId, '+
 	'EventStart,'+
 	'EventStop,'+
@@ -83,6 +105,27 @@ SET @PivotSql2 =
 	'SELECT  '+	
 	'SearchResultId,'+
 	'SearchResultComment,'+
+	'PatientId,'+
+	'PatientDetailsId,'+
+	'PatientDateOfBirthYear,'+
+	'PatientAgeYears,'+
+	'StudyId,'+
+	'StudyTypeId,'+
+	'StudyTypeName,'+
+	'DescriptionId,'+
+	'DescriptionDate,'+
+	'IsDescriptionSigned,'+
+	'IsSignedByPhysician,'+
+	'IsSignedBySupervisingPhysician,'+
+	'IsSignedByTechnician,'+
+	'RecordingStart,'+
+	'RecordingStop,'+
+	'RecordingDuration,'+
+	'EventCodingId,'+
+	'EventCodeId,'+
+	'EventCodeName,'+
+	'CodesetId,'+
+	'CodesetCollectionId,'+
 	'SearchResultEventId, '+
 	'EventId, '+
 	'EventStart,'+
@@ -95,6 +138,27 @@ SET @PivotSql2 =
 	' GROUP BY '+
 	'SearchResultId,'+
 	'SearchResultComment,'+
+	'PatientId,'+
+	'PatientDetailsId,'+
+	'PatientDateOfBirthYear,'+
+	'PatientAgeYears,'+
+	'StudyId,'+
+	'StudyTypeId,'+
+	'StudyTypeName,'+
+	'DescriptionId,'+
+	'DescriptionDate,'+
+	'IsDescriptionSigned,'+
+	'IsSignedByPhysician,'+
+	'IsSignedBySupervisingPhysician,'+
+	'IsSignedByTechnician,'+
+	'RecordingStart,'+
+	'RecordingStop,'+
+	'RecordingDuration,'+
+	'EventCodingId,'+
+	'EventCodeId,'+
+	'EventCodeName,'+
+	'CodesetId,'+
+	'CodesetCollectionId,'+
 	'SearchResultEventId,'+
 	'EventStart,'+
 	'EventStop,'+

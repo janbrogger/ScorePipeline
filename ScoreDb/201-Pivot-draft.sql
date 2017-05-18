@@ -13,27 +13,38 @@ GO
 --The base query
 SELECT        
  SearchResult.SearchResultId,
- SearchResult.Comment AS SearchResultComment,
- SearchResult_Event.SearchResultEventId, 
- Event.EventId, 
+ SearchResult.Comment AS SearchResultComment, 
+ Patient.PatientId,
+ PatientDetails.PatientDetailsId,
+ DATEPART(yy, PatientDetails.DateOfBirth) AS PatientDateOfBirthYear,
+ DATEDIFF(yy,PatientDetails.DateOfBirth, Recording.Start) AS PatientAgeYears,
+ Study.StudyId,
+ StudyType.StudyTypeId,
+ StudyType.Name AS StudyTypeName,
+ Description.DescriptionId,
+ Description.Date AS DescriptionDate,
+ Description.IsDescriptionSigned,
+ Description.IsSignedByPhysician,
+ Description.IsSignedBySupervisingPhysician,
+ Description.IsSignedByTechnician,
+ Recording.Start AS RecordingStart,
+ Recording.Stop AS RecordingStop,
+ Recording.Length AS RecordingDuration,
+ EventCoding.EventCodingId,
+ EventCoding.EventCodeId,
+ EventCode.Name AS EventCodeName,
+ Codeset.CodesetId,
+ CodesetCollection.CodesetCollectionId,
+ SearchResult_Event.SearchResultEventId,  
+ Event.EventId,  
  Event.StartDateTime AS EventStart,
  Event.EndDateTime AS EventStop,
  Event.Duration AS EventDuration,
- --SearchResult_Event_Annotation.SearchResultEventAnnotationId,
- --SearchResult_Event_UserWorkstate.Workstate AS AnnotationUserWorkState, 
- --SearchResult_AnnotationConfig.SearchResultAnnotationConfigId,
+ SearchResult_Event_Annotation.SearchResultEventAnnotationId,
+ SearchResult_Event_UserWorkstate.Workstate AS AnnotationUserWorkState, 
+ SearchResult_AnnotationConfig.SearchResultAnnotationConfigId,
  SearchResult_AnnotationConfig.FieldName AS AnnotationFieldName,
- --SearchResult_AnnotationConfig.HasInteger, 
- --SearchResult_AnnotationConfig.HasString,
- --SearchResult_AnnotationConfig.HasFloat,
- --SearchResult_AnnotationConfig.HasBlob, 
- --SearchResult_AnnotationConfig.HasBit,
- SearchResult_Event_Annotation.UserId,
- --SearchResult_Event_Annotation.ValueText,
- --SearchResult_Event_Annotation.ValueInt, 
- --SearchResult_Event_Annotation.ValueFloat,
- --SearchResult_Event_Annotation.ValueBit,
- --SearchResult_Event_Annotation.ValueBlob,  
+ SearchResult_Event_Annotation.UserId, 
  CAST(CASE 
   WHEN SearchResult_AnnotationConfig.HasInteger=1 THEN CONVERT(nvarchar(max), SearchResult_Event_Annotation.ValueInt)
   WHEN SearchResult_AnnotationConfig.HasString=1 THEN CONVERT(nvarchar(max), SearchResult_Event_Annotation.ValueText)
@@ -41,29 +52,36 @@ SELECT
   WHEN SearchResult_AnnotationConfig.HasBit=1 THEN CONVERT(nvarchar(max), SearchResult_Event_Annotation.ValueBit)	
   WHEN SearchResult_AnnotationConfig.HasBlob=1 THEN CONVERT(nvarchar(max), SearchResult_Event_Annotation.ValueBlob)	
   ELSE NULL
-  END as nvarchar(max)) AS Value
- --CAST(CASE 
- -- WHEN SearchResult_AnnotationConfig.HasInteger=1 THEN CONVERT(float, SearchResult_Event_Annotation.ValueInt)	
- -- WHEN SearchResult_AnnotationConfig.HasFloat=1 THEN SearchResult_Event_Annotation.ValueFloat
- -- WHEN SearchResult_AnnotationConfig.HasBit=1 THEN CONVERT(float, SearchResult_Event_Annotation.ValueBit)		
- -- ELSE NULL
- -- END as float) AS ValueNumeric
+  END as nvarchar(max)) AS Value 
 INTO #PivotBase 
 FROM SearchResult_Event 
 INNER JOIN SearchResult ON SearchResult_Event.SearchResultId = SearchResult.SearchResultId 
 LEFT OUTER JOIN Event ON SearchResult_Event.EventId = Event.EventId 
 RIGHT OUTER JOIN SearchResult_AnnotationConfig ON SearchResult.SearchResultId = SearchResult_AnnotationConfig.SearchResultId 
 FULL OUTER JOIN SearchResult_Event_Annotation ON  SearchResult_AnnotationConfig.SearchResultAnnotationConfigId = SearchResult_Event_Annotation.SearchResultAnnotationConfigId AND  SearchResult_Event.SearchResultEventId = SearchResult_Event_Annotation.SearchResultEventId 
+LEFT OUTER JOIN SearchResult_Event_UserWorkstate ON SearchResult_Event.SearchResultEventId = SearchResult_Event_UserWorkstate.SearchResultEventId
+LEFT OUTER JOIN EventCoding ON Event.EventCodingId = EventCoding.EventCodingId
+LEFT OUTER JOIN EventCode ON EventCoding.EventCodeId = EventCode.EventCodeId
+LEFT OUTER JOIN Codeset ON EventCode.CodesetId = Codeset.CodesetId
+LEFT OUTER JOIN CodesetCollection ON Codeset.CodesetId = CodesetCollection.EventCode
+LEFT OUTER JOIN Description ON EventCoding.DescriptionId = Description.DescriptionId
+LEFT OUTER JOIN Study ON Description.StudyId = Study.StudyId
+LEFT OUTER JOIN StudyType ON Study.StudyTypeId= StudyType.StudyTypeId
+LEFT OUTER JOIN Patient ON Study.PatientId = Patient.PatientId
+LEFT OUTER JOIN PatientDetails ON Study.ActivePatientDetailsId = PatientDetails.PatientDetailsId
+LEFT OUTER JOIN Recording ON Event.RecordingId = Recording.RecordingId
 ORDER BY 
 SearchResult.SearchResultId, 
 Event.EventId,
 SearchResult_Event.SearchResultEventId, 
 SearchResult_AnnotationConfig.SearchResultAnnotationConfigId
 
+--SELECT * FROM #PivotBase
+
 --For development - drop null values
 --SELECT * FROM #PivotBase WHERE Value IS NOT NULL
 SELECT * INTO #PivotBase2 FROM #PivotBase  WHERE Value IS NOT NULL  
-SELECT * FROM #PivotBase2
+--SELECT * FROM #PivotBase2
 
 
 SELECT DISTINCT FieldName As AnnotationFieldName INTO #Columns FROM SearchResult_AnnotationConfig ORDER BY FieldName
@@ -78,7 +96,28 @@ SET @PivotSQl =
 	'SELECT  '+
 	'SearchResultId,'+
 	'SearchResultComment,'+
+	'PatientId,'+
+	'PatientDetailsId,'+
+	'PatientDateOfBirthYear,'+
+	'PatientAgeYears,'+
+	'StudyId,'+
+	'StudyTypeId,'+
+	'StudyTypeName,'+
+	'DescriptionId,'+
+	'DescriptionDate,'+
+	'IsDescriptionSigned,'+
+	'IsSignedByPhysician,'+
+	'IsSignedBySupervisingPhysician,'+
+	'IsSignedByTechnician,'+
+	'RecordingStart,'+
+	'RecordingStop,'+
+	'RecordingDuration,'+
 	'SearchResultEventId, '+
+	'EventCodingId,'+
+	'EventCodeId,'+
+	'EventCodeName,'+
+	'CodesetId,'+
+	'CodesetCollectionId,'+
 	'piv.EventId, '+
 	'EventStart,'+
 	'EventStop,'+
@@ -86,7 +125,7 @@ SET @PivotSQl =
 	'piv.UserId, '+
 	@Columns+
 	' INTO ##PivotResult ' +
-	' FROM (SELECT * FROM #PivotBase2) AS src '+
+	' FROM (SELECT * FROM #PivotBase) AS src '+
 	' PIVOT('+
     '  MIN(src.Value)'+
 	'  FOR AnnotationFieldName'+
