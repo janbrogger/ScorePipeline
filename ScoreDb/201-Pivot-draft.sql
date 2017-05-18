@@ -12,13 +12,13 @@ GO
 
 --The base query
 SELECT        
- --SearchResult.SearchResultId,
- --SearchResult.Comment AS SearchResultComment,
- --SearchResult_Event.SearchResultEventId, 
+ SearchResult.SearchResultId,
+ SearchResult.Comment AS SearchResultComment,
+ SearchResult_Event.SearchResultEventId, 
  Event.EventId, 
- --Event.StartDateTime AS EventStart,
- --Event.EndDateTime AS EventStop,
- --Event.Duration AS EventDuration,
+ Event.StartDateTime AS EventStart,
+ Event.EndDateTime AS EventStop,
+ Event.Duration AS EventDuration,
  --SearchResult_Event_Annotation.SearchResultEventAnnotationId,
  --SearchResult_Event_UserWorkstate.Workstate AS AnnotationUserWorkState, 
  --SearchResult_AnnotationConfig.SearchResultAnnotationConfigId,
@@ -75,23 +75,23 @@ PRINT @Columns
 --Build the pivot query
 DECLARE @PivotSQl AS VARCHAR(MAX)
 SET @PivotSQl = 
-	N'SELECT  '+
-	--N'SearchResultId,'+
-	--N'SearchResultComment,'+
-	--N'SearchResultEventId, '+
-	N'piv.EventId, '+
-	--N'EventStart,'+
-	--N'EventStop,'+
-	--N'EventDuration,'+	
-	N'piv.UserId, '+
+	'SELECT  '+
+	'SearchResultId,'+
+	'SearchResultComment,'+
+	'SearchResultEventId, '+
+	'piv.EventId, '+
+	'EventStart,'+
+	'EventStop,'+
+	'EventDuration,'+	
+	'piv.UserId, '+
 	@Columns+
-	N' INTO ##PivotResult ' +
-	N' FROM (SELECT * FROM #PivotBase2) AS src '+
-	N' PIVOT('+
-    N'  MIN(src.Value)'+
-	N'  FOR AnnotationFieldName'+
-    N'  IN (' + @Columns + ')'+
-	N') AS piv ' 
+	' INTO ##PivotResult ' +
+	' FROM (SELECT * FROM #PivotBase2) AS src '+
+	' PIVOT('+
+    '  MIN(src.Value)'+
+	'  FOR AnnotationFieldName'+
+    '  IN (' + @Columns + ')'+
+	') AS piv ' 
 PRINT @PivotSql
 
 EXEC(@PivotSql)

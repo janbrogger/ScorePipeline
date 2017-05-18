@@ -13,10 +13,10 @@ GO
 --Now pivot a second time 
 --Store users who did annotations
 SELECT * INTO #AnnotationUsers FROM [User] 	WHERE [User].UserName='jcbr' OR [User].UserName='eivaan'
-SELECT * FROM #AnnotationUsers
+--SELECT * FROM #AnnotationUsers
 --Store fieldnames for annotations
 SELECT DISTINCT FieldName INTO #AnnotationFields FROM SearchResult_AnnotationConfig
-SELECT * FROM #AnnotationFields
+--SELECT * FROM #AnnotationFields
 --Now make columns names for each annotation that includes userid
 DECLARE @UserIds AS VARCHAR(MAX)
 SELECT @UserIds = COALESCE(@UserIds + ',[' + CAST(UserId as varchar) + ']',  '[' + cast(UserId as varchar)+ ']')   FROM #AnnotationUsers
@@ -31,7 +31,7 @@ SELECT FieldName,
     INTO #PivotingElements
 	FROM #AnnotationFields
 	ORDER BY FieldName
-SELECT * FROM #PivotingElements
+--SELECT * FROM #PivotingElements
 
 SELECT FieldName, 
        #AnnotationUsers.UserId, 
@@ -42,7 +42,7 @@ SELECT FieldName,
 	FROM #AnnotationFields
 	CROSS JOIN #AnnotationUsers 
 	ORDER BY FieldName
-SELECT * FROM #AnnotationsAndUsers
+--SELECT * FROM #AnnotationsAndUsers
 
 DECLARE @UserIdMultiplexed AS VARCHAR(MAX)
 SELECT @UserIdMultiplexed = COALESCE(@UserIdMultiplexed + ',' + UserIdMultiplexed + '',  '' + UserIdMultiplexed+ '') FROM #PivotingElements
@@ -65,19 +65,41 @@ SELECT @PivotPart = COALESCE(@PivotPart + PivotingElement, PivotingElement)   FR
 PRINT @PivotPart
 
 DECLARE @PivotResultWithUserIdMultiplexSql AS VARCHAR(MAX)
-SELECT @PivotResultWithUserIdMultiplexSql = CONCAT(N'SELECT EventId, ',@UserIdMultiplexed,',',@AnnotationList1,' INTO ##PivotResultWithUserIdMultiplex FROM ##PivotResult')
+SELECT @PivotResultWithUserIdMultiplexSql = CONCAT(
+	'SELECT '+
+	'SearchResultId, SearchResultComment,'+
+	'SearchResultEventId,'+	
+	'EventId, '+
+	'EventStart,'+
+	'EventStop,'+
+	'EventDuration,'
+	,@UserIdMultiplexed,',',@AnnotationList1,' INTO ##PivotResultWithUserIdMultiplex FROM ##PivotResult')
 PRINT @PivotResultWithUserIdMultiplexSql
 EXEC(@PivotResultWithUserIdMultiplexSql)
-SELECT * FROM ##PivotResultWithUserIdMultiplex
+--SELECT * FROM ##PivotResultWithUserIdMultiplex
 
 DECLARE @PivotSql2 AS VARCHAR(MAX)
 SET @PivotSql2 = 
-	N'SELECT  '+	
-	N'EventId, '+@InitialMaxPart+
-	N' INTO ##PivotResult2 ' +
-	N' FROM ##PivotResultWithUserIdMultiplex AS src '+
+	'SELECT  '+	
+	'SearchResultId,'+
+	'SearchResultComment,'+
+	'SearchResultEventId, '+
+	'EventId, '+
+	'EventStart,'+
+	'EventStop,'+
+	'EventDuration,'+	
+	@InitialMaxPart+
+	' INTO ##PivotResult2 ' +
+	' FROM ##PivotResultWithUserIdMultiplex AS src '+
 	@PivotPart +
-	N' GROUP BY EventId '
+	' GROUP BY '+
+	'SearchResultId,'+
+	'SearchResultComment,'+
+	'SearchResultEventId,'+
+	'EventStart,'+
+	'EventStop,'+
+	'EventDuration,'+	
+	'EventId '
 PRINT @PivotSql2
 EXEC(@PivotSql2)
 SELECT * FROM ##PivotResult2
