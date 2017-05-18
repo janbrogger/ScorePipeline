@@ -6,16 +6,17 @@ IF OBJECT_ID('tempdb..#AnnotationUsers') IS NOT NULL DROP TABLE #AnnotationUsers
 IF OBJECT_ID('tempdb..#AnnotationFields') IS NOT NULL DROP TABLE #AnnotationFields
 IF OBJECT_ID('tempdb..#PivotingElements') IS NOT NULL DROP TABLE #PivotingElements
 IF OBJECT_ID('tempdb..#AnnotationsAndUsers') IS NOT NULL DROP TABLE #AnnotationsAndUsers
+IF OBJECT_ID('tempdb..##PivotResultWithUserIdMultiplex') IS NOT NULL DROP TABLE ##PivotResultWithUserIdMultiplex
 GO
 --SELECT * FROM ##PivotResult
 
 --Now pivot a second time 
 --Store users who did annotations
 SELECT * INTO #AnnotationUsers FROM [User] 	WHERE [User].UserName='jcbr' OR [User].UserName='eivaan'
---SELECT * FROM #AnnotationUsers
+SELECT * FROM #AnnotationUsers
 --Store fieldnames for annotations
 SELECT DISTINCT FieldName INTO #AnnotationFields FROM SearchResult_AnnotationConfig
---SELECT * FROM #AnnotationFields
+SELECT * FROM #AnnotationFields
 --Now make columns names for each annotation that includes userid
 DECLARE @UserIds AS VARCHAR(MAX)
 SELECT @UserIds = COALESCE(@UserIds + ',[' + CAST(UserId as varchar) + ']',  '[' + cast(UserId as varchar)+ ']')   FROM #AnnotationUsers
@@ -25,7 +26,7 @@ PRINT @UserIds
 SELECT FieldName,        
 	   ROW_NUMBER() OVER(ORDER BY (SELECT 0)) AS RowNumber,	   
 	   N' PIVOT(MIN('+FieldName+') FOR UserId'+CONVERT(nvarchar(10),ROW_NUMBER() OVER(ORDER BY (SELECT 0)))+' IN ('+REPLACE(@UserIds,'[','[F'+FieldName+'_')+
-	   N' ) AS piv'+CONVERT(nvarchar(10),ROW_NUMBER() OVER(ORDER BY (SELECT 0))) AS PivotingElement
+	   N' )) AS piv'+CONVERT(nvarchar(10),ROW_NUMBER() OVER(ORDER BY (SELECT 0))) AS PivotingElement
     INTO #PivotingElements
 	FROM #AnnotationFields
 	ORDER BY FieldName
@@ -69,12 +70,18 @@ DECLARE @PivotPart AS VARCHAR(MAX)
 SELECT @PivotPart = COALESCE(@PivotPart + PivotingElement, PivotingElement)   FROM #PivotingElements
 PRINT @PivotPart
 
+DECLARE @PivotResultWithUserIdMultiplexSql AS VARCHAR(MAX)
+SELECT @PivotResultWithUserIdMultiplexSql = CONCAT(N'SELECT EventId, ',@UserIdMultiplexed,',',@AnnotationList1,' INTO ##PivotResultWithUserIdMultiplex FROM ##PivotResult')
+PRINT @PivotResultWithUserIdMultiplexSql
+EXEC(@PivotResultWithUserIdMultiplexSql)
+SELECT * FROM ##PivotResultWithUserIdMultiplex
+
 DECLARE @PivotSql2 AS VARCHAR(MAX)
 SET @PivotSql2 = 
 	N'SELECT  '+	
 	N'EventId, '+@InitialMaxPart+
 	N' INTO ##PivotResult2 ' +
-	N' FROM (SELECT EventId, '+@UserIdMultiplexed+','+@AnnotationList1+' FROM ##PivotResult) AS src '+
+	N' FROM ##PivotResultWithUserIdMultiplex AS src '+
 	@PivotPart +
 	N' GROUP BY EventId '
 PRINT @PivotSql2
