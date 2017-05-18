@@ -26,7 +26,8 @@ PRINT @UserIds
 SELECT FieldName,        
 	   ROW_NUMBER() OVER(ORDER BY (SELECT 0)) AS RowNumber,	   
 	   N' PIVOT(MIN('+FieldName+') FOR UserId'+CONVERT(nvarchar(10),ROW_NUMBER() OVER(ORDER BY (SELECT 0)))+' IN ('+REPLACE(@UserIds,'[','[F'+FieldName+'_')+
-	   N' )) AS piv'+CONVERT(nvarchar(10),ROW_NUMBER() OVER(ORDER BY (SELECT 0))) AS PivotingElement
+	   N' )) AS piv'+CONVERT(nvarchar(10),ROW_NUMBER() OVER(ORDER BY (SELECT 0))) AS PivotingElement,
+	   N' CONCAT(''F'+FieldName+'_'',UserId) AS UserId'+CONVERT(nvarchar(10),ROW_NUMBER() OVER(ORDER BY (SELECT 0))) AS UserIdMultiplexed
     INTO #PivotingElements
 	FROM #AnnotationFields
 	ORDER BY FieldName
@@ -35,8 +36,7 @@ SELECT * FROM #PivotingElements
 SELECT FieldName, 
        #AnnotationUsers.UserId, 
 	   CONCAT(FieldName,'_',#AnnotationUsers.UserId ) AS ColumnName, 
-	   ROW_NUMBER() OVER(ORDER BY (SELECT 0)) AS RowNumber,
-	   N' CONCAT(''F'+FieldName+'_'',UserId) AS UserId'+CONVERT(nvarchar(10),ROW_NUMBER() OVER(ORDER BY (SELECT 0))) AS UserIdMultiplexed,	   
+	   ROW_NUMBER() OVER(ORDER BY (SELECT 0)) AS RowNumber,	   
 	   N'MAX([F'+FieldName+'_'+CONVERT(nvarchar(10),UserId)+']) AS '+CONCAT(FieldName,'_',#AnnotationUsers.UserId ) AS PivotSelectPart	   
 	INTO #AnnotationsAndUsers 
 	FROM #AnnotationFields
@@ -45,7 +45,7 @@ SELECT FieldName,
 SELECT * FROM #AnnotationsAndUsers
 
 DECLARE @UserIdMultiplexed AS VARCHAR(MAX)
-SELECT @UserIdMultiplexed = COALESCE(@UserIdMultiplexed + ',' + UserIdMultiplexed + '',  '' + UserIdMultiplexed+ '') FROM #AnnotationsAndUsers
+SELECT @UserIdMultiplexed = COALESCE(@UserIdMultiplexed + ',' + UserIdMultiplexed + '',  '' + UserIdMultiplexed+ '') FROM #PivotingElements
 PRINT @UserIdMultiplexed	
 
 DECLARE @AnnotationList1 AS VARCHAR(MAX)
@@ -55,12 +55,6 @@ PRINT @AnnotationList1
 DECLARE @AnnotationUserCount AS int
 SELECT @AnnotationUserCount = COUNT(*) FROM #AnnotationsAndUsers
 PRINT @AnnotationUserCount
-
-DECLARE @UserIds1 AS VARCHAR(MAX)
-SELECT @UserIds1 = COALESCE(@UserIds1 + ',[P' + CAST(UserId as varchar) + ']',  '[P' + cast(UserId as varchar)+ ']')   FROM #AnnotationUsers
-
-DECLARE @UserIds2 AS VARCHAR(MAX)
-SELECT @UserIds2 = COALESCE(@UserIds2 + ',[U' + CAST(UserId as varchar) + ']',  '[U' + cast(UserId as varchar)+ ']')   FROM #AnnotationUsers
 
 DECLARE @InitialMaxPart AS VARCHAR(MAX)
 SELECT @InitialMaxPart = COALESCE(@InitialMaxPart + ',' + PivotSelectPart, PivotSelectPart )   FROM #AnnotationsAndUsers
