@@ -78,6 +78,9 @@ SELECT @PivotResultWithUserIdMultiplexSql = CONCAT(
 	'StudyId,'+
 	'StudyTypeId,'+
 	'StudyTypeName,'+
+	'IndicationForEEGCodingId,'+
+	'IndicationForEEG,'+
+	'IndicationForEEGNumber,'+
 	'DescriptionId,'+
 	'DescriptionDate,'+
 	'RecordingStart,'+
@@ -125,6 +128,9 @@ SET @PivotSql2 =
 	'StudyId,'+
 	'StudyTypeId,'+
 	'StudyTypeName,'+
+	'IndicationForEEGCodingId,'+
+	'IndicationForEEG,'+
+	'IndicationForEEGNumber,'+
 	'DescriptionId,'+
 	'DescriptionDate,'+
 	'IsDescriptionSigned,'+
@@ -169,6 +175,9 @@ SET @PivotSql2 =
 	'StudyId,'+
 	'StudyTypeId,'+
 	'StudyTypeName,'+
+	'IndicationForEEGCodingId,'+
+	'IndicationForEEG,'+
+	'IndicationForEEGNumber,'+
 	'DescriptionId,'+
 	'DescriptionDate,'+
 	'IsDescriptionSigned,'+

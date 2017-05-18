@@ -23,6 +23,9 @@ SELECT
  Study.StudyId,
  StudyType.StudyTypeId,
  StudyType.Name AS StudyTypeName,
+ IndicationForEEGCoding.IndicationForEEGCodingId,
+ IndicationForEEGCode.Name AS IndicationForEEG,
+ ROW_NUMBER() OVER(PARTITION BY Study.StudyId, SearchResultEventAnnotationId, SearchResult_Event.SearchResultEventId, SearchResult_AnnotationConfig.SearchResultAnnotationConfigId ORDER BY Study.StudyId) AS IndicationForEEGNumber,
  Description.DescriptionId,
  Description.Date AS DescriptionDate,
  Description.IsDescriptionSigned,
@@ -78,6 +81,8 @@ LEFT OUTER JOIN Codeset ON EventCode.CodesetId = Codeset.CodesetId
 LEFT OUTER JOIN CodesetCollection ON Codeset.CodesetId = CodesetCollection.EventCode
 LEFT OUTER JOIN Description ON EventCoding.DescriptionId = Description.DescriptionId
 LEFT OUTER JOIN Study ON Description.StudyId = Study.StudyId
+LEFT OUTER JOIN IndicationForEEGCoding ON Study.StudyId = IndicationForEEGCoding.StudyId
+LEFT OUTER JOIN IndicationForEEGCode ON IndicationForEEGCoding.IndicationForEEGCodeId = IndicationForEEGCode.IndicationForEEGCodeId
 LEFT OUTER JOIN StudyType ON Study.StudyTypeId= StudyType.StudyTypeId
 LEFT OUTER JOIN Patient ON Study.PatientId = Patient.PatientId
 LEFT OUTER JOIN PatientDetails ON Study.ActivePatientDetailsId = PatientDetails.PatientDetailsId
@@ -86,15 +91,19 @@ LEFT OUTER JOIN Recording ON Event.RecordingId = Recording.RecordingId
 LEFT OUTER JOIN [User] AS ReportPhysician ON Description.PhysicianId = ReportPhysician.UserId 
 LEFT OUTER JOIN [User] AS ReportSupervising ON Description.SupervisingPhysicianId = ReportSupervising.UserId 
 LEFT OUTER JOIN [User] AS ReportTechnician ON Description.TechnicianId = ReportTechnician.UserId 
+WHERE IndicationForEEGCoding.IndicationForEEGCodeId IS NOT NULL
 ORDER BY 
 SearchResult.SearchResultId, 
 Event.EventId,
 SearchResult_Event.SearchResultEventId, 
 SearchResult_AnnotationConfig.SearchResultAnnotationConfigId
 
+--SELECT * FROM #PivotBase
+SELECT SearchResultEventId, EventId, StudyId, IndicationForEEGCodingId, IndicationForEEGNumber, IndicationForEEG FROM #PivotBase WHERE StudyId=5685 ORDER BY IndicationForEEGNumber ASC
+
 --For development - drop null values
 --SELECT * FROM #PivotBase WHERE Value IS NOT NULL
-SELECT * INTO #PivotBase2 FROM #PivotBase  WHERE Value IS NOT NULL  
+--SELECT * INTO #PivotBase2 FROM #PivotBase  WHERE Value IS NOT NULL  
 --SELECT * FROM #PivotBase2
 
 
@@ -118,7 +127,10 @@ SET @PivotSQl =
 	'PatientAgeYears,'+
 	'StudyId,'+
 	'StudyTypeId,'+
-	'StudyTypeName,'+
+	'StudyTypeName,'+	
+	'IndicationForEEGCodingId,'+
+	'IndicationForEEG,'+
+	'IndicationForEEGNumber,'+
 	'DescriptionId,'+
 	'DescriptionDate,'+
 	'IsDescriptionSigned,'+
