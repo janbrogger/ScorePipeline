@@ -4,7 +4,7 @@ IF OBJECT_ID('tempdb..##PivotBase') IS NOT NULL DROP TABLE ##PivotBase
 GO
 
 --The base query
-SELECT        
+SELECT      
  SearchResult.SearchResultId,
  SearchResult.Comment AS SearchResultComment, 
  Patient.PatientId,
@@ -18,12 +18,23 @@ SELECT
  StudyType.Name AS StudyTypeName,
  IndicationForEEGCoding.IndicationForEEGCodingId,
  IndicationForEEGCode.Name AS IndicationForEEG,
- ROW_NUMBER() OVER(PARTITION BY Study.StudyId, SearchResultEventAnnotationId, SearchResult_Event.SearchResultEventId, SearchResult_AnnotationConfig.SearchResultAnnotationConfigId ORDER BY Study.StudyId) AS IndicationForEEGNumber,
+ ROW_NUMBER() OVER(PARTITION BY Study.StudyId, 
+        Event.EventId, 
+		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
+		SearchResult_Event_Annotation.UserId, 
+		MedicationCoding.MedicationCodingId 
+		ORDER BY Study.StudyId) AS IndicationForEEGNumber,
  MedicationCoding.MedicationCodingId,
  MedicationCode.MedicationCodeId,
  MedicationCode.Code AS MedicationATCCode,
  MedicationCode.Name AS MedicationName,
-  ROW_NUMBER() OVER(PARTITION BY Study.StudyId, SearchResultEventAnnotationId, SearchResult_Event.SearchResultEventId, SearchResult_AnnotationConfig.SearchResultAnnotationConfigId ORDER BY Study.StudyId) AS MedicationNumber,
+  ROW_NUMBER() OVER(PARTITION BY 
+        Study.StudyId, 
+		Event.EventId, 
+		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
+		SearchResult_Event_Annotation.UserId, 
+		IndicationForEEGCOding.IndicationForEEGCodingId 
+		ORDER BY Study.StudyId) AS MedicationNumber,
  Description.DescriptionId,
  Description.Date AS DescriptionDate,
  Description.IsDescriptionSigned,
