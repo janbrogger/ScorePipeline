@@ -2,6 +2,7 @@
 USE HolbergAnon
 --Drop some temp tables
 IF OBJECT_ID('tempdb..#IndicationForEegNumbers') IS NOT NULL DROP TABLE #IndicationForEegNumbers
+IF OBJECT_ID('tempdb..##CarryOverDynamicColumnNames') IS NOT NULL DROP TABLE ##CarryOverDynamicColumnNames
 IF OBJECT_ID('tempdb..##PivotResult3') IS NOT NULL DROP TABLE ##PivotResult3
 GO
 --SELECT * FROM ##PivotResult2
@@ -18,6 +19,14 @@ SELECT @IndicationForEegColumnNames= COALESCE(@IndicationForEegColumnNames + ',M
 	FROM #IndicationForEegNumbers
 PRINT 	@IndicationForEegColumnNames
 
+
+SELECT name INTO ##CarryOverDynamicColumnNames FROM tempdb.sys.columns WHERE object_id =object_id('tempdb..##PivotResult2') AND name LIKE 'Annotation%'
+DECLARE @CarryOverDynamicColumnNames AS VARCHAR(MAX)
+SELECT @CarryOverDynamicColumnNames= COALESCE(@CarryOverDynamicColumnNames + ',' + name,name) FROM ##CarryOverDynamicColumnNames
+PRINT  @CarryOverDynamicColumnNames
+
+
+
 DECLARE @PivotSql AS VARCHAR(MAX)
 SET @PivotSql = 
 	'SELECT  '+	
@@ -33,6 +42,9 @@ SET @PivotSql =
 	'StudyTypeId,'+
 	'StudyTypeName,'+
 	@IndicationForEegColumnNames+','+
+	'MedicationATCCode,'+
+	'MedicationName,'+
+	'MedicationNumber,'+
 	'DescriptionId,'+
 	'DescriptionDate,'+
 	'IsDescriptionSigned,'+
@@ -60,7 +72,8 @@ SET @PivotSql =
 	'EventId, '+
 	'EventStart,'+
 	'EventStop,'+
-	'EventDuration'+		
+	'EventDuration,'+	
+	@CarryOverDynamicColumnNames+	
 	' INTO ##PivotResult3 ' +
 	' FROM ##PivotResult2 AS src '+	
 	'PIVOT(MIN(IndicationForEEG)  FOR IndicationForEegNumber  IN ('+@IndicationForEegNumbers+')) AS piv '+
@@ -76,6 +89,9 @@ SET @PivotSql =
 	'StudyId,'+
 	'StudyTypeId,'+
 	'StudyTypeName,'+
+	'MedicationATCCode,'+
+	'MedicationName,'+
+	'MedicationNumber,'+
 	'DescriptionId,'+
 	'DescriptionDate,'+
 	'IsDescriptionSigned,'+
@@ -103,7 +119,8 @@ SET @PivotSql =
 	'EventStart,'+
 	'EventStop,'+
 	'EventDuration,'+	
-	'EventId '
+	'EventId, '+
+	@CarryOverDynamicColumnNames
 PRINT @PivotSql
 EXEC(@PivotSql)
 SELECT * FROM ##PivotResult3

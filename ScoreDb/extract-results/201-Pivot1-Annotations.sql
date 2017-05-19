@@ -31,6 +31,9 @@ SET @PivotSQl =
 	'IndicationForEEGCodingId,'+
 	'IndicationForEEG,'+
 	'IndicationForEEGNumber,'+
+	'MedicationATCCode,'+
+	'MedicationName,'+
+	'MedicationNumber,'+
 	'DescriptionId,'+
 	'DescriptionDate,'+
 	'IsDescriptionSigned,'+

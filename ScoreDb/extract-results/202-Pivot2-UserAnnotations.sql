@@ -37,7 +37,7 @@ SELECT FieldName,
        #AnnotationUsers.UserId, 
 	   CONCAT(FieldName,'_',#AnnotationUsers.UserId ) AS ColumnName, 
 	   ROW_NUMBER() OVER(ORDER BY (SELECT 0)) AS RowNumber,	   
-	   N'MAX([F'+FieldName+'_'+CONVERT(nvarchar(10),UserId)+']) AS '+CONCAT(FieldName,'_',#AnnotationUsers.UserId ) AS PivotSelectPart	   
+	   N'MAX([F'+FieldName+'_'+CONVERT(nvarchar(10),UserId)+']) AS '+CONCAT('Annotation_',FieldName,'_',#AnnotationUsers.UserId ) AS PivotSelectPart	   
 	INTO #AnnotationsAndUsers 
 	FROM #AnnotationFields
 	CROSS JOIN #AnnotationUsers 
@@ -81,6 +81,9 @@ SELECT @PivotResultWithUserIdMultiplexSql = CONCAT(
 	'IndicationForEEGCodingId,'+
 	'IndicationForEEG,'+
 	'IndicationForEEGNumber,'+
+	'MedicationATCCode,'+
+	'MedicationName,'+
+	'MedicationNumber,'+
 	'DescriptionId,'+
 	'DescriptionDate,'+
 	'RecordingStart,'+
@@ -131,6 +134,9 @@ SET @PivotSql2 =
 	'IndicationForEEGCodingId,'+
 	'IndicationForEEG,'+
 	'IndicationForEEGNumber,'+
+	'MedicationATCCode,'+
+	'MedicationName,'+
+	'MedicationNumber,'+
 	'DescriptionId,'+
 	'DescriptionDate,'+
 	'IsDescriptionSigned,'+
@@ -178,6 +184,9 @@ SET @PivotSql2 =
 	'IndicationForEEGCodingId,'+
 	'IndicationForEEG,'+
 	'IndicationForEEGNumber,'+
+	'MedicationATCCode,'+
+	'MedicationName,'+
+	'MedicationNumber,'+
 	'DescriptionId,'+
 	'DescriptionDate,'+
 	'IsDescriptionSigned,'+

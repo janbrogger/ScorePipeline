@@ -19,6 +19,11 @@ SELECT
  IndicationForEEGCoding.IndicationForEEGCodingId,
  IndicationForEEGCode.Name AS IndicationForEEG,
  ROW_NUMBER() OVER(PARTITION BY Study.StudyId, SearchResultEventAnnotationId, SearchResult_Event.SearchResultEventId, SearchResult_AnnotationConfig.SearchResultAnnotationConfigId ORDER BY Study.StudyId) AS IndicationForEEGNumber,
+ MedicationCoding.MedicationCodingId,
+ MedicationCode.MedicationCodeId,
+ MedicationCode.Code AS MedicationATCCode,
+ MedicationCode.Name AS MedicationName,
+  ROW_NUMBER() OVER(PARTITION BY Study.StudyId, SearchResultEventAnnotationId, SearchResult_Event.SearchResultEventId, SearchResult_AnnotationConfig.SearchResultAnnotationConfigId ORDER BY Study.StudyId) AS MedicationNumber,
  Description.DescriptionId,
  Description.Date AS DescriptionDate,
  Description.IsDescriptionSigned,
@@ -84,6 +89,8 @@ LEFT OUTER JOIN Recording ON Event.RecordingId = Recording.RecordingId
 LEFT OUTER JOIN [User] AS ReportPhysician ON Description.PhysicianId = ReportPhysician.UserId 
 LEFT OUTER JOIN [User] AS ReportSupervising ON Description.SupervisingPhysicianId = ReportSupervising.UserId 
 LEFT OUTER JOIN [User] AS ReportTechnician ON Description.TechnicianId = ReportTechnician.UserId 
+LEFT OUTER JOIN MedicationCoding ON Study.StudyId = MedicationCoding.StudyId
+LEFT OUTER JOIN MedicationCode ON MedicationCoding.MedicationCodeId = MedicationCode.MedicationCodeId
 WHERE IndicationForEEGCoding.IndicationForEEGCodeId IS NOT NULL
 ORDER BY 
 SearchResult.SearchResultId, 
