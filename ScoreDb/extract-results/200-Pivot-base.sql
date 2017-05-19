@@ -1,13 +1,6 @@
 USE HolbergAnon
 --Drop some temp tables
-IF OBJECT_ID('tempdb..#PivotBase') IS NOT NULL DROP TABLE #PivotBase
-IF OBJECT_ID('tempdb..#PivotBase2') IS NOT NULL DROP TABLE #PivotBase2
-IF OBJECT_ID('tempdb..#Columns') IS NOT NULL DROP TABLE #Columns
-IF OBJECT_ID('tempdb..##PivotResult') IS NOT NULL DROP TABLE ##PivotResult
-IF OBJECT_ID('tempdb..##PivotResult2') IS NOT NULL DROP TABLE ##PivotResult2
-IF OBJECT_ID('tempdb..#AnnotationUsers') IS NOT NULL DROP TABLE #AnnotationUsers
-IF OBJECT_ID('tempdb..#AnnotationFields') IS NOT NULL DROP TABLE #AnnotationFields
-IF OBJECT_ID('tempdb..#AnnotationsAndUsers') IS NOT NULL DROP TABLE #AnnotationsAndUsers
+IF OBJECT_ID('tempdb..##PivotBase') IS NOT NULL DROP TABLE ##PivotBase
 GO
 
 --The base query
@@ -68,7 +61,7 @@ SELECT
   WHEN SearchResult_AnnotationConfig.HasBlob=1 THEN CONVERT(nvarchar(max), SearchResult_Event_Annotation.ValueBlob)	
   ELSE NULL
   END as nvarchar(max)) AS Value 
-INTO #PivotBase 
+INTO ##PivotBase 
 FROM SearchResult_Event 
 INNER JOIN SearchResult ON SearchResult_Event.SearchResultId = SearchResult.SearchResultId 
 LEFT OUTER JOIN Event ON SearchResult_Event.EventId = Event.EventId 
@@ -98,78 +91,4 @@ Event.EventId,
 SearchResult_Event.SearchResultEventId, 
 SearchResult_AnnotationConfig.SearchResultAnnotationConfigId
 
---SELECT * FROM #PivotBase
-SELECT SearchResultEventId, EventId, StudyId, IndicationForEEGCodingId, IndicationForEEGNumber, IndicationForEEG FROM #PivotBase WHERE StudyId=5685 ORDER BY IndicationForEEGNumber ASC
-
---For development - drop null values
---SELECT * FROM #PivotBase WHERE Value IS NOT NULL
---SELECT * INTO #PivotBase2 FROM #PivotBase  WHERE Value IS NOT NULL  
---SELECT * FROM #PivotBase2
-
-
-SELECT DISTINCT FieldName As AnnotationFieldName INTO #Columns FROM SearchResult_AnnotationConfig ORDER BY FieldName
---The definitions of columns on which to pivot
-DECLARE @Columns AS VARCHAR(MAX)
-SELECT @Columns = COALESCE(@Columns + ',[' + CAST(AnnotationFieldName as varchar) + ']',  '[' + cast(AnnotationFieldName as varchar)+ ']')  FROM #Columns AS B
-PRINT @Columns
-
---Build the pivot query
-DECLARE @PivotSQl AS VARCHAR(MAX)
-SET @PivotSQl = 
-	'SELECT  '+
-	'SearchResultId,'+
-	'SearchResultComment,'+
-	'PatientId,'+
-	'PatientDetailsId,'+
-	'PatientGenderId,'+
-	'PatientGender,'+
-	'PatientDateOfBirthYear,'+
-	'PatientAgeYears,'+
-	'StudyId,'+
-	'StudyTypeId,'+
-	'StudyTypeName,'+	
-	'IndicationForEEGCodingId,'+
-	'IndicationForEEG,'+
-	'IndicationForEEGNumber,'+
-	'DescriptionId,'+
-	'DescriptionDate,'+
-	'IsDescriptionSigned,'+
-	'IsSignedByPhysician,'+
-	'IsSignedBySupervisingPhysician,'+
-	'IsSignedByTechnician,'+
-	'ReportPhysicianId,'+
-	'ReportPhysician,'+
-	'ReportSupervisingId,'+
-	'ReportSupervising,'+
-	'ReportTechnicianId,'+
-	'ReportTechnician,'+
-	'ReportSummary,'+
-	'ReportComments,'+
-	'ReportSignedFinalTime,'+
-	'RecordingId,'+
-	'RecordingStart,'+
-	'RecordingStop,'+
-	'RecordingDuration,'+
-	'SearchResultEventId, '+
-	'EventCodingId,'+
-	'EventCodeId,'+
-	'EventCodeName,'+
-	'CodesetId,'+
-	'CodesetCollectionId,'+
-	'piv.EventId, '+
-	'EventStart,'+
-	'EventStop,'+
-	'EventDuration,'+	
-	'piv.UserId, '+
-	@Columns+
-	' INTO ##PivotResult ' +
-	' FROM (SELECT * FROM #PivotBase) AS src '+
-	' PIVOT('+
-    '  MIN(src.Value)'+
-	'  FOR AnnotationFieldName'+
-    '  IN (' + @Columns + ')'+
-	') AS piv '
-PRINT @PivotSql
-
-EXEC(@PivotSql)
-SELECT * FROM ##PivotResult
+SELECT * FROM ##PivotBase

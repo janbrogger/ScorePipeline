@@ -8,7 +8,7 @@ IF OBJECT_ID('tempdb..#PivotingElements') IS NOT NULL DROP TABLE #PivotingElemen
 IF OBJECT_ID('tempdb..#AnnotationsAndUsers') IS NOT NULL DROP TABLE #AnnotationsAndUsers
 IF OBJECT_ID('tempdb..##PivotResultWithUserIdMultiplex') IS NOT NULL DROP TABLE ##PivotResultWithUserIdMultiplex
 GO
---SELECT * FROM ##PivotResult
+--SELECT * FROM ##PivotResult1
 
 --Now pivot a second time 
 --Store users who did annotations
@@ -109,7 +109,7 @@ SELECT @PivotResultWithUserIdMultiplexSql = CONCAT(
 	'EventStart,'+
 	'EventStop,'+
 	'EventDuration,'
-	,@UserIdMultiplexed,',',@AnnotationList1,' INTO ##PivotResultWithUserIdMultiplex FROM ##PivotResult')
+	,@UserIdMultiplexed,',',@AnnotationList1,' INTO ##PivotResultWithUserIdMultiplex FROM ##PivotResult1')
 PRINT @PivotResultWithUserIdMultiplexSql
 EXEC(@PivotResultWithUserIdMultiplexSql)
 --SELECT * FROM ##PivotResultWithUserIdMultiplex
