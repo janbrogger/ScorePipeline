@@ -18,12 +18,20 @@ SELECT
  StudyType.Name AS StudyTypeName,
  IndicationForEEGCoding.IndicationForEEGCodingId,
  IndicationForEEGCode.Name AS IndicationForEEG,
- ROW_NUMBER() OVER(PARTITION BY Study.StudyId, 
+ ROW_NUMBER() OVER(PARTITION BY 
+		Study.StudyId, 
         Event.EventId, 
 		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
 		SearchResult_Event_Annotation.UserId, 
 		MedicationCoding.MedicationCodingId 
-		ORDER BY Study.StudyId) AS IndicationForEEGNumber,
+		ORDER BY 
+		Study.StudyId, 
+        Event.EventId, 
+		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
+		SearchResult_Event_Annotation.UserId, 
+		IndicationForEEGCoding.IndicationForEEGCodingId,
+		MedicationCoding.MedicationCodingId
+		) AS IndicationForEEGNumber,
  MedicationCoding.MedicationCodingId,
  MedicationCode.MedicationCodeId,
  MedicationCode.Code AS MedicationATCCode,
@@ -34,7 +42,14 @@ SELECT
 		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
 		SearchResult_Event_Annotation.UserId, 
 		IndicationForEEGCOding.IndicationForEEGCodingId 
-		ORDER BY Study.StudyId) AS MedicationNumber,
+		ORDER BY
+		Study.StudyId, 
+		Event.EventId, 
+		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
+		SearchResult_Event_Annotation.UserId, 		
+		MedicationCoding.MedicationCodingId,
+		IndicationForEEGCoding.IndicationForEEGCodingId
+		) AS MedicationNumber,
  Description.DescriptionId,
  Description.Date AS DescriptionDate,
  Description.IsDescriptionSigned,
@@ -102,7 +117,7 @@ LEFT OUTER JOIN [User] AS ReportSupervising ON Description.SupervisingPhysicianI
 LEFT OUTER JOIN [User] AS ReportTechnician ON Description.TechnicianId = ReportTechnician.UserId 
 LEFT OUTER JOIN MedicationCoding ON Study.StudyId = MedicationCoding.StudyId
 LEFT OUTER JOIN MedicationCode ON MedicationCoding.MedicationCodeId = MedicationCode.MedicationCodeId
-WHERE IndicationForEEGCoding.IndicationForEEGCodeId IS NOT NULL
+WHERE IndicationForEEGCoding.IndicationForEEGCodeId IS NOT NULL --AND Study.StudyId=5685
 ORDER BY 
 SearchResult.SearchResultId, 
 Event.EventId,
