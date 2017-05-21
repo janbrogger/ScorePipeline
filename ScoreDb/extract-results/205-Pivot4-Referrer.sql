@@ -27,7 +27,7 @@ SELECT @CarryOverDynamicColumnNames1= COALESCE(@CarryOverDynamicColumnNames1 + '
 PRINT  @CarryOverDynamicColumnNames1
 
 SELECT name INTO ##CarryOverDynamicColumnNames2 FROM tempdb.sys.columns 
-    WHERE object_id =object_id('tempdb..##PivotResult4') AND (name LIKE 'IndicationForEEG_%' OR name LIKE 'Medication_%')
+    WHERE object_id =object_id('tempdb..##PivotResult4') AND (name LIKE 'IndicationForEEG_%' OR name LIKE 'MedicationName_%' OR name LIKE 'MedicationATC_%')
 DECLARE @CarryOverDynamicColumnNames2 AS VARCHAR(MAX)
 SELECT @CarryOverDynamicColumnNames2= COALESCE(@CarryOverDynamicColumnNames2 + ',' + name,name) FROM ##CarryOverDynamicColumnNames2
 PRINT  @CarryOverDynamicColumnNames2

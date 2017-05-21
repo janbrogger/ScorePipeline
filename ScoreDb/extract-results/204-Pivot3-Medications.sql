@@ -4,6 +4,7 @@ USE HolbergAnon
 IF OBJECT_ID('tempdb..#MedicationNumbers') IS NOT NULL DROP TABLE #MedicationNumbers
 IF OBJECT_ID('tempdb..##CarryOverDynamicColumnNames1') IS NOT NULL DROP TABLE ##CarryOverDynamicColumnNames1
 IF OBJECT_ID('tempdb..##CarryOverDynamicColumnNames2') IS NOT NULL DROP TABLE ##CarryOverDynamicColumnNames2
+IF OBJECT_ID('tempdb..#MedicationMultiplex') IS NOT NULL DROP TABLE #MedicationMultiplex
 IF OBJECT_ID('tempdb..##PivotResult4') IS NOT NULL DROP TABLE ##PivotResult4
 GO
 --SELECT * FROM ##PivotResult2
@@ -14,9 +15,20 @@ SELECT @MedicationNumbers= COALESCE(@MedicationNumbers + ',[' + CAST(MedicationN
 	FROM #MedicationNumbers
 PRINT 	@MedicationNumbers
 
+DECLARE @MedicationNumbers2 AS VARCHAR(MAX)
+SELECT @MedicationNumbers2= COALESCE(@MedicationNumbers2 + ',[MedicationNameNumber_' + CAST(MedicationNumber as varchar) + ']',  '[MedicationNameNumber_' + CAST(MedicationNumber as varchar)+ ']')   
+	FROM #MedicationNumbers
+PRINT 	@MedicationNumbers2
+
+DECLARE @MedicationNumbers3 AS VARCHAR(MAX)
+SELECT @MedicationNumbers3= COALESCE(@MedicationNumbers3 + ',[MedicationATCNumber_' + CAST(MedicationNumber as varchar) + ']',  '[MedicationATCNumber_' + CAST(MedicationNumber as varchar)+ ']')   
+	FROM #MedicationNumbers
+PRINT 	@MedicationNumbers3
+
 DECLARE @MedicationColumnNames AS VARCHAR(MAX)
-SELECT @MedicationColumnNames= COALESCE(@MedicationColumnNames + ',MIN([' + CAST(MedicationNumber as varchar) + ']) AS Medication_' +CAST(MedicationNumber as varchar),
-																			  'MIN([' + CAST(MedicationNumber as varchar) + ']) AS Medication_' +CAST(MedicationNumber as varchar))   
+SELECT @MedicationColumnNames=	COALESCE(@MedicationColumnNames +
+	',MIN([MedicationNameNumber_' + CAST(MedicationNumber as varchar) + ']) AS MedicationName_' +CAST(MedicationNumber as varchar)+',MIN([MedicationATCNumber_' + CAST(MedicationNumber as varchar) + ']) AS MedicationATC_' +CAST(MedicationNumber as varchar),
+	 'MIN([MedicationNameNumber_' + CAST(MedicationNumber as varchar) + ']) AS MedicationName_' +CAST(MedicationNumber as varchar)+',MIN([MedicationATCNumber_' + CAST(MedicationNumber as varchar) + ']) AS MedicationATC_' +CAST(MedicationNumber as varchar))
 	FROM #MedicationNumbers
 PRINT 	@MedicationColumnNames
 
@@ -31,6 +43,13 @@ SELECT name INTO ##CarryOverDynamicColumnNames2 FROM tempdb.sys.columns
 DECLARE @CarryOverDynamicColumnNames2 AS VARCHAR(MAX)
 SELECT @CarryOverDynamicColumnNames2= COALESCE(@CarryOverDynamicColumnNames2 + ',' + name,name) FROM ##CarryOverDynamicColumnNames2
 PRINT  @CarryOverDynamicColumnNames2
+
+SELECT *, 
+	CONCAT('MedicationNameNumber_',MedicationNumber) AS MedicationNameNumber,
+	CONCAT('MedicationATCNumber_', MedicationNumber) AS MedicationATCNumber 
+INTO #MedicationMultiplex
+FROM ##PivotResult3
+
 
 DECLARE @PivotSql AS VARCHAR(MAX)
 SET @PivotSql = 
@@ -48,7 +67,6 @@ SET @PivotSql =
 	'StudyTypeName,'+
 	@CarryOverDynamicColumnNames2+','+
 	@MedicationColumnNames+','+
-	--'MedicationATCCode,'+	
 	'ReferrerId,'+
 	'ReferrerLastName,'+
 	'ReferrerFirstName,'+
@@ -86,8 +104,9 @@ SET @PivotSql =
 	'EventDuration,'+		
 	@CarryOverDynamicColumnNames1+
 	' INTO ##PivotResult4 ' +
-	' FROM ##PivotResult3 AS src '+	
-	'PIVOT(MIN(MedicationName)  FOR MedicationNumber  IN ('+@MedicationNumbers+')) AS piv '+
+	' FROM #MedicationMultiplex AS src '+	
+	'PIVOT(MIN(MedicationName)  FOR MedicationNameNumber  IN ('+@MedicationNumbers2+')) AS piv '+
+	'PIVOT(MIN(MedicationATCCode)   FOR MedicationATCNumber  IN ('+@MedicationNumbers3+')) AS piv '+
 	' GROUP BY '+
 	'SearchResultId,'+
 	'SearchResultComment,'+
