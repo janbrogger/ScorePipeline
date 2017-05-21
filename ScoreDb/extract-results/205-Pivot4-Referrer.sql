@@ -4,6 +4,7 @@ USE HolbergAnon
 IF OBJECT_ID('tempdb..#ReferrerNumbers') IS NOT NULL DROP TABLE #ReferrerNumbers
 IF OBJECT_ID('tempdb..##CarryOverDynamicColumnNames1') IS NOT NULL DROP TABLE ##CarryOverDynamicColumnNames1
 IF OBJECT_ID('tempdb..##CarryOverDynamicColumnNames2') IS NOT NULL DROP TABLE ##CarryOverDynamicColumnNames2
+IF OBJECT_ID('tempdb..#ReferrerMultiplex') IS NOT NULL DROP TABLE #ReferrerMultiplex
 IF OBJECT_ID('tempdb..##PivotResult5') IS NOT NULL DROP TABLE ##PivotResult5
 GO
 --SELECT * FROM ##PivotResult2
@@ -15,10 +16,21 @@ SELECT @ReferrerNumbers= COALESCE(@ReferrerNumbers + ',[' + CAST(ReferrerNumber 
 PRINT 	@ReferrerNumbers
 
 DECLARE @ReferrerColumnNames AS VARCHAR(MAX)
-SELECT @ReferrerColumnNames= COALESCE(@ReferrerColumnNames + ',MIN([' + CAST(ReferrerNumber as varchar) + ']) AS Referrer_' +CAST(ReferrerNumber as varchar),
-																			  'MIN([' + CAST(ReferrerNumber as varchar) + ']) AS Referrer_' +CAST(ReferrerNumber as varchar))   
+SELECT @ReferrerColumnNames = COALESCE(@ReferrerColumnNames +
+		',MIN([ReferrerFirstNameNumber_' + CAST(ReferrerNumber as varchar) + ']) AS ReferrerFirstName_' +CAST(ReferrerNumber as varchar)+',MIN([ReferrerLastNameNumber_' + CAST(ReferrerNumber as varchar) + ']) AS ReferrerLastName_' +CAST(ReferrerNumber as varchar),
+	    'MIN([ReferrerFirstNameNumber_' + CAST(ReferrerNumber as varchar) + ']) AS ReferrerFirstName_' +CAST(ReferrerNumber as varchar)+',MIN([ReferrerLastNameNumber_' + CAST(ReferrerNumber as varchar) + ']) AS ReferrerLastName_' +CAST(ReferrerNumber as varchar))
 	FROM #ReferrerNumbers
 PRINT 	@ReferrerColumnNames
+
+DECLARE @ReferrerNumbers2 AS VARCHAR(MAX)
+SELECT @ReferrerNumbers2= COALESCE(@ReferrerNumbers2 + ',[ReferrerLastNameNumber_' + CAST(ReferrerNumber as varchar) + ']',  '[ReferrerLastNameNumber_' + CAST(ReferrerNumber as varchar)+ ']')   
+	FROM #ReferrerNumbers
+PRINT 	@ReferrerNumbers2
+
+DECLARE @ReferrerNumbers3 AS VARCHAR(MAX)
+SELECT @ReferrerNumbers3= COALESCE(@ReferrerNumbers3 + ',[ReferrerFirstNameNumber_' + CAST(ReferrerNumber as varchar) + ']',  '[ReferrerFirstNameNumber_' + CAST(ReferrerNumber as varchar)+ ']')   
+	FROM #ReferrerNumbers
+PRINT 	@ReferrerNumbers3
 
 SELECT name INTO ##CarryOverDynamicColumnNames1 FROM tempdb.sys.columns 
     WHERE object_id =object_id('tempdb..##PivotResult4') AND (name LIKE 'Annotation%')
@@ -31,6 +43,13 @@ SELECT name INTO ##CarryOverDynamicColumnNames2 FROM tempdb.sys.columns
 DECLARE @CarryOverDynamicColumnNames2 AS VARCHAR(MAX)
 SELECT @CarryOverDynamicColumnNames2= COALESCE(@CarryOverDynamicColumnNames2 + ',' + name,name) FROM ##CarryOverDynamicColumnNames2
 PRINT  @CarryOverDynamicColumnNames2
+
+SELECT *, 
+	CONCAT('ReferrerFirstNameNumber_',ReferrerNumber) AS ReferrerFirstNameNumber,
+	CONCAT('ReferrerLastNameNumber_', ReferrerNumber) AS ReferrerLastNameNumber 
+INTO #ReferrerMultiplex
+FROM ##PivotResult4
+--SELECT * FROM #ReferrerMultiplex
 
 DECLARE @PivotSql AS VARCHAR(MAX)
 SET @PivotSql = 
@@ -78,8 +97,9 @@ SET @PivotSql =
 	'EventDuration,'+		
 	@CarryOverDynamicColumnNames1+
 	' INTO ##PivotResult5 ' +
-	' FROM ##PivotResult4 AS src '+	
-	'PIVOT(MIN(ReferrerLastName)  FOR ReferrerNumber  IN ('+@ReferrerNumbers+')) AS piv '+
+	' FROM #ReferrerMultiplex AS src '+	
+	'PIVOT(MIN(ReferrerLastName)  FOR ReferrerLastNameNumber  IN ('+@ReferrerNumbers2+')) AS piv '+
+	'PIVOT(MIN(ReferrerFirstName)  FOR ReferrerFirstNameNumber  IN ('+@ReferrerNumbers3+')) AS piv '+
 	' GROUP BY '+
 	'SearchResultId,'+
 	'SearchResultComment,'+
@@ -125,4 +145,3 @@ SET @PivotSql =
 PRINT @PivotSql
 EXEC(@PivotSql)
 SELECT * FROM ##PivotResult5
-
