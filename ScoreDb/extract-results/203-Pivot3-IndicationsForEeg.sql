@@ -45,6 +45,13 @@ SET @PivotSql =
 	'MedicationATCCode,'+
 	'MedicationName,'+
 	'MedicationNumber,'+
+	'ReferrerId,'+
+	'ReferrerLastName,'+
+	'ReferrerFirstName,'+
+	'ReferrerTitle,'+
+	'ReferrerInstitution,'+
+	'ReferrerAdress,'+
+	'ReferrerNumber,'+
 	'DescriptionId,'+
 	'DescriptionDate,'+
 	'IsDescriptionSigned,'+
@@ -92,6 +99,13 @@ SET @PivotSql =
 	'MedicationATCCode,'+
 	'MedicationName,'+
 	'MedicationNumber,'+
+	'ReferrerId,'+
+	'ReferrerLastName,'+
+	'ReferrerFirstName,'+
+	'ReferrerTitle,'+
+	'ReferrerInstitution,'+
+	'ReferrerAdress,'+
+	'ReferrerNumber,'+
 	'DescriptionId,'+
 	'DescriptionDate,'+
 	'IsDescriptionSigned,'+

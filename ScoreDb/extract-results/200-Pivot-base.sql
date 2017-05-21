@@ -23,14 +23,16 @@ SELECT
         Event.EventId, 
 		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
 		SearchResult_Event_Annotation.UserId, 
-		MedicationCoding.MedicationCodingId 
+		MedicationCoding.MedicationCodingId,
+		ReferrerCoding.ReferrerCodingId
 		ORDER BY 
 		Study.StudyId, 
         Event.EventId, 
 		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
 		SearchResult_Event_Annotation.UserId, 
 		IndicationForEEGCoding.IndicationForEEGCodingId,
-		MedicationCoding.MedicationCodingId
+		MedicationCoding.MedicationCodingId,
+		ReferrerCoding.ReferrerCodingId
 		) AS IndicationForEEGNumber,
  MedicationCoding.MedicationCodingId,
  MedicationCode.MedicationCodeId,
@@ -41,15 +43,40 @@ SELECT
 		Event.EventId, 
 		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
 		SearchResult_Event_Annotation.UserId, 
-		IndicationForEEGCOding.IndicationForEEGCodingId 
+		IndicationForEEGCOding.IndicationForEEGCodingId,
+		ReferrerCoding.ReferrerCodingId
 		ORDER BY
 		Study.StudyId, 
 		Event.EventId, 
 		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
 		SearchResult_Event_Annotation.UserId, 		
 		MedicationCoding.MedicationCodingId,
-		IndicationForEEGCoding.IndicationForEEGCodingId
+		IndicationForEEGCoding.IndicationForEEGCodingId,
+		ReferrerCoding.ReferrerCodingId
 		) AS MedicationNumber,
+ ReferrerCoding.ReferrerCodingId,
+ Referrer.ReferrerId,
+ Referrer.LastName AS ReferrerLastName,
+ Referrer.FirstName AS ReferrerFirstName,
+ Referrer.Title AS ReferrerTitle,
+ Referrer.InstitutionName AS ReferrerInstitution,
+ Referrer.Address AS ReferrerAdress,
+  ROW_NUMBER() OVER(PARTITION BY 
+        Study.StudyId, 
+		Event.EventId, 
+		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
+		SearchResult_Event_Annotation.UserId, 
+		IndicationForEEGCOding.IndicationForEEGCodingId,
+		MedicationCoding.MedicationCodingId
+		ORDER BY
+		Study.StudyId, 
+		Event.EventId, 
+		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
+		SearchResult_Event_Annotation.UserId, 		
+		ReferrerCoding.ReferrerCodingId,
+		IndicationForEEGCoding.IndicationForEEGCodingId,
+		MedicationCoding.MedicationCodingId
+		) AS ReferrerNumber,
  Description.DescriptionId,
  Description.Date AS DescriptionDate,
  Description.IsDescriptionSigned,
@@ -117,6 +144,8 @@ LEFT OUTER JOIN [User] AS ReportSupervising ON Description.SupervisingPhysicianI
 LEFT OUTER JOIN [User] AS ReportTechnician ON Description.TechnicianId = ReportTechnician.UserId 
 LEFT OUTER JOIN MedicationCoding ON Study.StudyId = MedicationCoding.StudyId
 LEFT OUTER JOIN MedicationCode ON MedicationCoding.MedicationCodeId = MedicationCode.MedicationCodeId
+LEFT OUTER JOIN ReferrerCoding ON Study.StudyId = ReferrerCoding.StudyId
+LEFT OUTER JOIN Referrer ON ReferrerCoding.ReferrerId = Referrer.ReferrerId
 WHERE IndicationForEEGCoding.IndicationForEEGCodeId IS NOT NULL --AND Study.StudyId=5685
 ORDER BY 
 SearchResult.SearchResultId, 

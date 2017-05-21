@@ -84,6 +84,13 @@ SELECT @PivotResultWithUserIdMultiplexSql = CONCAT(
 	'MedicationATCCode,'+
 	'MedicationName,'+
 	'MedicationNumber,'+
+	'ReferrerId,'+
+	'ReferrerLastName,'+
+	'ReferrerFirstName,'+
+	'ReferrerTitle,'+
+	'ReferrerInstitution,'+
+	'ReferrerAdress,'+
+	'ReferrerNumber,'+
 	'DescriptionId,'+
 	'DescriptionDate,'+
 	'RecordingStart,'+
@@ -137,6 +144,13 @@ SET @PivotSql2 =
 	'MedicationATCCode,'+
 	'MedicationName,'+
 	'MedicationNumber,'+
+	'ReferrerId,'+
+	'ReferrerLastName,'+
+	'ReferrerFirstName,'+
+	'ReferrerTitle,'+
+	'ReferrerInstitution,'+
+	'ReferrerAdress,'+
+	'ReferrerNumber,'+
 	'DescriptionId,'+
 	'DescriptionDate,'+
 	'IsDescriptionSigned,'+
@@ -187,6 +201,13 @@ SET @PivotSql2 =
 	'MedicationATCCode,'+
 	'MedicationName,'+
 	'MedicationNumber,'+
+	'ReferrerId,'+
+	'ReferrerLastName,'+
+	'ReferrerFirstName,'+
+	'ReferrerTitle,'+
+	'ReferrerInstitution,'+
+	'ReferrerAdress,'+
+	'ReferrerNumber,'+
 	'DescriptionId,'+
 	'DescriptionDate,'+
 	'IsDescriptionSigned,'+

@@ -1,33 +1,33 @@
 ----------------------------
 USE HolbergAnon
 --Drop some temp tables
-IF OBJECT_ID('tempdb..#MedicationNumbers') IS NOT NULL DROP TABLE #MedicationNumbers
+IF OBJECT_ID('tempdb..#ReferrerNumbers') IS NOT NULL DROP TABLE #ReferrerNumbers
 IF OBJECT_ID('tempdb..##CarryOverDynamicColumnNames1') IS NOT NULL DROP TABLE ##CarryOverDynamicColumnNames1
 IF OBJECT_ID('tempdb..##CarryOverDynamicColumnNames2') IS NOT NULL DROP TABLE ##CarryOverDynamicColumnNames2
-IF OBJECT_ID('tempdb..##PivotResult4') IS NOT NULL DROP TABLE ##PivotResult4
+IF OBJECT_ID('tempdb..##PivotResult5') IS NOT NULL DROP TABLE ##PivotResult5
 GO
 --SELECT * FROM ##PivotResult2
 
-SELECT DISTINCT MedicationNumber INTO #MedicationNumbers FROM ##PivotResult3 ORDER BY MedicationNumber
-DECLARE @MedicationNumbers AS VARCHAR(MAX)
-SELECT @MedicationNumbers= COALESCE(@MedicationNumbers + ',[' + CAST(MedicationNumber as varchar) + ']',  '[' + CAST(MedicationNumber as varchar)+ ']')   
-	FROM #MedicationNumbers
-PRINT 	@MedicationNumbers
+SELECT DISTINCT ReferrerNumber INTO #ReferrerNumbers FROM ##PivotResult4 ORDER BY ReferrerNumber
+DECLARE @ReferrerNumbers AS VARCHAR(MAX)
+SELECT @ReferrerNumbers= COALESCE(@ReferrerNumbers + ',[' + CAST(ReferrerNumber as varchar) + ']',  '[' + CAST(ReferrerNumber as varchar)+ ']')   
+	FROM #ReferrerNumbers
+PRINT 	@ReferrerNumbers
 
-DECLARE @MedicationColumnNames AS VARCHAR(MAX)
-SELECT @MedicationColumnNames= COALESCE(@MedicationColumnNames + ',MIN([' + CAST(MedicationNumber as varchar) + ']) AS Medication_' +CAST(MedicationNumber as varchar),
-																			  'MIN([' + CAST(MedicationNumber as varchar) + ']) AS Medication_' +CAST(MedicationNumber as varchar))   
-	FROM #MedicationNumbers
-PRINT 	@MedicationColumnNames
+DECLARE @ReferrerColumnNames AS VARCHAR(MAX)
+SELECT @ReferrerColumnNames= COALESCE(@ReferrerColumnNames + ',MIN([' + CAST(ReferrerNumber as varchar) + ']) AS Referrer_' +CAST(ReferrerNumber as varchar),
+																			  'MIN([' + CAST(ReferrerNumber as varchar) + ']) AS Referrer_' +CAST(ReferrerNumber as varchar))   
+	FROM #ReferrerNumbers
+PRINT 	@ReferrerColumnNames
 
 SELECT name INTO ##CarryOverDynamicColumnNames1 FROM tempdb.sys.columns 
-    WHERE object_id =object_id('tempdb..##PivotResult3') AND (name LIKE 'Annotation%')
+    WHERE object_id =object_id('tempdb..##PivotResult4') AND (name LIKE 'Annotation%')
 DECLARE @CarryOverDynamicColumnNames1 AS VARCHAR(MAX)
 SELECT @CarryOverDynamicColumnNames1= COALESCE(@CarryOverDynamicColumnNames1 + ',' + name,name) FROM ##CarryOverDynamicColumnNames1
 PRINT  @CarryOverDynamicColumnNames1
 
 SELECT name INTO ##CarryOverDynamicColumnNames2 FROM tempdb.sys.columns 
-    WHERE object_id =object_id('tempdb..##PivotResult3') AND (name LIKE 'IndicationForEEG%')
+    WHERE object_id =object_id('tempdb..##PivotResult4') AND (name LIKE 'IndicationForEEG_%' OR name LIKE 'Medication_%')
 DECLARE @CarryOverDynamicColumnNames2 AS VARCHAR(MAX)
 SELECT @CarryOverDynamicColumnNames2= COALESCE(@CarryOverDynamicColumnNames2 + ',' + name,name) FROM ##CarryOverDynamicColumnNames2
 PRINT  @CarryOverDynamicColumnNames2
@@ -47,15 +47,7 @@ SET @PivotSql =
 	'StudyTypeId,'+
 	'StudyTypeName,'+
 	@CarryOverDynamicColumnNames2+','+
-	@MedicationColumnNames+','+
-	--'MedicationATCCode,'+	
-	'ReferrerId,'+
-	'ReferrerLastName,'+
-	'ReferrerFirstName,'+
-	'ReferrerTitle,'+
-	'ReferrerInstitution,'+
-	'ReferrerAdress,'+
-	'ReferrerNumber,'+
+	@ReferrerColumnNames+','+		
 	'DescriptionId,'+
 	'DescriptionDate,'+
 	'IsDescriptionSigned,'+
@@ -85,9 +77,9 @@ SET @PivotSql =
 	'EventStop,'+
 	'EventDuration,'+		
 	@CarryOverDynamicColumnNames1+
-	' INTO ##PivotResult4 ' +
-	' FROM ##PivotResult3 AS src '+	
-	'PIVOT(MIN(MedicationName)  FOR MedicationNumber  IN ('+@MedicationNumbers+')) AS piv '+
+	' INTO ##PivotResult5 ' +
+	' FROM ##PivotResult4 AS src '+	
+	'PIVOT(MIN(ReferrerLastName)  FOR ReferrerNumber  IN ('+@ReferrerNumbers+')) AS piv '+
 	' GROUP BY '+
 	'SearchResultId,'+
 	'SearchResultComment,'+
@@ -100,14 +92,7 @@ SET @PivotSql =
 	'StudyId,'+
 	'StudyTypeId,'+
 	'StudyTypeName,'+
-	@CarryOverDynamicColumnNames2+','+
-	'ReferrerId,'+
-	'ReferrerLastName,'+
-	'ReferrerFirstName,'+
-	'ReferrerTitle,'+
-	'ReferrerInstitution,'+
-	'ReferrerAdress,'+
-	'ReferrerNumber,'+
+	@CarryOverDynamicColumnNames2+','+	
 	'DescriptionId,'+
 	'DescriptionDate,'+
 	'IsDescriptionSigned,'+
@@ -139,5 +124,5 @@ SET @PivotSql =
 	@CarryOverDynamicColumnNames1
 PRINT @PivotSql
 EXEC(@PivotSql)
-SELECT * FROM ##PivotResult4
+SELECT * FROM ##PivotResult5
 
