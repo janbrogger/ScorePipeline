@@ -11,24 +11,24 @@ GO
 
 SELECT DISTINCT MedicationNumber INTO #MedicationNumbers FROM ##PivotResult3 ORDER BY MedicationNumber
 DECLARE @MedicationNumbers AS VARCHAR(MAX)
-SELECT @MedicationNumbers= COALESCE(@MedicationNumbers + ',[' + CAST(MedicationNumber as varchar) + ']',  '[' + CAST(MedicationNumber as varchar)+ ']')   
+SELECT @MedicationNumbers= COALESCE(@MedicationNumbers + ',[' + FORMAT(MedicationNumber, '00') + ']',  '[' + FORMAT(MedicationNumber, '00')+ ']')   
 	FROM #MedicationNumbers
 PRINT 	@MedicationNumbers
 
 DECLARE @MedicationNumbers2 AS VARCHAR(MAX)
-SELECT @MedicationNumbers2= COALESCE(@MedicationNumbers2 + ',[MedicationNameNumber_' + CAST(MedicationNumber as varchar) + ']',  '[MedicationNameNumber_' + CAST(MedicationNumber as varchar)+ ']')   
+SELECT @MedicationNumbers2= COALESCE(@MedicationNumbers2 + ',[MedicationNameNumber_' + FORMAT(MedicationNumber, '00') + ']',  '[MedicationNameNumber_' + FORMAT(MedicationNumber, '00')+ ']')   
 	FROM #MedicationNumbers
 PRINT 	@MedicationNumbers2
 
 DECLARE @MedicationNumbers3 AS VARCHAR(MAX)
-SELECT @MedicationNumbers3= COALESCE(@MedicationNumbers3 + ',[MedicationATCNumber_' + CAST(MedicationNumber as varchar) + ']',  '[MedicationATCNumber_' + CAST(MedicationNumber as varchar)+ ']')   
+SELECT @MedicationNumbers3= COALESCE(@MedicationNumbers3 + ',[MedicationATCNumber_' + FORMAT(MedicationNumber, '00') + ']',  '[MedicationATCNumber_' + FORMAT(MedicationNumber, '00')+ ']')   
 	FROM #MedicationNumbers
 PRINT 	@MedicationNumbers3
 
 DECLARE @MedicationColumnNames AS VARCHAR(MAX)
 SELECT @MedicationColumnNames=	COALESCE(@MedicationColumnNames +
-	',MIN([MedicationNameNumber_' + CAST(MedicationNumber as varchar) + ']) AS MedicationName_' +CAST(MedicationNumber as varchar)+',MIN([MedicationATCNumber_' + CAST(MedicationNumber as varchar) + ']) AS MedicationATC_' +CAST(MedicationNumber as varchar),
-	 'MIN([MedicationNameNumber_' + CAST(MedicationNumber as varchar) + ']) AS MedicationName_' +CAST(MedicationNumber as varchar)+',MIN([MedicationATCNumber_' + CAST(MedicationNumber as varchar) + ']) AS MedicationATC_' +CAST(MedicationNumber as varchar))
+	',MIN([MedicationNameNumber_' + FORMAT(MedicationNumber, '00') + ']) AS MedicationName_' +FORMAT(MedicationNumber, '00')+',MIN([MedicationATCNumber_' + FORMAT(MedicationNumber, '00') + ']) AS MedicationATC_' +FORMAT(MedicationNumber, '00'),
+	 'MIN([MedicationNameNumber_' + FORMAT(MedicationNumber, '00') + ']) AS MedicationName_' +FORMAT(MedicationNumber, '00')+',MIN([MedicationATCNumber_' + FORMAT(MedicationNumber, '00') + ']) AS MedicationATC_' +FORMAT(MedicationNumber, '00'))
 	FROM #MedicationNumbers
 PRINT 	@MedicationColumnNames
 

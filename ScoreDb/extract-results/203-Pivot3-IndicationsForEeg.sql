@@ -9,13 +9,13 @@ GO
 
 SELECT DISTINCT IndicationForEegNumber INTO #IndicationForEegNumbers FROM ##PivotResult2 ORDER BY IndicationForEEGNumber
 DECLARE @IndicationForEegNumbers AS VARCHAR(MAX)
-SELECT @IndicationForEegNumbers= COALESCE(@IndicationForEegNumbers + ',[' + CAST(IndicationForEEGNumber as varchar) + ']',  '[' + CAST(IndicationForEEGNumber as varchar)+ ']')   
+SELECT @IndicationForEegNumbers= COALESCE(@IndicationForEegNumbers + ',[' + FORMAT(IndicationForEEGNumber,'00') + ']',  '[' + FORMAT(IndicationForEEGNumber, '00')+ ']')   
 	FROM #IndicationForEegNumbers
 PRINT 	@IndicationForEegNumbers
 
 DECLARE @IndicationForEegColumnNames AS VARCHAR(MAX)
-SELECT @IndicationForEegColumnNames= COALESCE(@IndicationForEegColumnNames + ',MIN([' + CAST(IndicationForEEGNumber as varchar) + ']) AS IndicationForEEG_' +CAST(IndicationForEEGNumber as varchar),
-																			  'MIN([' + CAST(IndicationForEEGNumber as varchar) + ']) AS IndicationForEEG_' +CAST(IndicationForEEGNumber as varchar))   
+SELECT @IndicationForEegColumnNames= COALESCE(@IndicationForEegColumnNames + ',MIN([' + FORMAT(IndicationForEEGNumber, '00') + ']) AS IndicationForEEG_' +FORMAT(IndicationForEEGNumber, '00'),
+																			  'MIN([' + FORMAT(IndicationForEEGNumber,'00') + ']) AS IndicationForEEG_' +FORMAT(IndicationForEEGNumber, '00'))   
 	FROM #IndicationForEegNumbers
 PRINT 	@IndicationForEegColumnNames
 
