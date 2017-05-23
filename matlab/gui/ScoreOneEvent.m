@@ -248,7 +248,7 @@ if ~strcmp(customAnnotations, 'No Data')
     isEditableList = [];
     for j=1:size(colNames)
             isEditable = 0;
-            if contains(colNames(j),"Value")
+            if contains(colNames(j),'Value')
                 isEditable = 1;
             end
             isEditableList = [isEditableList isEditable];
