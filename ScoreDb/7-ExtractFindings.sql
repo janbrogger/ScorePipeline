@@ -20,8 +20,8 @@ GO
 
 
 DELETE FROM SearchResult
-INSERT INTO [dbo].[SearchResult] ([SearchSavedId], [DatePerformed],[Comment])
-     VALUES (null,'20161122 20:40:00','Manual insert of epi/non-epi sharps search, not using SCORE search function')
+INSERT INTO [dbo].[SearchResult] ([SearchSavedId], [DatePerformed],[Comment],[UserId])
+     VALUES (null,GETDATE(),'Manual insert of epi/non-epi sharps search, not using SCORE search function', 2)
 
 DECLARE @NewSearchResultId int
 SELECT @NewSearchResultId  = MAX(SearchResultId) FROM SearchResult
