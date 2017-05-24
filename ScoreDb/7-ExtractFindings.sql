@@ -8,11 +8,12 @@ DELETE FROM SearchResult_Description
 DELETE FROM SearchResult_Study
 DELETE FROM SearchResult
 
-DROP TABLE #TempStudy
-DROP TABLE #TempDescription
-DROP TABLE #TempRecording
-DROP TABLE #TempEventCoding
-DROP TABLE #TempEvent
+IF OBJECT_ID('tempdb..#TempStudy') IS NOT NULL DROP TABLE #TempStudy
+IF OBJECT_ID('tempdb..#TempDescription') IS NOT NULL DROP TABLE #TempDescription
+IF OBJECT_ID('tempdb..#TempRecording') IS NOT NULL DROP TABLE ##PivotBase
+IF OBJECT_ID('tempdb..#TempEventCoding') IS NOT NULL DROP TABLE #TempEventCoding
+IF OBJECT_ID('tempdb..#TempRecording') IS NOT NULL DROP TABLE #TempEventCoding
+IF OBJECT_ID('tempdb..#TempEvent') IS NOT NULL DROP TABLE ##PivotBase
 
 DBCC CHECKIDENT ('SearchResult', RESEED, 0)
 GO
