@@ -1,55 +1,55 @@
 ----------------------------
 USE HolbergAnon2
 --Drop some temp tables
-IF OBJECT_ID('tempdb..#ReferrerNumbers') IS NOT NULL DROP TABLE #ReferrerNumbers
+IF OBJECT_ID('tempdb..#DiagnoseNumbers') IS NOT NULL DROP TABLE #DiagnoseNumbers
 IF OBJECT_ID('tempdb..##CarryOverDynamicColumnNames1') IS NOT NULL DROP TABLE ##CarryOverDynamicColumnNames1
 IF OBJECT_ID('tempdb..##CarryOverDynamicColumnNames2') IS NOT NULL DROP TABLE ##CarryOverDynamicColumnNames2
-IF OBJECT_ID('tempdb..#ReferrerMultiplex') IS NOT NULL DROP TABLE #ReferrerMultiplex
-IF OBJECT_ID('tempdb..PivotResult5') IS NOT NULL DROP TABLE tempdb..PivotResult5
+IF OBJECT_ID('tempdb..#DiagnoseMultiplex') IS NOT NULL DROP TABLE #DiagnoseMultiplex
+IF OBJECT_ID('tempdb..PivotResult6') IS NOT NULL DROP TABLE tempdb..PivotResult6
 GO
---SELECT * FROM ##PivotResult2
+--SELECT * FROM tempdb..PivotResult5
 
-SELECT DISTINCT ReferrerNumber INTO #ReferrerNumbers FROM tempdb..PivotResult4 ORDER BY ReferrerNumber
-DECLARE @ReferrerNumbers AS VARCHAR(MAX)
-SELECT @ReferrerNumbers= COALESCE(@ReferrerNumbers + ',[' + FORMAT(ReferrerNumber, '00') + ']',  '[' + FORMAT(ReferrerNumber, '00')+ ']')   
-	FROM #ReferrerNumbers
-PRINT 	@ReferrerNumbers
+SELECT DISTINCT DiagnoseNumber INTO #DiagnoseNumbers FROM tempdb..PivotResult5 ORDER BY DiagnoseNumber
+DECLARE @DiagnoseNumbers AS VARCHAR(MAX)
+SELECT @DiagnoseNumbers= COALESCE(@DiagnoseNumbers + ',[' + FORMAT(DiagnoseNumber, '00') + ']',  '[' + FORMAT(DiagnoseNumber, '00')+ ']')   
+	FROM #DiagnoseNumbers
+PRINT 	@DiagnoseNumbers
 
-DECLARE @ReferrerColumnNames AS VARCHAR(MAX)
-SELECT @ReferrerColumnNames = COALESCE(@ReferrerColumnNames +
-		',MIN([ReferrerFirstNameNumber_' + FORMAT(ReferrerNumber, '00') + ']) AS ReferrerFirstName_' +FORMAT(ReferrerNumber, '00')+',MIN([ReferrerLastNameNumber_' + FORMAT(ReferrerNumber,'00') + ']) AS ReferrerLastName_' +FORMAT(ReferrerNumber,'00'),
-	     'MIN([ReferrerFirstNameNumber_' + FORMAT(ReferrerNumber, '00') + ']) AS ReferrerFirstName_' +FORMAT(ReferrerNumber, '00')+',MIN([ReferrerLastNameNumber_' + FORMAT(ReferrerNumber,'00') + ']) AS ReferrerLastName_' +FORMAT(ReferrerNumber,'00'))
-	FROM #ReferrerNumbers
-PRINT 	@ReferrerColumnNames
+DECLARE @DiagnoseNumbers2 AS VARCHAR(MAX)
+SELECT @DiagnoseNumbers2= COALESCE(@DiagnoseNumbers2 + ',[DiagnoseNameNumber_' + FORMAT(DiagnoseNumber, '00') + ']',  '[DiagnoseNameNumber_' + FORMAT(DiagnoseNumber, '00')+ ']')   
+	FROM #DiagnoseNumbers
+PRINT 	@DiagnoseNumbers2
 
-DECLARE @ReferrerNumbers2 AS VARCHAR(MAX)
-SELECT @ReferrerNumbers2= COALESCE(@ReferrerNumbers2 + ',[ReferrerLastNameNumber_' + FORMAT(ReferrerNumber,'00') + ']',  '[ReferrerLastNameNumber_' + FORMAT(ReferrerNumber,'00')+ ']')   
-	FROM #ReferrerNumbers
-PRINT 	@ReferrerNumbers2
+DECLARE @DiagnoseNumbers3 AS VARCHAR(MAX)
+SELECT @DiagnoseNumbers3= COALESCE(@DiagnoseNumbers3 + ',[DiagnoseCodeNumber_' + FORMAT(DiagnoseNumber, '00') + ']',  '[DiagnoseCodeNumber_' + FORMAT(DiagnoseNumber, '00')+ ']')   
+	FROM #DiagnoseNumbers
+PRINT 	@DiagnoseNumbers3
 
-DECLARE @ReferrerNumbers3 AS VARCHAR(MAX)
-SELECT @ReferrerNumbers3= COALESCE(@ReferrerNumbers3 + ',[ReferrerFirstNameNumber_' + FORMAT(ReferrerNumber,'00') + ']',  '[ReferrerFirstNameNumber_' + FORMAT(ReferrerNumber,'00')+ ']')   
-	FROM #ReferrerNumbers
-PRINT 	@ReferrerNumbers3
+DECLARE @DiagnoseColumnNames AS VARCHAR(MAX)
+SELECT @DiagnoseColumnNames=	COALESCE(@DiagnoseColumnNames +
+	',MIN([DiagnoseNameNumber_' + FORMAT(DiagnoseNumber, '00') + ']) AS DiagnoseName_' +FORMAT(DiagnoseNumber, '00')+',MIN([DiagnoseCodeNumber_' + FORMAT(DiagnoseNumber, '00') + ']) AS DiagnoseCode_' +FORMAT(DiagnoseNumber, '00'),
+	 'MIN([DiagnoseNameNumber_' + FORMAT(DiagnoseNumber, '00') + ']) AS DiagnoseName_' +FORMAT(DiagnoseNumber, '00')+',MIN([DiagnoseCodeNumber_' + FORMAT(DiagnoseNumber, '00') + ']) AS DiagnoseCode_' +FORMAT(DiagnoseNumber, '00'))
+	FROM #DiagnoseNumbers
+PRINT 	@DiagnoseColumnNames
 
 SELECT name INTO ##CarryOverDynamicColumnNames1 FROM tempdb.sys.columns 
-    WHERE object_id =object_id('tempdb..PivotResult4') AND (name LIKE 'Annotation%')
+    WHERE object_id =object_id('tempdb..PivotResult5') AND (name LIKE 'Annotation%')
 DECLARE @CarryOverDynamicColumnNames1 AS VARCHAR(MAX)
 SELECT @CarryOverDynamicColumnNames1= COALESCE(@CarryOverDynamicColumnNames1 + ',' + name,name) FROM ##CarryOverDynamicColumnNames1
 PRINT  @CarryOverDynamicColumnNames1
 
 SELECT name INTO ##CarryOverDynamicColumnNames2 FROM tempdb.sys.columns 
-    WHERE object_id =object_id('tempdb..PivotResult4') AND (name LIKE 'IndicationForEEG_%' OR name LIKE 'MedicationName_%' OR name LIKE 'MedicationATC_%')
+    WHERE object_id =object_id('tempdb..PivotResult5') AND (name LIKE 'IndicationForEEG%' OR name LIKE 'Medication%' OR name LIKE 'Referrer%')
 DECLARE @CarryOverDynamicColumnNames2 AS VARCHAR(MAX)
 SELECT @CarryOverDynamicColumnNames2= COALESCE(@CarryOverDynamicColumnNames2 + ',' + name,name) FROM ##CarryOverDynamicColumnNames2
 PRINT  @CarryOverDynamicColumnNames2
 
 SELECT *, 
-	CONCAT('ReferrerFirstNameNumber_',FORMAT(ReferrerNumber,'00')) AS ReferrerFirstNameNumber,
-	CONCAT('ReferrerLastNameNumber_', FORMAT(ReferrerNumber,'00')) AS ReferrerLastNameNumber 
-INTO #ReferrerMultiplex
-FROM tempdb..PivotResult4
---SELECT * FROM #ReferrerMultiplex
+	CONCAT('DiagnoseNameNumber_',FORMAT(DiagnoseNumber, '00')) AS DiagnoseNameNumber,
+	CONCAT('DiagnoseCodeNumber_', FORMAT(DiagnoseNumber, '00')) AS DiagnoseCodeNumber 
+INTO #DiagnoseMultiplex
+FROM tempdb..PivotResult5
+--SELECT * FROM #DiagnoseMultiplex
 
 DECLARE @PivotSql AS VARCHAR(MAX)
 SET @PivotSql = 
@@ -66,10 +66,7 @@ SET @PivotSql =
 	'StudyTypeId,'+
 	'StudyTypeName,'+
 	@CarryOverDynamicColumnNames2+','+
-	@ReferrerColumnNames+','+	
-	'DiagnoseCode,'+
-	'DiagnoseName,'+
-	'DiagnoseNumber,'+	
+	@DiagnoseColumnNames+','+	
 	'DescriptionId,'+
 	'DescriptionDate,'+
 	'IsDescriptionSigned,'+
@@ -99,10 +96,10 @@ SET @PivotSql =
 	'EventStop,'+
 	'EventDuration,'+		
 	@CarryOverDynamicColumnNames1+
-	' INTO tempdb..PivotResult5 ' +
-	' FROM #ReferrerMultiplex AS src '+	
-	'PIVOT(MIN(ReferrerLastName)  FOR ReferrerLastNameNumber  IN ('+@ReferrerNumbers2+')) AS piv '+
-	'PIVOT(MIN(ReferrerFirstName)  FOR ReferrerFirstNameNumber  IN ('+@ReferrerNumbers3+')) AS piv '+
+	' INTO tempdb..PivotResult6 ' +
+	' FROM #DiagnoseMultiplex AS src '+	
+	'PIVOT(MIN(DiagnoseName)  FOR DiagnoseNameNumber  IN ('+@DiagnoseNumbers2+')) AS piv '+
+	'PIVOT(MIN(DiagnoseCode)   FOR DiagnoseCodeNumber  IN ('+@DiagnoseNumbers3+')) AS piv '+
 	' GROUP BY '+
 	'SearchResultId,'+
 	'SearchResultComment,'+
@@ -116,9 +113,6 @@ SET @PivotSql =
 	'StudyTypeId,'+
 	'StudyTypeName,'+
 	@CarryOverDynamicColumnNames2+','+	
-	'DiagnoseCode,'+
-	'DiagnoseName,'+
-	'DiagnoseNumber,'+
 	'DescriptionId,'+
 	'DescriptionDate,'+
 	'IsDescriptionSigned,'+
@@ -150,4 +144,5 @@ SET @PivotSql =
 	@CarryOverDynamicColumnNames1
 PRINT @PivotSql
 EXEC(@PivotSql)
-SELECT * FROM tempdb..PivotResult5
+SELECT DiagnoseName_01,DiagnoseName_02,DiagnoseName_03,DiagnoseName_05,DiagnoseName_06,DiagnoseName_07 FROM tempdb..PivotResult6
+

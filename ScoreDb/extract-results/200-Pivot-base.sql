@@ -1,6 +1,6 @@
-USE HolbergAnon
+USE HolbergAnon2
 --Drop some temp tables
-IF OBJECT_ID('tempdb..##PivotBase') IS NOT NULL DROP TABLE ##PivotBase
+IF OBJECT_ID('tempdb..PivotBase') IS NOT NULL DROP TABLE tempdb..PivotBase
 GO
 
 --The base query
@@ -24,7 +24,8 @@ SELECT
 		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
 		SearchResult_Event_Annotation.UserId, 
 		MedicationCoding.MedicationCodingId,
-		ReferrerCoding.ReferrerCodingId
+		ReferrerCoding.ReferrerCodingId,
+		DiagnoseCoding.DiagnoseCodingId
 		ORDER BY 
 		Study.StudyId, 
         Event.EventId, 
@@ -32,7 +33,8 @@ SELECT
 		SearchResult_Event_Annotation.UserId, 
 		IndicationForEEGCoding.IndicationForEEGCodingId,
 		MedicationCoding.MedicationCodingId,
-		ReferrerCoding.ReferrerCodingId
+		ReferrerCoding.ReferrerCodingId,
+		DiagnoseCoding.DiagnoseCodingId
 		) AS IndicationForEEGNumber,
  MedicationCoding.MedicationCodingId,
  MedicationCode.MedicationCodeId,
@@ -43,8 +45,9 @@ SELECT
 		Event.EventId, 
 		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
 		SearchResult_Event_Annotation.UserId, 
-		IndicationForEEGCOding.IndicationForEEGCodingId,
-		ReferrerCoding.ReferrerCodingId
+		IndicationForEEGCoding.IndicationForEEGCodingId,
+		ReferrerCoding.ReferrerCodingId,
+		DiagnoseCoding.DiagnoseCodingId
 		ORDER BY
 		Study.StudyId, 
 		Event.EventId, 
@@ -52,8 +55,31 @@ SELECT
 		SearchResult_Event_Annotation.UserId, 		
 		MedicationCoding.MedicationCodingId,
 		IndicationForEEGCoding.IndicationForEEGCodingId,
-		ReferrerCoding.ReferrerCodingId
+		ReferrerCoding.ReferrerCodingId,
+		DiagnoseCoding.DiagnoseCodingId
 		) AS MedicationNumber,
+DiagnoseCoding.DiagnoseCodingId,
+ DiagnoseCode.DiagnoseCodeId,
+ DiagnoseCode.Code AS DiagnoseCode,
+ DiagnoseCode.Name AS DiagnoseName,
+  ROW_NUMBER() OVER(PARTITION BY 
+        Study.StudyId, 
+		Event.EventId, 
+		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
+		SearchResult_Event_Annotation.UserId, 
+		IndicationForEEGCoding.IndicationForEEGCodingId,
+		ReferrerCoding.ReferrerCodingId,
+		MedicationCoding.MedicationCodingId
+		ORDER BY
+		Study.StudyId, 
+		Event.EventId, 
+		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
+		SearchResult_Event_Annotation.UserId, 		
+		DiagnoseCoding.DiagnoseCodingId,
+		IndicationForEEGCoding.IndicationForEEGCodingId,
+		ReferrerCoding.ReferrerCodingId,
+		MedicationCoding.MedicationCodingId
+		) AS DiagnoseNumber,
  ReferrerCoding.ReferrerCodingId,
  Referrer.ReferrerId,
  Referrer.LastName AS ReferrerLastName,
@@ -67,7 +93,8 @@ SELECT
 		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
 		SearchResult_Event_Annotation.UserId, 
 		IndicationForEEGCOding.IndicationForEEGCodingId,
-		MedicationCoding.MedicationCodingId
+		MedicationCoding.MedicationCodingId,
+		DiagnoseCoding.DiagnoseCodingId
 		ORDER BY
 		Study.StudyId, 
 		Event.EventId, 
@@ -75,7 +102,8 @@ SELECT
 		SearchResult_Event_Annotation.UserId, 		
 		ReferrerCoding.ReferrerCodingId,
 		IndicationForEEGCoding.IndicationForEEGCodingId,
-		MedicationCoding.MedicationCodingId
+		MedicationCoding.MedicationCodingId,
+		DiagnoseCoding.DiagnoseCodingId
 		) AS ReferrerNumber,
  Description.DescriptionId,
  Description.Date AS DescriptionDate,
@@ -119,7 +147,7 @@ SELECT
   WHEN SearchResult_AnnotationConfig.HasBlob=1 THEN CONVERT(nvarchar(max), SearchResult_Event_Annotation.ValueBlob)	
   ELSE NULL
   END as nvarchar(max)) AS Value 
-INTO ##PivotBase 
+INTO tempdb..PivotBase 
 FROM SearchResult_Event 
 INNER JOIN SearchResult ON SearchResult_Event.SearchResultId = SearchResult.SearchResultId 
 LEFT OUTER JOIN Event ON SearchResult_Event.EventId = Event.EventId 
@@ -144,13 +172,15 @@ LEFT OUTER JOIN [User] AS ReportSupervising ON Description.SupervisingPhysicianI
 LEFT OUTER JOIN [User] AS ReportTechnician ON Description.TechnicianId = ReportTechnician.UserId 
 LEFT OUTER JOIN MedicationCoding ON Study.StudyId = MedicationCoding.StudyId
 LEFT OUTER JOIN MedicationCode ON MedicationCoding.MedicationCodeId = MedicationCode.MedicationCodeId
+LEFT OUTER JOIN DiagnoseCoding ON Study.StudyId = DiagnoseCoding.StudyId
+LEFT OUTER JOIN DiagnoseCode ON DiagnoseCoding.DiagnoseCodeId = DiagnoseCode.DiagnoseCodeId
 LEFT OUTER JOIN ReferrerCoding ON Study.StudyId = ReferrerCoding.StudyId
 LEFT OUTER JOIN Referrer ON ReferrerCoding.ReferrerId = Referrer.ReferrerId
-WHERE IndicationForEEGCoding.IndicationForEEGCodeId IS NOT NULL --AND Study.StudyId=5685
+WHERE IndicationForEEGCoding.IndicationForEEGCodeId IS NOT NULL 
 ORDER BY 
 SearchResult.SearchResultId, 
 Event.EventId,
 SearchResult_Event.SearchResultEventId, 
 SearchResult_AnnotationConfig.SearchResultAnnotationConfigId
 
-SELECT * FROM ##PivotBase
+SELECT * FROM tempdb..PivotBase

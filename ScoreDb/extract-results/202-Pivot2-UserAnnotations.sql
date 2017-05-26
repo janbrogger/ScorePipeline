@@ -1,14 +1,14 @@
 ----------------------------
-USE HolbergAnon
+USE HolbergAnon2
 --Drop some temp tables
-IF OBJECT_ID('tempdb..##PivotResult2') IS NOT NULL DROP TABLE ##PivotResult2
+IF OBJECT_ID('tempdb..PivotResult2') IS NOT NULL DROP TABLE tempdb..PivotResult2
 IF OBJECT_ID('tempdb..#AnnotationUsers') IS NOT NULL DROP TABLE #AnnotationUsers
 IF OBJECT_ID('tempdb..#AnnotationFields') IS NOT NULL DROP TABLE #AnnotationFields
 IF OBJECT_ID('tempdb..#PivotingElements') IS NOT NULL DROP TABLE #PivotingElements
 IF OBJECT_ID('tempdb..#AnnotationsAndUsers') IS NOT NULL DROP TABLE #AnnotationsAndUsers
 IF OBJECT_ID('tempdb..##PivotResultWithUserIdMultiplex') IS NOT NULL DROP TABLE ##PivotResultWithUserIdMultiplex
 GO
---SELECT * FROM ##PivotResult1
+--SELECT * FROM tempdb..PivotResult1
 
 --Now pivot a second time 
 --Store users who did annotations
@@ -84,6 +84,9 @@ SELECT @PivotResultWithUserIdMultiplexSql = CONCAT(
 	'MedicationATCCode,'+
 	'MedicationName,'+
 	'MedicationNumber,'+
+	'DiagnoseCode,'+
+	'DiagnoseName,'+
+	'DiagnoseNumber,'+
 	'ReferrerId,'+
 	'ReferrerLastName,'+
 	'ReferrerFirstName,'+
@@ -119,7 +122,7 @@ SELECT @PivotResultWithUserIdMultiplexSql = CONCAT(
 	'EventStart,'+
 	'EventStop,'+
 	'EventDuration,'
-	,@UserIdMultiplexed,',',@AnnotationList1,' INTO ##PivotResultWithUserIdMultiplex FROM ##PivotResult1')
+	,@UserIdMultiplexed,',',@AnnotationList1,' INTO ##PivotResultWithUserIdMultiplex FROM tempdb..PivotResult1')
 PRINT @PivotResultWithUserIdMultiplexSql
 EXEC(@PivotResultWithUserIdMultiplexSql)
 --SELECT * FROM ##PivotResultWithUserIdMultiplex
@@ -144,6 +147,9 @@ SET @PivotSql2 =
 	'MedicationATCCode,'+
 	'MedicationName,'+
 	'MedicationNumber,'+
+	'DiagnoseCode,'+
+	'DiagnoseName,'+
+	'DiagnoseNumber,'+
 	'ReferrerId,'+
 	'ReferrerLastName,'+
 	'ReferrerFirstName,'+
@@ -180,7 +186,7 @@ SET @PivotSql2 =
 	'EventStop,'+
 	'EventDuration,'+	
 	@InitialMaxPart+
-	' INTO ##PivotResult2 ' +
+	' INTO tempdb..PivotResult2 ' +
 	' FROM ##PivotResultWithUserIdMultiplex AS src '+
 	@PivotPart +
 	' GROUP BY '+
@@ -201,6 +207,9 @@ SET @PivotSql2 =
 	'MedicationATCCode,'+
 	'MedicationName,'+
 	'MedicationNumber,'+
+	'DiagnoseCode,'+
+	'DiagnoseName,'+
+	'DiagnoseNumber,'+
 	'ReferrerId,'+
 	'ReferrerLastName,'+
 	'ReferrerFirstName,'+
@@ -238,5 +247,5 @@ SET @PivotSql2 =
 	'EventId '
 PRINT @PivotSql2
 EXEC(@PivotSql2)
-SELECT * FROM ##PivotResult2
+SELECT * FROM tempdb..PivotResult2
 

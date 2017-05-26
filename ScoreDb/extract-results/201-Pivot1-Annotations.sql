@@ -1,7 +1,7 @@
-USE HolbergAnon
+USE HolbergAnon2
 --Drop some temp tables
 IF OBJECT_ID('tempdb..#Columns') IS NOT NULL DROP TABLE #Columns
-IF OBJECT_ID('tempdb..##PivotResult1') IS NOT NULL DROP TABLE ##PivotResult1
+IF OBJECT_ID('tempdb..PivotResult1') IS NOT NULL DROP TABLE tempdb..PivotResult1
 IF OBJECT_ID('tempdb..#AnnotationUsers') IS NOT NULL DROP TABLE #AnnotationUsers
 IF OBJECT_ID('tempdb..#AnnotationFields') IS NOT NULL DROP TABLE #AnnotationFields
 IF OBJECT_ID('tempdb..#AnnotationsAndUsers') IS NOT NULL DROP TABLE #AnnotationsAndUsers
@@ -34,6 +34,9 @@ SET @PivotSQl =
 	'MedicationATCCode,'+
 	'MedicationName,'+
 	'MedicationNumber,'+
+	'DiagnoseCode,'+
+	'DiagnoseName,'+
+	'DiagnoseNumber,'+
 	'ReferrerId,'+
 	'ReferrerLastName,'+
 	'ReferrerFirstName,'+
@@ -72,8 +75,8 @@ SET @PivotSQl =
 	'EventDuration,'+	
 	'piv.UserId, '+
 	@Columns+
-	' INTO ##PivotResult1 ' +
-	' FROM (SELECT * FROM ##PivotBase) AS src '+
+	' INTO tempdb..PivotResult1 ' +
+	' FROM (SELECT * FROM tempdb..PivotBase) AS src '+
 	' PIVOT('+
     '  MIN(src.Value)'+
 	'  FOR AnnotationFieldName'+
@@ -82,4 +85,4 @@ SET @PivotSQl =
 PRINT @PivotSql
 
 EXEC(@PivotSql)
-SELECT * FROM ##PivotResult1
+SELECT * FROM tempdb..PivotResult1

@@ -1,9 +1,10 @@
-IF OBJECT_ID('tempdb..##PivotStudy') IS NOT NULL DROP TABLE ##PivotStudy
+USE HolbergAnon2
+IF OBJECT_ID('tempdb..PivotStudy') IS NOT NULL DROP TABLE tempdb..PivotStudy
 IF OBJECT_ID('tempdb..##KeepColumns') IS NOT NULL DROP TABLE ##KeepColumns
---SELECT * FROM ##PivotResult5
+--SELECT * FROM ##PivotResult6
 
 SELECT name INTO ##KeepColumns FROM tempdb.sys.columns 
-    WHERE object_id =object_id('tempdb..##PivotResult5') AND 
+    WHERE object_id =object_id('tempdb..PivotResult6') AND 
 	(
 		(name LIKE 'SearchResultId') OR
 		(name LIKE 'SearchResultComment') OR
@@ -12,6 +13,7 @@ SELECT name INTO ##KeepColumns FROM tempdb.sys.columns
 		(name LIKE 'IndicationForEEG%') OR
 		(name LIKE 'Referrer%') OR
 		(name LIKE 'Medication%') OR
+		(name LIKE 'Diagnose%') OR
 		(name LIKE 'Description%') OR 
 		(name LIKE 'IsDescription%') OR 
 		(name LIKE 'IsSigned%') OR 
@@ -29,13 +31,13 @@ DECLARE @PivotSql AS VARCHAR(MAX)
 SET @PivotSql = 
 	'SELECT  DISTINCT '+	
 	@KeepColumns+
-	' INTO ##PivotStudy '+
-	' FROM ##PivotResult5'+
+	' INTO tempdb..PivotStudy '+
+	' FROM tempdb..PivotResult6'+
 	' ORDER BY SearchResultId, StudyId'
 PRINT @PivotSql
 EXEC(@PivotSql)
 
-SELECT COUNT(*) FROM ##PivotStudy 
+SELECT COUNT(*) FROM tempdb..PivotStudy 
 SELECT COUNT(*) FROM SearchResult_Study
 
-SELECT * FROM ##PivotStudy 
+SELECT * FROM tempdb..PivotStudy 
