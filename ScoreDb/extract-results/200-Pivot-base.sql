@@ -60,8 +60,8 @@ SELECT
 		) AS MedicationNumber,
 DiagnoseCoding.DiagnoseCodingId,
  DiagnoseCode.DiagnoseCodeId,
- DiagnoseCode.Code AS DiagnoseCode,
- DiagnoseCode.Name AS DiagnoseName,
+ CAST(DiagnoseCode.Code AS nvarchar(200)) AS DiagnoseCode,
+ CAST(DiagnoseCode.Name AS nvarchar(200)) AS DiagnoseName,
   ROW_NUMBER() OVER(PARTITION BY 
         Study.StudyId, 
 		Event.EventId, 
