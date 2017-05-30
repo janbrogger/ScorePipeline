@@ -1,4 +1,4 @@
-USE HolbergAnon2
+--USE HolbergAnon2
 --Drop some temp tables
 IF OBJECT_ID('tempdb..PivotBase') IS NOT NULL DROP TABLE tempdb..PivotBase
 GO

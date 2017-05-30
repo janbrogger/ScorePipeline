@@ -1,4 +1,4 @@
-USE HolbergAnon2
+--USE HolbergAnon2
 --Drop some temp tables
 IF OBJECT_ID('tempdb..#Columns') IS NOT NULL DROP TABLE #Columns
 IF OBJECT_ID('tempdb..PivotResult1') IS NOT NULL DROP TABLE tempdb..PivotResult1

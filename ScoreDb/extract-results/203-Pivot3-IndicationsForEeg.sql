@@ -1,5 +1,5 @@
 ----------------------------
-USE HolbergAnon2
+--USE HolbergAnon2
 --Drop some temp tables
 IF OBJECT_ID('tempdb..#IndicationForEegNumbers') IS NOT NULL DROP TABLE #IndicationForEegNumbers
 IF OBJECT_ID('tempdb..##CarryOverDynamicColumnNames') IS NOT NULL DROP TABLE ##CarryOverDynamicColumnNames

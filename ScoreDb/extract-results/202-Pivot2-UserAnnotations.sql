@@ -1,5 +1,5 @@
 ----------------------------
-USE HolbergAnon2
+--USE HolbergAnon2
 --Drop some temp tables
 IF OBJECT_ID('tempdb..PivotResult2') IS NOT NULL DROP TABLE tempdb..PivotResult2
 IF OBJECT_ID('tempdb..#AnnotationUsers') IS NOT NULL DROP TABLE #AnnotationUsers

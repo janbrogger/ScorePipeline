@@ -1,4 +1,4 @@
-USE HolbergAnon2
+--USE HolbergAnon2
 
 IF OBJECT_ID('tempdb..PivotResult7') IS NOT NULL DROP TABLE tempdb..PivotResult7
 IF OBJECT_ID('#DiagnosticSignificances') IS NOT NULL DROP TABLE #DiagnosticSignificances
