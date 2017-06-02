@@ -92,6 +92,7 @@ SET @PivotSql =
 	'ReportSummary,'+
 	'ReportComments,'+
 	'ReportSignedFinalTime,'+
+	'RecordingId,'+
 	'RecordingStart,'+
 	'RecordingStop,'+
 	'RecordingDuration,'+
@@ -149,6 +150,7 @@ SET @PivotSql =
 	'ReportSummary,'+
 	'ReportComments,'+
 	'ReportSignedFinalTime,'+
+	'RecordingId,'+
 	'RecordingStart,'+
 	'RecordingStop,'+
 	'RecordingDuration,'+

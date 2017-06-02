@@ -145,5 +145,5 @@ SET @PivotSql =
 	@CarryOverDynamicColumnNames1
 PRINT @PivotSql
 EXEC(@PivotSql)
-SELECT * FROM tempdb..PivotResult7
+SELECT * FROM tempdb..PivotResult7 ORDER BY EventStart
 

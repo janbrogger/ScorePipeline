@@ -30,9 +30,18 @@ SELECT
 		DiagnoseCoding.DiagnoseCodingId,
 		Recording.RecordingId,
 		Description.DescriptionId
-		ORDER BY 
+		ORDER BY 		
+		Study.StudyId, 
+		Event.EventId, 
+		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
+		SearchResult_Event_Annotation.UserId, 		
+		MedicationCoding.MedicationCodingId,
+		ReferrerCoding.ReferrerCodingId,
+		DiagnoseCoding.DiagnoseCodingId,
+		Recording.RecordingId,
 		IndicationForEEGCoding.IndicationForEEGCodingId
-		) AS IndicationForEEGNumber,
+		) AS 
+		IndicationForEEGNumber,
  MedicationCoding.MedicationCodingId,
  MedicationCode.MedicationCodeId,
  MedicationCode.Code AS MedicationATCCode,
@@ -49,6 +58,14 @@ SELECT
 		Recording.RecordingId,
 		Description.DescriptionId
 		ORDER BY
+		Study.StudyId, 
+		Event.EventId, 
+		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
+		SearchResult_Event_Annotation.UserId, 		
+		ReferrerCoding.ReferrerCodingId,
+		DiagnoseCoding.DiagnoseCodingId,
+		Recording.RecordingId,
+		IndicationForEEGCoding.IndicationForEEGCodingId,
 		MedicationCoding.MedicationCodingId
 		) AS MedicationNumber,
 DiagnoseCoding.DiagnoseCodingId,
@@ -67,6 +84,14 @@ DiagnoseCoding.DiagnoseCodingId,
 		Recording.RecordingId,
 		Description.DescriptionId
 		ORDER BY
+		Study.StudyId, 
+		Event.EventId, 
+		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
+		SearchResult_Event_Annotation.UserId, 		
+		ReferrerCoding.ReferrerCodingId,		
+		Recording.RecordingId,
+		IndicationForEEGCoding.IndicationForEEGCodingId,
+		MedicationCoding.MedicationCodingId,
 		DiagnoseCoding.DiagnoseCodingId
 		) AS DiagnoseNumber,
  ReferrerCoding.ReferrerCodingId,
@@ -88,6 +113,14 @@ DiagnoseCoding.DiagnoseCodingId,
 		Recording.RecordingId,
 		Description.DescriptionId
 		ORDER BY
+		Study.StudyId, 
+		Event.EventId, 
+		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
+		SearchResult_Event_Annotation.UserId, 				
+		Recording.RecordingId,
+		IndicationForEEGCoding.IndicationForEEGCodingId,
+		MedicationCoding.MedicationCodingId,
+		DiagnoseCoding.DiagnoseCodingId,
 		ReferrerCoding.ReferrerCodingId
 		) AS ReferrerNumber,
  Description.DescriptionId,
@@ -117,6 +150,14 @@ DiagnoseCoding.DiagnoseCodingId,
 		Recording.RecordingId
 		--Description.DescriptionId
 		ORDER BY
+		Study.StudyId, 
+		Event.EventId, 
+		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
+		SearchResult_Event_Annotation.UserId, 		
+		ReferrerCoding.ReferrerCodingId,				
+		IndicationForEEGCoding.IndicationForEEGCodingId,
+		MedicationCoding.MedicationCodingId,
+		DiagnoseCoding.DiagnoseCodingId,
 		Recording.RecordingId
 		) AS DescriptionNumber,
  Recording.RecordingId,
@@ -176,6 +217,7 @@ LEFT OUTER JOIN DiagnoseCode ON DiagnoseCoding.DiagnoseCodeId = DiagnoseCode.Dia
 LEFT OUTER JOIN ReferrerCoding ON Study.StudyId = ReferrerCoding.StudyId
 LEFT OUTER JOIN Referrer ON ReferrerCoding.ReferrerId = Referrer.ReferrerId
 WHERE IndicationForEEGCoding.IndicationForEEGCodeId IS NOT NULL 
+--AND Study.StudyId=10326
 ORDER BY 
 SearchResult.SearchResultId, 
 Event.EventId,

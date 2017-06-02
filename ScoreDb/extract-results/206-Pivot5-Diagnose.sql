@@ -82,6 +82,7 @@ SET @PivotSql =
 	'ReportSummary,'+
 	'ReportComments,'+
 	'ReportSignedFinalTime,'+
+	'RecordingId,'+
 	'RecordingStart,'+
 	'RecordingStop,'+
 	'RecordingDuration,'+
@@ -129,6 +130,7 @@ SET @PivotSql =
 	'ReportSummary,'+
 	'ReportComments,'+
 	'ReportSignedFinalTime,'+
+	'RecordingId,'+
 	'RecordingStart,'+
 	'RecordingStop,'+
 	'RecordingDuration,'+
@@ -146,5 +148,5 @@ SET @PivotSql =
 	@CarryOverDynamicColumnNames1
 PRINT @PivotSql
 EXEC(@PivotSql)
-SELECT DiagnoseName_01,DiagnoseName_02,DiagnoseName_03,DiagnoseName_05,DiagnoseName_06,DiagnoseName_07 FROM tempdb..PivotResult6
+SELECT * FROM tempdb..PivotResult6
 

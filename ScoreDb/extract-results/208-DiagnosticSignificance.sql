@@ -1,21 +1,20 @@
 --USE HolbergAnon2
 
-IF OBJECT_ID('tempdb..PivotResult7') IS NOT NULL DROP TABLE tempdb..PivotResult7
 IF OBJECT_ID('#DiagnosticSignificances') IS NOT NULL DROP TABLE #DiagnosticSignificances
 IF OBJECT_ID('tempdb..#DiagnosticSignificances') IS NOT NULL DROP TABLE #DiagnosticSignificances
 IF OBJECT_ID('tempdb..#PivotResult7WithDiagnosticSignificances') IS NOT NULL DROP TABLE #PivotResult7WithDiagnosticSignificances
 IF OBJECT_ID('tempdb..#PivotResult7WithDiagnosticSignificancesDistinct') IS NOT NULL DROP TABLE #PivotResult7WithDiagnosticSignificancesDistinct
---SELECT * FROM tempdb..PivotResult6 -- WHERE DescriptionId=4454
+--SELECT * FROM tempdb..PivotResult7 -- WHERE DescriptionId=4454
 
 SELECT 
-PivotResult6.DescriptionId,
+PivotResult7.DescriptionId,
 EventCoding.EventCodingId AS DiagnosticSignificanceEventCodingId, 
 EventCoding.EventCodeId,
 CAST(EventCode.Name AS nvarchar(200)) AS DiagnosticSignificanceName,
 EventFolder.Name AS EventFolderName
 INTO #DiagnosticSignificances
-FROM tempdb..PivotResult6
-INNER JOIN EventCoding ON PivotResult6.DescriptionId = EventCoding.DescriptionId
+FROM tempdb..PivotResult7
+INNER JOIN EventCoding ON PivotResult7.DescriptionId = EventCoding.DescriptionId
 INNER JOIN EventCode ON EventCoding.EventCodeId = EventCode.EventCodeId
 INNER JOIN EventFolder ON EventCode.EventFolderId = EventFolder.EventFolderId
 WHERE EventFolder.Name = 'Diagnostic significance'
@@ -23,12 +22,12 @@ WHERE EventFolder.Name = 'Diagnostic significance'
 --SELECT * FROM #DiagnosticSignificances
 
 SELECT DISTINCT
-PivotResult6.*,
+PivotResult7.*,
 #DiagnosticSignificances.DiagnosticSignificanceEventCodingId,
 #DiagnosticSignificances.DiagnosticSignificanceName
  INTO #PivotResult7WithDiagnosticSignificances
-FROM tempdb..PivotResult6
-INNER JOIN #DiagnosticSignificances ON PivotResult6.DescriptionId = #DiagnosticSignificances.DescriptionId
+FROM tempdb..PivotResult7
+INNER JOIN #DiagnosticSignificances ON PivotResult7.DescriptionId = #DiagnosticSignificances.DescriptionId
 
 
 SELECT DISTINCT #PivotResult7WithDiagnosticSignificances.*,
@@ -53,9 +52,9 @@ IF OBJECT_ID('tempdb..#DiagnosticSignificanceNumbers') IS NOT NULL DROP TABLE #D
 IF OBJECT_ID('tempdb..##CarryOverDynamicColumnNames1') IS NOT NULL DROP TABLE ##CarryOverDynamicColumnNames1
 IF OBJECT_ID('tempdb..##CarryOverDynamicColumnNames2') IS NOT NULL DROP TABLE ##CarryOverDynamicColumnNames2
 IF OBJECT_ID('tempdb..#DiagnosticSignificanceMultiplex') IS NOT NULL DROP TABLE #DiagnosticSignificanceMultiplex
-IF OBJECT_ID('tempdb..PivotResult7') IS NOT NULL DROP TABLE tempdb..PivotResult7
+IF OBJECT_ID('tempdb..PivotResult8') IS NOT NULL DROP TABLE tempdb..PivotResult8
 GO
---SELECT * FROM tempdb..PivotResult5
+--SELECT * FROM tempdb..PivotResult7
 
 SELECT DISTINCT DiagnosticSignificanceNumber INTO #DiagnosticSignificanceNumbers FROM #PivotResult7WithDiagnosticSignificancesDistinct ORDER BY DiagnosticSignificanceNumber
 DECLARE @DiagnosticSignificanceNumbers AS VARCHAR(MAX)
@@ -75,13 +74,13 @@ PRINT 	@DiagnosticSignificanceColumnNames
 
 
 SELECT name INTO ##CarryOverDynamicColumnNames1 FROM tempdb.sys.columns 
-    WHERE object_id =object_id('tempdb..PivotResult6') AND (name LIKE 'Annotation%')
+    WHERE object_id =object_id('tempdb..PivotResult7') AND (name LIKE 'Annotation%')
 DECLARE @CarryOverDynamicColumnNames1 AS VARCHAR(MAX)
 SELECT @CarryOverDynamicColumnNames1= COALESCE(@CarryOverDynamicColumnNames1 + ',' + name,name) FROM ##CarryOverDynamicColumnNames1
 PRINT  @CarryOverDynamicColumnNames1
 
 SELECT name INTO ##CarryOverDynamicColumnNames2 FROM tempdb.sys.columns 
-    WHERE object_id =object_id('tempdb..PivotResult6') AND (name LIKE 'IndicationForEEG%' OR name LIKE 'Medication%' OR name LIKE 'Referrer%' OR name LIKE 'Diagnose%')
+    WHERE object_id =object_id('tempdb..PivotResult7') AND (name LIKE 'IndicationForEEG%' OR name LIKE 'Medication%' OR name LIKE 'Referrer%' OR name LIKE 'Diagnose%' OR name LIKE 'Recording%')
 DECLARE @CarryOverDynamicColumnNames2 AS VARCHAR(MAX)
 SELECT @CarryOverDynamicColumnNames2= COALESCE(@CarryOverDynamicColumnNames2 + ',' + name,name) FROM ##CarryOverDynamicColumnNames2
 PRINT  @CarryOverDynamicColumnNames2
@@ -122,10 +121,7 @@ SET @PivotSql =
 	'ReportTechnician,'+
 	'ReportSummary,'+
 	'ReportComments,'+
-	'ReportSignedFinalTime,'+
-	'RecordingStart,'+
-	'RecordingStop,'+
-	'RecordingDuration,'+
+	'ReportSignedFinalTime,'+	
 	'EventCodingId,'+
 	'EventCodeId,'+
 	'EventCodeName,'+
@@ -137,7 +133,7 @@ SET @PivotSql =
 	'EventStop,'+
 	'EventDuration,'+		
 	@CarryOverDynamicColumnNames1+
-	' INTO tempdb..PivotResult7 ' +
+	' INTO tempdb..PivotResult8 ' +
 	' FROM #DiagnosticSignificanceMultiplex AS src '+	
 	'PIVOT(MIN(DiagnosticSignificanceName)  FOR DiagnosticSignificanceNumber2  IN ('+@DiagnosticSignificanceNumbers+')) AS piv '+	
 	' GROUP BY '+
@@ -167,10 +163,7 @@ SET @PivotSql =
 	'ReportTechnician,'+
 	'ReportSummary,'+
 	'ReportComments,'+
-	'ReportSignedFinalTime,'+
-	'RecordingStart,'+
-	'RecordingStop,'+
-	'RecordingDuration,'+
+	'ReportSignedFinalTime,'+	
 	'EventCodingId,'+
 	'EventCodeId,'+
 	'EventCodeName,'+
@@ -184,5 +177,5 @@ SET @PivotSql =
 	@CarryOverDynamicColumnNames1
 PRINT @PivotSql
 EXEC(@PivotSql)
-SELECT * FROM tempdb..PivotResult7
+SELECT * FROM tempdb..PivotResult8
 

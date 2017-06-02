@@ -96,6 +96,7 @@ SELECT @PivotResultWithUserIdMultiplexSql = CONCAT(
 	'ReferrerNumber,'+
 	'DescriptionId,'+
 	'DescriptionDate,'+
+	'RecordingId,'+
 	'RecordingStart,'+
 	'RecordingStop,'+
 	'RecordingDuration,'+
@@ -173,6 +174,7 @@ SET @PivotSql2 =
 	'ReportSummary,'+
 	'ReportComments,'+
 	'ReportSignedFinalTime,'+
+	'RecordingId,'+
 	'RecordingStart,'+
 	'RecordingStop,'+
 	'RecordingDuration,'+
@@ -234,6 +236,7 @@ SET @PivotSql2 =
 	'ReportSummary,'+
 	'ReportComments,'+
 	'ReportSignedFinalTime,'+
+	'RecordingId,'+
 	'RecordingStart,'+
 	'RecordingStop,'+
 	'RecordingDuration,'+
