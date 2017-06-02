@@ -99,6 +99,7 @@ SELECT @PivotResultWithUserIdMultiplexSql = CONCAT(
 	'RecordingStart,'+
 	'RecordingStop,'+
 	'RecordingDuration,'+
+	'RecordingNumber,'+
 	'IsDescriptionSigned,'+
 	'IsSignedByPhysician,'+
 	'IsSignedBySupervisingPhysician,'+
@@ -175,6 +176,7 @@ SET @PivotSql2 =
 	'RecordingStart,'+
 	'RecordingStop,'+
 	'RecordingDuration,'+
+	'RecordingNumber,'+
 	'EventCodingId,'+
 	'EventCodeId,'+
 	'EventCodeName,'+
@@ -235,6 +237,7 @@ SET @PivotSql2 =
 	'RecordingStart,'+
 	'RecordingStop,'+
 	'RecordingDuration,'+
+	'RecordingNumber,'+
 	'EventCodingId,'+
 	'EventCodeId,'+
 	'EventCodeName,'+

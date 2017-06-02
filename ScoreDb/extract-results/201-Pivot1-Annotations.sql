@@ -63,6 +63,7 @@ SET @PivotSQl =
 	'RecordingStart,'+
 	'RecordingStop,'+
 	'RecordingDuration,'+
+	'RecordingNumber,'+
 	'SearchResultEventId, '+
 	'EventCodingId,'+
 	'EventCodeId,'+
@@ -76,7 +77,7 @@ SET @PivotSQl =
 	'piv.UserId, '+
 	@Columns+
 	' INTO tempdb..PivotResult1 ' +
-	' FROM (SELECT * FROM tempdb..PivotBase) AS src '+
+	' FROM (SELECT * FROM tempdb..PivotBase2) AS src '+
 	' PIVOT('+
     '  MIN(src.Value)'+
 	'  FOR AnnotationFieldName'+

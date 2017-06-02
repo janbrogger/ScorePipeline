@@ -1,6 +1,7 @@
---USE HolbergAnon2
+USE HolbergAnon2
 --Drop some temp tables
 IF OBJECT_ID('tempdb..PivotBase') IS NOT NULL DROP TABLE tempdb..PivotBase
+IF OBJECT_ID('tempdb..PivotBase2') IS NOT NULL DROP TABLE tempdb..PivotBase2
 GO
 
 --The base query
@@ -20,65 +21,53 @@ SELECT
  IndicationForEEGCode.Name AS IndicationForEEG,
  ROW_NUMBER() OVER(PARTITION BY 
 		Study.StudyId, 
-        Event.EventId, 
+		Event.EventId, 
 		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
 		SearchResult_Event_Annotation.UserId, 
+		--IndicationForEEGCoding.IndicationForEEGCodingId,
 		MedicationCoding.MedicationCodingId,
 		ReferrerCoding.ReferrerCodingId,
-		DiagnoseCoding.DiagnoseCodingId
+		DiagnoseCoding.DiagnoseCodingId,
+		Recording.RecordingId,
+		Description.DescriptionId
 		ORDER BY 
-		Study.StudyId, 
-        Event.EventId, 
-		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
-		SearchResult_Event_Annotation.UserId, 
-		IndicationForEEGCoding.IndicationForEEGCodingId,
-		MedicationCoding.MedicationCodingId,
-		ReferrerCoding.ReferrerCodingId,
-		DiagnoseCoding.DiagnoseCodingId
+		IndicationForEEGCoding.IndicationForEEGCodingId
 		) AS IndicationForEEGNumber,
  MedicationCoding.MedicationCodingId,
  MedicationCode.MedicationCodeId,
  MedicationCode.Code AS MedicationATCCode,
  MedicationCode.Name AS MedicationName,
   ROW_NUMBER() OVER(PARTITION BY 
-        Study.StudyId, 
+		Study.StudyId, 
 		Event.EventId, 
 		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
 		SearchResult_Event_Annotation.UserId, 
 		IndicationForEEGCoding.IndicationForEEGCodingId,
+		--MedicationCoding.MedicationCodingId,
 		ReferrerCoding.ReferrerCodingId,
-		DiagnoseCoding.DiagnoseCodingId
+		DiagnoseCoding.DiagnoseCodingId,
+		Recording.RecordingId,
+		Description.DescriptionId
 		ORDER BY
-		Study.StudyId, 
-		Event.EventId, 
-		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
-		SearchResult_Event_Annotation.UserId, 		
-		MedicationCoding.MedicationCodingId,
-		IndicationForEEGCoding.IndicationForEEGCodingId,
-		ReferrerCoding.ReferrerCodingId,
-		DiagnoseCoding.DiagnoseCodingId
+		MedicationCoding.MedicationCodingId
 		) AS MedicationNumber,
 DiagnoseCoding.DiagnoseCodingId,
  DiagnoseCode.DiagnoseCodeId,
  CAST(DiagnoseCode.Code AS nvarchar(200)) AS DiagnoseCode,
  CAST(DiagnoseCode.Name AS nvarchar(200)) AS DiagnoseName,
   ROW_NUMBER() OVER(PARTITION BY 
-        Study.StudyId, 
+		Study.StudyId, 
 		Event.EventId, 
 		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
 		SearchResult_Event_Annotation.UserId, 
 		IndicationForEEGCoding.IndicationForEEGCodingId,
+		MedicationCoding.MedicationCodingId,
 		ReferrerCoding.ReferrerCodingId,
-		MedicationCoding.MedicationCodingId
+		--DiagnoseCoding.DiagnoseCodingId,
+		Recording.RecordingId,
+		Description.DescriptionId
 		ORDER BY
-		Study.StudyId, 
-		Event.EventId, 
-		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
-		SearchResult_Event_Annotation.UserId, 		
-		DiagnoseCoding.DiagnoseCodingId,
-		IndicationForEEGCoding.IndicationForEEGCodingId,
-		ReferrerCoding.ReferrerCodingId,
-		MedicationCoding.MedicationCodingId
+		DiagnoseCoding.DiagnoseCodingId
 		) AS DiagnoseNumber,
  ReferrerCoding.ReferrerCodingId,
  Referrer.ReferrerId,
@@ -88,22 +77,18 @@ DiagnoseCoding.DiagnoseCodingId,
  Referrer.InstitutionName AS ReferrerInstitution,
  Referrer.Address AS ReferrerAdress,
   ROW_NUMBER() OVER(PARTITION BY 
-        Study.StudyId, 
+		Study.StudyId, 
 		Event.EventId, 
 		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
 		SearchResult_Event_Annotation.UserId, 
 		IndicationForEEGCOding.IndicationForEEGCodingId,
 		MedicationCoding.MedicationCodingId,
-		DiagnoseCoding.DiagnoseCodingId
+		--ReferrerCoding.ReferrerCodingId,
+		DiagnoseCoding.DiagnoseCodingId,
+		Recording.RecordingId,
+		Description.DescriptionId
 		ORDER BY
-		Study.StudyId, 
-		Event.EventId, 
-		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
-		SearchResult_Event_Annotation.UserId, 		
-		ReferrerCoding.ReferrerCodingId,
-		IndicationForEEGCoding.IndicationForEEGCodingId,
-		MedicationCoding.MedicationCodingId,
-		DiagnoseCoding.DiagnoseCodingId
+		ReferrerCoding.ReferrerCodingId
 		) AS ReferrerNumber,
  Description.DescriptionId,
  Description.Date AS DescriptionDate,
@@ -120,6 +105,20 @@ DiagnoseCoding.DiagnoseCodingId,
  CONVERT(nvarchar(2048),Description.Summary) AS ReportSummary,
  CONVERT(nvarchar(2048),Description.ClinicalComments ) AS ReportComments,
  Description.SignedTimeFinalOnServer AS ReportSignedFinalTime,
+ ROW_NUMBER() OVER(PARTITION BY 
+		Study.StudyId, 
+		Event.EventId, 
+		SearchResult_AnnotationConfig.SearchResultAnnotationConfigId, 
+		SearchResult_Event_Annotation.UserId, 
+		IndicationForEEGCOding.IndicationForEEGCodingId,
+		MedicationCoding.MedicationCodingId,
+		ReferrerCoding.ReferrerCodingId,
+		DiagnoseCoding.DiagnoseCodingId,
+		Recording.RecordingId
+		--Description.DescriptionId
+		ORDER BY
+		Recording.RecordingId
+		) AS DescriptionNumber,
  Recording.RecordingId,
  Recording.Start AS RecordingStart,
  Recording.Stop AS RecordingStop,
@@ -149,10 +148,10 @@ DiagnoseCoding.DiagnoseCodingId,
   END as nvarchar(max)) AS Value 
 INTO tempdb..PivotBase 
 FROM SearchResult_Event 
-INNER JOIN SearchResult ON SearchResult_Event.SearchResultId = SearchResult.SearchResultId 
+LEFT OUTER JOIN SearchResult ON SearchResult_Event.SearchResultId = SearchResult.SearchResultId 
 LEFT OUTER JOIN Event ON SearchResult_Event.EventId = Event.EventId 
-RIGHT OUTER JOIN SearchResult_AnnotationConfig ON SearchResult.SearchResultId = SearchResult_AnnotationConfig.SearchResultId 
-FULL OUTER JOIN SearchResult_Event_Annotation ON  SearchResult_AnnotationConfig.SearchResultAnnotationConfigId = SearchResult_Event_Annotation.SearchResultAnnotationConfigId AND  SearchResult_Event.SearchResultEventId = SearchResult_Event_Annotation.SearchResultEventId 
+LEFT OUTER JOIN SearchResult_AnnotationConfig ON SearchResult.SearchResultId = SearchResult_AnnotationConfig.SearchResultId 
+LEFT OUTER JOIN SearchResult_Event_Annotation ON  SearchResult_AnnotationConfig.SearchResultAnnotationConfigId = SearchResult_Event_Annotation.SearchResultAnnotationConfigId AND  SearchResult_Event.SearchResultEventId = SearchResult_Event_Annotation.SearchResultEventId 
 LEFT OUTER JOIN SearchResult_Event_UserWorkstate ON SearchResult_Event.SearchResultEventId = SearchResult_Event_UserWorkstate.SearchResultEventId
 LEFT OUTER JOIN EventCoding ON Event.EventCodingId = EventCoding.EventCodingId
 LEFT OUTER JOIN EventCode ON EventCoding.EventCodeId = EventCode.EventCodeId
@@ -183,4 +182,21 @@ Event.EventId,
 SearchResult_Event.SearchResultEventId, 
 SearchResult_AnnotationConfig.SearchResultAnnotationConfigId
 
-SELECT * FROM tempdb..PivotBase
+
+IF OBJECT_ID('tempdb..#RecordingNumber') IS NOT NULL DROP TABLE #RecordingNumber
+IF OBJECT_ID('tempdb..#RecordingNumber2') IS NOT NULL DROP TABLE #RecordingNumber2
+SELECT DISTINCT StudyId, RecordingId INTO #RecordingNumber FROM tempdb..PivotBase ORDER BY StudyId, RecordingId
+SELECT *, ROW_NUMBER() OVER(PARTITION BY StudyId ORDER BY StudyId) AS RecordingNumber INTO #RecordingNumber2 FROM #RecordingNumber
+
+
+SELECT 
+tempdb..PivotBase.*, 
+#RecordingNumber2.RecordingNumber 
+INTO tempdb..PivotBase2
+FROM tempdb..PivotBase 
+INNER JOIN #RecordingNumber2 ON tempdb..PivotBase.StudyId=#RecordingNumber2.StudyId AND tempdb..PivotBase.RecordingId=#RecordingNumber2.RecordingId
+
+
+--SELECT * FROM tempdb..PivotBase2
+
+--SELECT * FROM tempdb..PivotBase2 WHERE RecordingNumber>1

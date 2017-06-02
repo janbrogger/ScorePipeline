@@ -11,7 +11,7 @@ SELECT
 PivotResult6.DescriptionId,
 EventCoding.EventCodingId AS DiagnosticSignificanceEventCodingId, 
 EventCoding.EventCodeId,
-EventCode.Name AS DiagnosticSignificanceName,
+CAST(EventCode.Name AS nvarchar(200)) AS DiagnosticSignificanceName,
 EventFolder.Name AS EventFolderName
 INTO #DiagnosticSignificances
 FROM tempdb..PivotResult6
@@ -68,8 +68,8 @@ PRINT 	@DiagnosticSignificanceNumbers
 DECLARE @DiagnosticSignificanceColumnNames AS VARCHAR(MAX)
 SELECT @DiagnosticSignificanceColumnNames=	
 	COALESCE(@DiagnosticSignificanceColumnNames +
-	',MIN([DiagnosticSignificanceNumber_' + FORMAT(DiagnosticSignificanceNumber, '00') + ']) AS DiagnosticSignificanceNumber_' +FORMAT(DiagnosticSignificanceNumber, '00'),
-	',MIN([DiagnosticSignificanceNumber_' + FORMAT(DiagnosticSignificanceNumber, '00') + ']) AS DiagnosticSignificanceNumber_' +FORMAT(DiagnosticSignificanceNumber, '00'))
+	',MIN([DiagnosticSignificanceNumber_' + FORMAT(DiagnosticSignificanceNumber, '00') + ']) AS DiagnosticSignificance_' +FORMAT(DiagnosticSignificanceNumber, '00'),
+	',MIN([DiagnosticSignificanceNumber_' + FORMAT(DiagnosticSignificanceNumber, '00') + ']) AS DiagnosticSignificance_' +FORMAT(DiagnosticSignificanceNumber, '00'))
 	FROM #DiagnosticSignificanceNumbers
 PRINT 	@DiagnosticSignificanceColumnNames
 

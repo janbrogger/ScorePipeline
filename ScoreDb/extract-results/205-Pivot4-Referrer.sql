@@ -88,6 +88,7 @@ SET @PivotSql =
 	'RecordingStart,'+
 	'RecordingStop,'+
 	'RecordingDuration,'+
+	'RecordingNumber,'+
 	'EventCodingId,'+
 	'EventCodeId,'+
 	'EventCodeName,'+
@@ -137,6 +138,7 @@ SET @PivotSql =
 	'RecordingStart,'+
 	'RecordingStop,'+
 	'RecordingDuration,'+
+	'RecordingNumber,'+
 	'EventCodingId,'+
 	'EventCodeId,'+
 	'EventCodeName,'+
