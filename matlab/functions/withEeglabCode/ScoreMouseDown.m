@@ -36,20 +36,26 @@ function data = ScoreMouseDown(varargin)
                 handles = guidata(oneEventDetails);
                 if isfield(handles, 'SearchResultEventId')                    
                     configData = ScoreGetAnnotationsForOneProject(handles.SearchResultId);
-                    if ~strcmp(configData,'No Data')
+                    if strcmp(configData,'No Data')
+                        warning(['No annotation configurations have been set up']);
+                    else
                         [searchResultAnnotationConfigIdSampleStart, searchResultAnnotationConfigIdSampleEnd, searchResultAnnotationConfigIdScreenshot] = GetClickableAnnotationConfig(handles.SearchResultId);                        
                         if ~isempty(searchResultAnnotationConfigIdSampleStart)
                             ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, searchResultAnnotationConfigIdSampleStart,'ValueInt',clickedSamples(1));
+                        else
+                            warning(['Annotation configuration SampleStart not found']);
                         end
                         if ~isempty(searchResultAnnotationConfigIdSampleEnd)
                             ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, searchResultAnnotationConfigIdSampleEnd,'ValueInt',clickedSamples(2));
+                        else
+                            warning(['Annotation configuration SampleEnd not found']);
                         end    
                         if ~isempty(searchResultAnnotationConfigIdScreenshot)
                             tempFileName = tempname();
                             [pathstr, name, ext] = fileparts(tempFileName);
                             tempFileName = [pathstr name '.png'];                        
                             print(tempFileName,'-dpng','-r0')
-                            disp(tempFileName);
+                            %disp(tempFileName);
                             fileID = fopen(tempFileName,'r');
                             if fileID ~= -1            
                                 png = fread(fileID);
@@ -60,6 +66,8 @@ function data = ScoreMouseDown(varargin)
                             else
                                 warning(['Could not read screenshot file ' tempFileName]);
                             end                            
+                        else
+                            warning(['Annotation configuration Screenshot not found']);
                         end                            
                     end                     
                     
