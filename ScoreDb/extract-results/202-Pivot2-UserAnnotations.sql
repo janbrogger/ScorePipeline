@@ -1,5 +1,5 @@
 ----------------------------
---USE HolbergAnon2
+USE HolbergAnon2
 --Drop some temp tables
 IF OBJECT_ID('tempdb..PivotResult2') IS NOT NULL DROP TABLE tempdb..PivotResult2
 IF OBJECT_ID('tempdb..#AnnotationUsers') IS NOT NULL DROP TABLE #AnnotationUsers
@@ -94,6 +94,7 @@ SELECT @PivotResultWithUserIdMultiplexSql = CONCAT(
 	'ReferrerInstitution,'+
 	'ReferrerAdress,'+
 	'ReferrerNumber,'+
+	'ReferrerType,'+
 	'DescriptionId,'+
 	'DescriptionDate,'+
 	'RecordingId,'+
@@ -158,6 +159,7 @@ SET @PivotSql2 =
 	'ReferrerTitle,'+
 	'ReferrerInstitution,'+
 	'ReferrerAdress,'+
+	'ReferrerType,'+
 	'ReferrerNumber,'+
 	'DescriptionId,'+
 	'DescriptionDate,'+
@@ -221,6 +223,7 @@ SET @PivotSql2 =
 	'ReferrerInstitution,'+
 	'ReferrerAdress,'+
 	'ReferrerNumber,'+
+	'ReferrerType,'+
 	'DescriptionId,'+
 	'DescriptionDate,'+
 	'IsDescriptionSigned,'+

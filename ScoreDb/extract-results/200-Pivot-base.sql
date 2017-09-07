@@ -101,6 +101,7 @@ DiagnoseCoding.DiagnoseCodingId,
  Referrer.Title AS ReferrerTitle,
  Referrer.InstitutionName AS ReferrerInstitution,
  Referrer.Address AS ReferrerAdress,
+ Referrer.ReferrerType,
   ROW_NUMBER() OVER(PARTITION BY 
 		Study.StudyId, 
 		Event.EventId, 

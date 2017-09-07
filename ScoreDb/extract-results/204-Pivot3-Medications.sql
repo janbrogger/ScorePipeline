@@ -76,6 +76,7 @@ SET @PivotSql =
 	'ReferrerTitle,'+
 	'ReferrerInstitution,'+
 	'ReferrerAdress,'+
+	'ReferrerType,'+
 	'ReferrerNumber,'+
 	'DescriptionId,'+
 	'DescriptionDate,'+
@@ -134,6 +135,7 @@ SET @PivotSql =
 	'ReferrerTitle,'+
 	'ReferrerInstitution,'+
 	'ReferrerAdress,'+
+	'ReferrerType,'+
 	'ReferrerNumber,'+
 	'DescriptionId,'+
 	'DescriptionDate,'+

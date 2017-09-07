@@ -1,4 +1,4 @@
---USE HolbergAnon2
+USE HolbergAnon2
 
 IF OBJECT_ID('#DiagnosticSignificances') IS NOT NULL DROP TABLE #DiagnosticSignificances
 IF OBJECT_ID('tempdb..#DiagnosticSignificances') IS NOT NULL DROP TABLE #DiagnosticSignificances

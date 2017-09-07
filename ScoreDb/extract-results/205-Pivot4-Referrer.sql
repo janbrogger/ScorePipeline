@@ -17,20 +17,35 @@ PRINT 	@ReferrerNumbers
 
 DECLARE @ReferrerColumnNames AS VARCHAR(MAX)
 SELECT @ReferrerColumnNames = COALESCE(@ReferrerColumnNames +
-		',MIN([ReferrerFirstNameNumber_' + FORMAT(ReferrerNumber, '00') + ']) AS ReferrerFirstName_' +FORMAT(ReferrerNumber, '00')+',MIN([ReferrerLastNameNumber_' + FORMAT(ReferrerNumber,'00') + ']) AS ReferrerLastName_' +FORMAT(ReferrerNumber,'00'),
-	     'MIN([ReferrerFirstNameNumber_' + FORMAT(ReferrerNumber, '00') + ']) AS ReferrerFirstName_' +FORMAT(ReferrerNumber, '00')+',MIN([ReferrerLastNameNumber_' + FORMAT(ReferrerNumber,'00') + ']) AS ReferrerLastName_' +FORMAT(ReferrerNumber,'00'))
+		',MIN([ReferrerFirstNameNumber_' + FORMAT(ReferrerNumber, '00') + ']) AS ReferrerFirstName_' +FORMAT(ReferrerNumber, '00')+
+		',MIN([ReferrerLastNameNumber_' + FORMAT(ReferrerNumber,'00') + ']) AS ReferrerLastName_' +FORMAT(ReferrerNumber,'00')+
+		',MIN([ReferrerTypeNumber_' + FORMAT(ReferrerNumber,'00') + ']) AS ReferrerType_' +FORMAT(ReferrerNumber,'00'),
+	     'MIN([ReferrerFirstNameNumber_' + FORMAT(ReferrerNumber, '00') + ']) AS ReferrerFirstName_' +FORMAT(ReferrerNumber, '00')+
+		 ',MIN([ReferrerLastNameNumber_' + FORMAT(ReferrerNumber,'00') + ']) AS ReferrerLastName_' +FORMAT(ReferrerNumber,'00')+
+		 ',MIN([ReferrerTypeNumber_' + FORMAT(ReferrerNumber,'00') + ']) AS ReferrerType_' +FORMAT(ReferrerNumber,'00'))
 	FROM #ReferrerNumbers
 PRINT 	@ReferrerColumnNames
 
 DECLARE @ReferrerNumbers2 AS VARCHAR(MAX)
-SELECT @ReferrerNumbers2= COALESCE(@ReferrerNumbers2 + ',[ReferrerLastNameNumber_' + FORMAT(ReferrerNumber,'00') + ']',  '[ReferrerLastNameNumber_' + FORMAT(ReferrerNumber,'00')+ ']')   
+SELECT @ReferrerNumbers2= COALESCE(@ReferrerNumbers2 + 
+		',[ReferrerLastNameNumber_' + FORMAT(ReferrerNumber,'00') + ']',  
+		'[ReferrerLastNameNumber_' + FORMAT(ReferrerNumber,'00')+ ']')   
 	FROM #ReferrerNumbers
 PRINT 	@ReferrerNumbers2
 
 DECLARE @ReferrerNumbers3 AS VARCHAR(MAX)
-SELECT @ReferrerNumbers3= COALESCE(@ReferrerNumbers3 + ',[ReferrerFirstNameNumber_' + FORMAT(ReferrerNumber,'00') + ']',  '[ReferrerFirstNameNumber_' + FORMAT(ReferrerNumber,'00')+ ']')   
+SELECT @ReferrerNumbers3= COALESCE(@ReferrerNumbers3 + 
+	',[ReferrerFirstNameNumber_' + FORMAT(ReferrerNumber,'00') + ']',  
+	'[ReferrerFirstNameNumber_' + FORMAT(ReferrerNumber,'00')+ ']')   
 	FROM #ReferrerNumbers
 PRINT 	@ReferrerNumbers3
+
+DECLARE @ReferrerNumbers4 AS VARCHAR(MAX)
+SELECT @ReferrerNumbers4= COALESCE(@ReferrerNumbers4 + 
+	',[ReferrerTypeNumber_' + FORMAT(ReferrerNumber,'00') + ']',  
+	'[ReferrerTypeNumber_' + FORMAT(ReferrerNumber,'00')+ ']')   
+	FROM #ReferrerNumbers
+PRINT 	@ReferrerNumbers4
 
 SELECT name INTO ##CarryOverDynamicColumnNames1 FROM tempdb.sys.columns 
     WHERE object_id =object_id('tempdb..PivotResult4') AND (name LIKE 'Annotation%')
@@ -46,7 +61,8 @@ PRINT  @CarryOverDynamicColumnNames2
 
 SELECT *, 
 	CONCAT('ReferrerFirstNameNumber_',FORMAT(ReferrerNumber,'00')) AS ReferrerFirstNameNumber,
-	CONCAT('ReferrerLastNameNumber_', FORMAT(ReferrerNumber,'00')) AS ReferrerLastNameNumber 
+	CONCAT('ReferrerLastNameNumber_', FORMAT(ReferrerNumber,'00')) AS ReferrerLastNameNumber,
+	CONCAT('ReferrerTypeNumber_', FORMAT(ReferrerNumber,'00')) AS ReferrerTypeNumber  
 INTO #ReferrerMultiplex
 FROM tempdb..PivotResult4
 --SELECT * FROM #ReferrerMultiplex
@@ -105,6 +121,7 @@ SET @PivotSql =
 	' FROM #ReferrerMultiplex AS src '+	
 	'PIVOT(MIN(ReferrerLastName)  FOR ReferrerLastNameNumber  IN ('+@ReferrerNumbers2+')) AS piv '+
 	'PIVOT(MIN(ReferrerFirstName)  FOR ReferrerFirstNameNumber  IN ('+@ReferrerNumbers3+')) AS piv '+
+	'PIVOT(MIN(ReferrerType)  FOR ReferrerTypeNumber  IN ('+@ReferrerNumbers4+')) AS piv '+
 	' GROUP BY '+
 	'SearchResultId,'+
 	'SearchResultComment,'+

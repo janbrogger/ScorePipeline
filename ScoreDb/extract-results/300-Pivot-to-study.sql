@@ -1,4 +1,4 @@
---USE HolbergAnon2
+USE HolbergAnon2
 IF OBJECT_ID('tempdb..PivotStudy') IS NOT NULL DROP TABLE tempdb..PivotStudy
 IF OBJECT_ID('tempdb..##KeepColumns') IS NOT NULL DROP TABLE ##KeepColumns
 --SELECT * FROM ##PivotResult6
