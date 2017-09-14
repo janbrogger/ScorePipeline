@@ -1,4 +1,4 @@
-USE [HolbergAnon]
+USE [HolbergAnon2]
 GO
 
 /****** Object:  Table [dbo].[SearchResult_Event]    Script Date: 06.04.2017 14:42:08 ******/

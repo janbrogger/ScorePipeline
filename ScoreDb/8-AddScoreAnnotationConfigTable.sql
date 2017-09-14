@@ -1,4 +1,4 @@
-USE [HolbergAnon]
+USE [HolbergAnon2]
 GO
 
 /****** Object:  Table [dbo].[SearchResult_AnnotationConfig]    Script Date: 23.02.2017 19:29:57 ******/
