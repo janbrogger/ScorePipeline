@@ -1,4 +1,4 @@
-USE [HolbergAnon2]
+USE [HolbergAnon3]
 GO
 
 CREATE TABLE [dbo].[SearchResult_EventCoding](

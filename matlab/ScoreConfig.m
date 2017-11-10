@@ -1,10 +1,10 @@
 classdef ScoreConfig
     properties (Constant)
-        databaseName = 'HolbergAnon';
-		databaseServer = 'localhost';
-        scoreBasePath = 'J:\ScorePipeline\';
-        eeglabPath = 'J:\eeglab';
-        debug = 1
+        databaseName = 'HolbergAnon3';
+		databaseServer = 'hbemta-holberg.knf.local';
+        scoreBasePath = 'C:\Midlertidig_Lagring\ScorePipeline\';
+        eeglabPath = 'C:\Midlertidig_Lagring\eeglab';
+        debug = 0
         eventGuids = {
             'EE867C9B-F822-4B1E-AF3E-0B179DD6E0C0' 'Smertestimulerer';
             'ED986976-8E07-4C44-84CD-7624EB3323FB' 'Graphoelement';
