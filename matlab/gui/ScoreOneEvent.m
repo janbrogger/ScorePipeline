@@ -905,7 +905,6 @@ tableData = get(hObject,'data');
 tableColumns = get(hObject, 'ColumnName');
 editedColumn = tableColumns(eventdata.Indices(2));
 configId = str2num(tableData{eventdata.Indices(1), find(contains(tableColumns,'SearchResultAnnotationConfigId'))});
-
 fieldType = tableData{eventdata.Indices(1), find(contains(tableColumns,'FieldType'))};
 
 if ~isempty(configId) && strcmp(editedColumn,'Value')        
@@ -939,3 +938,19 @@ function screenshot_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 ScoreOpenScreenshotForSearchResultEvent(handles.SearchResultEventId);
+
+
+% --- Executes on button press in openNervus.
+function openNervus_Callback(hObject, eventdata, handles)
+% hObject    handle to openNervus (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+if handles.FileExists
+    command = ['"C:\Program Files (x86)\VIASYS Healthcare\Nicolet EEG\reader.exe" ' handles.FilePath];
+    %disp(command);
+    dos(command);    
+else
+    warning('Cannot open file in Nervus - file does not exist');
+end    
+
+
