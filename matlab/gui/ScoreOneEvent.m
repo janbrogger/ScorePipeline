@@ -362,6 +362,7 @@ existingPlot = ScoreGetEeglabPlot();
 if get(findobj('tag','autoOpenCheckbox'),'value') && (isempty(existingPlot) || (oldSearchResultRecordingId ~= handles.SearchResultRecordingId && handles.FileExists == 1))
     OpenEEG(hObject, handles);
 end
+ScoreGotoEvent(handles.SearchResultEventId);
 if get(findobj('tag','autoOpenCheckbox'),'value') == 0
     existingPlot = findobj(0, 'tag', 'EEGPLOT');
     if not(isempty(existingPlot))

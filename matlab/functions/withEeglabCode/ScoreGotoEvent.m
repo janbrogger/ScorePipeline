@@ -46,6 +46,10 @@ function [timeSpanMinusGaps, recStart, eventTime] = ScoreGotoEvent(searchResultE
             timeSpanMinusGaps = timeSpanMinusGaps - boundaryGap;
         end
 
+        %Add a little buffer on the left side
+        if timeSpanMinusGaps > 1
+            timeSpanMinusGaps = timeSpanMinusGaps -1;
+        end
 
         EPosition = findobj('tag','EPosition','parent',existingPlot); % ui handle
         set(EPosition, 'string', num2str(timeSpanMinusGaps));
