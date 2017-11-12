@@ -946,7 +946,7 @@ function openNervus_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 if handles.FileExists
-    command = ['"C:\Program Files (x86)\VIASYS Healthcare\Nicolet EEG\reader.exe" ' handles.FilePath];
+    command = ['"C:\Program Files (x86)\VIASYS Healthcare\Nicolet EEG\reader.exe" ' handles.FilePath ' &'];
     %disp(command);
     dos(command);    
 else
