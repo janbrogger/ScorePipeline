@@ -79,6 +79,7 @@ handles = UpdateInfo(handles);
 
 oldSearchResultRecordingId = handles.SearchResultRecordingId;
 %CheckOpenEEG(hObject, handles, oldSearchResultRecordingId);
+userId = evalin('base', 'scoreUserId');
 
 % Choose default command line output for ScorePipeline
 handles.output = hObject;
@@ -91,7 +92,7 @@ set(handles.horisontalScaleMenu,'String',char('Undefined', '10', '20', '30', '60
 % Update handles structure
 guidata(hObject, handles);
 UpdateNavigationSlider(handles);
-UpdateWorkState(handles);
+UpdateWorkState(handles, userId);
 initialize_gui(hObject, handles, false);
 ScoreRestoreEEGScaling(hObject, handles, 0);
 
@@ -116,9 +117,10 @@ if ~strcmp(rowNumberData, 'No Data')
     set(handles.navigationSlider,'Value', rowNumberData.Row_);
 end    
 
-function UpdateWorkState(handles)
+function UpdateWorkState(handles, userId)
 workStateQuery = ['SELECT * FROM SearchResult_Event_UserWorkstate ' ...
-    'WHERE SearchResultEventId=' num2str(handles.SearchResultEventId) ];
+    'WHERE SearchResultEventId=' num2str(handles.SearchResultEventId) ...
+    ' AND UserId=' num2str(userId)];
 workStateData = ScoreQueryRun(workStateQuery);
 
 if strcmp(workStateData, 'No Data')
@@ -878,7 +880,6 @@ elseif strcmp(selectedObject.Tag, 'workstate2')
     value = 2;    
 end    
 
-userId = evalin('base', 'scoreUserId');
 ScoreSetUserAnnotationWorkStatus(handles.SearchResultEventId, userId, value)    
 
 

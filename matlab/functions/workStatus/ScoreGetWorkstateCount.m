@@ -1,4 +1,4 @@
-function count = ScoreGetWorkstateCount(searchResultId, workflowState, objectType)
+function count = ScoreGetWorkstateCount(searchResultId, workflowState, objectType, userId)
     count = -1;
     switch objectType
         case 0 %Study
@@ -18,11 +18,12 @@ function count = ScoreGetWorkstateCount(searchResultId, workflowState, objectTyp
             ' WHERE WorkflowState=' num2str(workflowState) ... 
             ' AND SearchResultId = ' num2str(searchResultId)]);    
         case 4 %Event
-            count = ScoreQueryRun(['SELECT COUNT(SearchResultEventId) FROM [SearchResult_Event] ' ... 
-            ' WHERE WorkflowState=' num2str(workflowState) ... 
-            ' AND SearchResultId = ' num2str(searchResultId)]);    
+            count = ScoreQueryRun(['SELECT COUNT(SearchResult_Event.SearchResultEventId) FROM [SearchResult_Event] ' ... 
+            ' INNER JOIN SearchResult_Event_UserWorkState ON SearchResult_Event.SearchResultEventId = SearchResult_Event_UserWorkState.SearchResultEventId' ...
+            ' WHERE SearchResult_Event_UserWorkState.Workstate=' num2str(workflowState) ... 
+            ' AND SearchResult_Event.SearchResultId = ' num2str(searchResultId)]);    
         otherwise
             error('Unknown type of object to count');
-    end    
-    count = count.x;
+    end        
+	count = count.x;    
 end
