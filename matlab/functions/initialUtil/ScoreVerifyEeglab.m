@@ -10,7 +10,7 @@ function ScoreVerifyEeglab()
         addpath([ScoreConfig.eeglabPath '\functions\adminfunc']);
     end
         
-    if exist([ScoreConfig.eeglabPath '\plugins\Fileio161116'], 'dir')==0        
+    if exist([ScoreConfig.eeglabPath '\plugins\Fileio'], 'dir')==0        
         disp('EEGLAB plugin fileio not found, trying to install');
         %plugin_install('http://sccn.ucsd.edu/eeglab/plugins/fileio-20161116.zip', 'Fileio', '161116', 1);
         plugin_askinstall('Fileio', 'ft_read_data', 1);
