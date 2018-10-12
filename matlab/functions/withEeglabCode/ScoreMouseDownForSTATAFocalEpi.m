@@ -38,8 +38,8 @@ function data = ScoreMouseDownForSTATAFocalEpi(varargin)
             g.scoreAnnotationState = 'WaitingForFirstClick';  
             g.scoreClickedSample = [g.scoreClickedSample clickedSample];
             clickedSamples = g.scoreClickedSample;
-            clickedChannel = g.scoreClickedChannelIndex;
-            dataSegment = EEG.data(clickedChannel, clickedSamples(1):clickedSamples(2));
+            spikeClickedChannel = g.scoreClickedChannelIndex;
+            dataSegment = EEG.data(spikeClickedChannel, clickedSamples(1):clickedSamples(2));
             [ymax ymaxsample] = max(dataSegment);
             allFigures = findall(0,'type','figure');
             oneEventDetails = findobj(allFigures, 'tag', 'oneEventDetails');
@@ -50,7 +50,7 @@ function data = ScoreMouseDownForSTATAFocalEpi(varargin)
                     if strcmp(configData,'No Data')
                         warning(['No annotation configurations have been set up']);
                     else
-                        [spikeStart, spikeCenter,spikeEnd, afterDischargeEnd, clickedChannel] = GetClickableAnnotationConfigForSTATAFocalEpi(handles.SearchResultId);                        
+                        [spikeStart, spikeCenter,spikeEnd, afterDischargeEnd, spikeClickedChannel] = GetClickableAnnotationConfigForSTATAFocalEpi(handles.SearchResultId);                        
                         if ~isempty(spikeStart)
                             ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, spikeStart,'ValueInt',clickedSamples(1));
                         else
@@ -76,10 +76,10 @@ function data = ScoreMouseDownForSTATAFocalEpi(varargin)
                         else
                             warning(['Annotation configuration AfterDischargeEnd not found']);
                         end  
-                        if ~isempty(clickedChannel)
-                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, clickedChannel,'ValueInt',clickedChannel);
+                        if ~isempty(spikeClickedChannel)
+                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, spikeClickedChannel,'ValueInt',spikeClickedChannel);
                         else
-                            warning(['Annotation configuration clickedChannel not found']);
+                            warning(['Annotation configuration spikeClickedChannel not found']);
                         end  
                     end                     
                     

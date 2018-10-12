@@ -1,9 +1,9 @@
-function [spikeStart, spikeCenter,spikeEnd, afterDischargeEnd, clickedChannel] = GetClickableAnnotationConfigForSTATAFocalEpi(searchResultId)
+function [spikeStart, spikeCenter,spikeEnd, afterDischargeEnd, spikeclickedChannel] = GetClickableAnnotationConfigForSTATAFocalEpi(searchResultId)
     spikeStart = [];
     spikeCenter = [];
     spikeEnd = [];
     afterDischargeEnd = [];
-    clickedChannel = [];
+    spikeclickedChannel = [];
     configData = ScoreGetAnnotationsForOneProject(searchResultId);
     if ~strcmp(configData,'No Data')
         for i=1:size(configData,1)
@@ -21,7 +21,7 @@ function [spikeStart, spikeCenter,spikeEnd, afterDischargeEnd, clickedChannel] =
                 afterDischargeEnd = configData.SearchResultAnnotationConfigId(i); 
             elseif strcmp(configData.AnnotationLevel(i), 'Event') ...
                 && strcmp(configData.FieldName(i), 'SpikeClickedChannel')
-                clickedChannel = configData.SearchResultAnnotationConfigId(i);    
+                spikeclickedChannel = configData.SearchResultAnnotationConfigId(i);    
             end
         end
     end                     
