@@ -50,38 +50,41 @@ function data = ScoreMouseDownForSTATAFocalEpi(varargin)
                     if strcmp(configData,'No Data')
                         warning(['No annotation configurations have been set up']);
                     else
-                        [spikeStart, spikeCenter,spikeEnd, afterDischargeEnd, spikeClickedChannel] = GetClickableAnnotationConfigForSTATAFocalEpi(handles.SearchResultId);                        
-                        if ~isempty(spikeStart)
-                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, spikeStart,'ValueInt',clickedSamples(1));
+                        [spikeStartAID, spikeCenterAID,spikeEndAID, afterDischargeEndAID, spikeClickedChannelAID] = GetClickableAnnotationConfigForSTATAFocalEpi(handles.SearchResultId);                        
+                        if ~isempty(spikeStartAID)
+                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, spikeStartAID,'ValueInt',clickedSamples(1));
                         else
                             warning(['Annotation configuration SpikeStart not found']);
                         end
-                        if ~isempty(spikeCenter)
-                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, spikeCenter,'ValueInt',clickedSamples(2));
+                        if ~isempty(spikeCenterAID)
+                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, spikeCenterAID,'ValueInt',clickedSamples(2));
                         else
                             warning(['Annotation configuration SpikeCenter not found']);
                         end  
-                        if ~isempty(spikeEnd)
-                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, spikeEnd,'ValueInt',clickedSamples(3));
+                        if ~isempty(spikeEndAID)
+                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, spikeEndAID,'ValueInt',clickedSamples(3));
                         else
                             warning(['Annotation configuration SpikeEnd not found']);
                         end 
-                        if ~isempty(afterDischargeEnd)
-                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, afterDischargeEnd,'ValueInt',clickedSamples(4));
+                        if ~isempty(afterDischargeEndAID)
+                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, afterDischargeEndAID,'ValueInt',clickedSamples(4));
                         else
                             warning(['Annotation configuration AfterDischargeEnd not found']);
                         end  
-                        if ~isempty(afterDischargeEnd)
-                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, afterDischargeEnd,'ValueInt',clickedSamples(4));
+                        if ~isempty(afterDischargeEndAID)
+                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, afterDischargeEndAID,'ValueInt',clickedSamples(4));
                         else
                             warning(['Annotation configuration AfterDischargeEnd not found']);
                         end  
-                        if ~isempty(spikeClickedChannel)
-                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, spikeClickedChannel,'ValueInt',spikeClickedChannel);
+                        if ~isempty(spikeClickedChannelAID)
+                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, spikeClickedChannelAID,'ValueInt',spikeClickedChannel);
                         else
                             warning(['Annotation configuration spikeClickedChannel not found']);
                         end  
                     end                     
+                    
+                    %Store EpiSnippet immediately
+                    ExtractEpiSnippets(1, handles.SearchResultId, handles.SearchResultEventId);
                     
                 end
                 handles.UpdateCustomAnnotations(handles);

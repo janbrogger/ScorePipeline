@@ -21,7 +21,9 @@ function text = ScoreGetOneEventTextInfo(searchResultEventId, useHTMLBreak)
     %disp(data);
     text = '';
     if ~strcmp(data, 'No Data')
-        text = [ data.EventCodeName(1) ];
+        %Commented out for blinding purposes.
+        %text = [ data.EventCodeName(1) ];
+        %
         for i=1:numel(data.EventPropertyTypeName)
             if useHTMLBreak
                 text = [text '<BR>'];
@@ -42,7 +44,9 @@ function text = ScoreGetOneEventTextInfo(searchResultEventId, useHTMLBreak)
          ];
         data = ScoreQueryRun([shoppingBasketQuery ...             
             'WHERE SearchResult_Event.SearchResultEventId=' num2str(searchResultEventId) ]);
-        text = [ data.EventCodeName(1) ];
+        %Commented out for blinding purposes.
+        %text = [ data.EventCodeName(1) ];
+        %
         text = strjoin(text);
     end
 end
