@@ -359,7 +359,6 @@ handles = StartScaleTimer(hObject, handles);
 
 
 function CheckOpenEEG(hObject, handles, oldSearchResultRecordingId)
-
 existingPlot = ScoreGetEeglabPlot();
 if get(findobj('tag','autoOpenCheckbox'),'value') && (isempty(existingPlot) || (oldSearchResultRecordingId ~= handles.SearchResultRecordingId && handles.FileExists == 1))
     OpenEEG(hObject, handles);
@@ -381,6 +380,14 @@ if ~isempty(existingPlot)
     previousPosition = get(existingPlot,'Position');
 end    
 SetFileOpenWaitStatus(handles);
+
+%Try to prevent crash - eivaan 16.10.18
+%---------------------------
+assignin('base','ALLCOM',[]);
+assignin('base', 'ALLEEG',[]);
+assignin('base', 'EEG', []);
+assignin('base', 'STUDY', []);
+%---------------------------
 openSuccess = ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultEventId)); 
 if openSuccess
     [handles.timeSpanMinusGaps, handles.recStart, handles.eventTime] = ...

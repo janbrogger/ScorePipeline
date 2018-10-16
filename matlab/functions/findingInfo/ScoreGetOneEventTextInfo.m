@@ -19,7 +19,7 @@ function text = ScoreGetOneEventTextInfo(searchResultEventId, useHTMLBreak)
     data = ScoreQueryRun(shoppingBasketQuery);
     
     %disp(data);
-    text = '';
+    text = ['-'];
     if ~strcmp(data, 'No Data')
         %Commented out for blinding purposes.
         %text = [ data.EventCodeName(1) ];
@@ -47,6 +47,7 @@ function text = ScoreGetOneEventTextInfo(searchResultEventId, useHTMLBreak)
         %Commented out for blinding purposes.
         %text = [ data.EventCodeName(1) ];
         %
+        text = [" "];
         text = strjoin(text);
     end
 end
