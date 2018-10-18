@@ -84,7 +84,7 @@ function data = ScoreMouseDownForSTATAFocalEpi(varargin)
                     end                     
                     
                     %Store EpiSnippet immediately
-                    ExtractEpiSnippets(1, handles.SearchResultId, handles.SearchResultEventId);
+                    ExtractEpiSnippets(1, 1, 1, handles.SearchResultId, handles.SearchResultEventId, '=');
                     
                 end
                 handles.UpdateCustomAnnotations(handles);
