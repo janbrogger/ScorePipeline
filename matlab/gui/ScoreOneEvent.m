@@ -878,9 +878,8 @@ elseif strcmp(selectedObject.Tag, 'workstate1')
     value = 1;
 elseif strcmp(selectedObject.Tag, 'workstate2')    
     value = 2;    
-end
+end    
 
-userId = evalin('base', 'scoreUserId');
 ScoreSetUserAnnotationWorkStatus(handles.SearchResultEventId, userId, value)    
 
 
