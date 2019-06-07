@@ -19,21 +19,14 @@ function text = ScoreGetOneEventTextInfo(searchResultEventId, useHTMLBreak)
     data = ScoreQueryRun(shoppingBasketQuery);
     
     %disp(data);
-    text = [''];
+    text = '';
     if ~strcmp(data, 'No Data')
-        %Commented out for blinding purposes.
-        %text = [ data.EventCodeName(1) ];
-        %
+        text = [ data.EventCodeName(1) ];
         for i=1:numel(data.EventPropertyTypeName)
             if useHTMLBreak
                 text = [text '<BR>'];
             end
-            %Added IF for morphology blinding - eivaan 17.10.18
-            if(~strcmp('Morphology', data.EventPropertyTypeName(i)))
-                text = [text data.EventPropertyTypeName(i) ':' data.EventPropertyCodeName(i)]; 
-            else
-                text = [text {'BLINDED'}];
-            end
+            text = [text data.EventPropertyTypeName(i) ':' data.EventPropertyCodeName(i)];        
         end
         text = strjoin(text);
     else        
@@ -49,10 +42,7 @@ function text = ScoreGetOneEventTextInfo(searchResultEventId, useHTMLBreak)
          ];
         data = ScoreQueryRun([shoppingBasketQuery ...             
             'WHERE SearchResult_Event.SearchResultEventId=' num2str(searchResultEventId) ]);
-        %Commented out for blinding purposes.
-        %text = [ data.EventCodeName(1) ];
-        %
-        text = [text {'BLINDED'}];
+        text = [ data.EventCodeName(1) ];
         text = strjoin(text);
     end
 end

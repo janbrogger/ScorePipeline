@@ -46,7 +46,7 @@ function ScoreMouseMove(varargin)
             
         
         %Plot to indicate the selection of current segment of EEG
-        if strcmp(g.scoreAnnotationState, 'WaitingForClick2') || strcmp(g.scoreAnnotationState, 'WaitingForClick3') || strcmp(g.scoreAnnotationState, 'WaitingForClick4')            
+        if strcmp(g.scoreAnnotationState, 'WaitingForSecondClick')            
             hold(eegaxis, 'on');
             selectindicator = findobj('tag', 'selectindicator', 'parent', eegaxis);
             if ~isempty(selectindicator)

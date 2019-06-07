@@ -1,7 +1,6 @@
 function [searchResult_EventId] = ScoreGetNextEvent(searchResultId, currentSearchResult_EventId)
 gotNextEvent = 0;
 failedNextEvent = 0;
-
 while not(gotNextEvent) && not(failedNextEvent)
     searchResultEventId = ScoreQueryRun(['SELECT MIN(SearchResultEventId) FROM SearchResult_Event ' ...
         'WHERE SearchResult_Event.SearchResultId = ' num2str(searchResultId) ...
