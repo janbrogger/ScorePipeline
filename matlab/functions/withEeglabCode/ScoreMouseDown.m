@@ -3,6 +3,7 @@ function data = ScoreMouseDown(varargin)
     g = get(gcf,'UserData');
     cp = get(gca,'currentpoint');
     EEG = evalin('base','EEG');
+    isOneClick = 1;
     [clickedTime, clickedSample, selectedChannelIndex, clickedEegValue] = ScoreGetClickedTraceFromPoint(cp);    
     
     %disp(['Clicked elapsed time : ' num2str(clickedTime)]);  
@@ -17,18 +18,40 @@ function data = ScoreMouseDown(varargin)
     
     if ~isempty(clickedTime)
         if strcmp(g.scoreAnnotationState, 'WaitingForFirstClick')
-            g.scoreAnnotationState = 'WaitingForSecondClick';
+            if(~isOneClick)
+                g.scoreAnnotationState = 'WaitingForClick2';
+                g.scoreClickedSample = [];
+                g.scoreClickedTime = clickedTime;
+                g.scoreClickedSample = [g.scoreClickedSample clickedSample];
+                g.scoreClickedChannelIndex= selectedChannelIndex;
+                g.scoreClickedEegValue = clickedEegValue;
+            else
+                autoannotation = qIEDScorePipeline(selectedChannelIndex,clickedSample);
+                g.scoreClickedSample = autoannotation{1};
+                g.scoreClickedSample = [g.scoreClickedSample autoannotation{2}];
+                g.scoreClickedSample = [g.scoreClickedSample autoannotation{3}];
+                g.scoreClickedSample = [g.scoreClickedSample autoannotation{4}];
+                g.scoreAnnotationState = 'Ready';
+            end
+        elseif strcmp(g.scoreAnnotationState, 'WaitingForClick2')
+            g.scoreAnnotationState = 'WaitingForClick3';
             g.scoreClickedTime = clickedTime;
-            g.scoreClickedSample = clickedSample;
-            g.scoreClickedChannelIndex= selectedChannelIndex;
-            g.scoreClickedEegValue = clickedEegValue;
-        elseif strcmp(g.scoreAnnotationState, 'WaitingForSecondClick')
-            %We have a second click, so we now have a start and stop
-            g.scoreAnnotationState = 'WaitingForFirstClick';            
-            clickedSamples(1) = g.scoreClickedSample;
-            clickedSamples(2) = clickedSample;
-            clickedChannel = g.scoreClickedChannelIndex;
-            dataSegment = EEG.data(clickedChannel, clickedSamples(1):clickedSamples(2));
+            g.scoreClickedSample = [g.scoreClickedSample clickedSample];
+            
+        elseif strcmp(g.scoreAnnotationState, 'WaitingForClick3')
+            g.scoreAnnotationState = 'WaitingForClick4';
+            g.scoreClickedTime = clickedTime;
+            g.scoreClickedSample = [g.scoreClickedSample clickedSample];
+            
+        elseif strcmp(g.scoreAnnotationState, 'WaitingForClick4')
+            g.scoreAnnotationState = 'Ready';  
+            g.scoreClickedSample = [g.scoreClickedSample clickedSample];
+        end
+        if strcmp(g.scoreAnnotationState, 'Ready')  
+            g.scoreAnnotationState = 'WaitingForFirstClick';  
+            clickedSamples = g.scoreClickedSample;
+            ClickedChannel = g.scoreClickedChannelIndex;
+            dataSegment = EEG.data(ClickedChannel, clickedSamples(1):clickedSamples(2));
             [ymax ymaxsample] = max(dataSegment);
             allFigures = findall(0,'type','figure');
             oneEventDetails = findobj(allFigures, 'tag', 'oneEventDetails');
@@ -39,38 +62,38 @@ function data = ScoreMouseDown(varargin)
                     if strcmp(configData,'No Data')
                         warning(['No annotation configurations have been set up']);
                     else
-                        [searchResultAnnotationConfigIdSampleStart, searchResultAnnotationConfigIdSampleEnd, searchResultAnnotationConfigIdScreenshot] = GetClickableAnnotationConfig(handles.SearchResultId);                        
-                        if ~isempty(searchResultAnnotationConfigIdSampleStart)
-                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, searchResultAnnotationConfigIdSampleStart,'ValueInt',clickedSamples(1));
+                        [spikeStartAID, spikeCenterAID,spikeEndAID, afterDischargeEndAID, ClickedChannelAID] = GetClickableAnnotationConfig(handles.SearchResultId);                        
+                        if ~isempty(spikeStartAID)
+                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, spikeStartAID,'ValueInt',clickedSamples(1));
                         else
-                            warning(['Annotation configuration SampleStart not found']);
+                            warning(['Annotation configuration SpikeStart not found']);
                         end
-                        if ~isempty(searchResultAnnotationConfigIdSampleEnd)
-                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, searchResultAnnotationConfigIdSampleEnd,'ValueInt',clickedSamples(2));
+                        if ~isempty(spikeCenterAID)
+                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, spikeCenterAID,'ValueInt',clickedSamples(2));
                         else
-                            warning(['Annotation configuration SampleEnd not found']);
-                        end    
-                        if ~isempty(searchResultAnnotationConfigIdScreenshot)
-                            tempFileName = tempname();
-                            [pathstr, name, ext] = fileparts(tempFileName);
-                            tempFileName = [pathstr name '.png'];                        
-                            print(tempFileName,'-dpng','-r0')
-                            %disp(tempFileName);
-                            fileID = fopen(tempFileName,'r');
-                            if fileID ~= -1            
-                                png = fread(fileID);
-                                fclose(fileID);                            
-                                ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, ...
-                                    searchResultAnnotationConfigIdScreenshot, ...
-                                    'ValueBlob', png);                    
-                            else
-                                warning(['Could not read screenshot file ' tempFileName]);
-                            end                            
+                            warning(['Annotation configuration SpikeCenter not found']);
+                        end  
+                        if ~isempty(spikeEndAID)
+                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, spikeEndAID,'ValueInt',clickedSamples(3));
                         else
-                            warning(['Annotation configuration Screenshot not found']);
-                        end                            
-                    end                     
-                    
+                            warning(['Annotation configuration SpikeEnd not found']);
+                        end 
+                        if ~isempty(afterDischargeEndAID)
+                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, afterDischargeEndAID,'ValueInt',clickedSamples(4));
+                        else
+                            warning(['Annotation configuration AfterDischargeEnd not found']);
+                        end  
+                        if ~isempty(afterDischargeEndAID)
+                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, afterDischargeEndAID,'ValueInt',clickedSamples(4));
+                        else
+                            warning(['Annotation configuration AfterDischargeEnd not found']);
+                        end  
+                        if ~isempty(ClickedChannelAID)
+                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, ClickedChannelAID,'ValueInt',ClickedChannel);
+                        else
+                            warning(['Annotation configuration ClickedChannel not found']);
+                        end  
+                    end  
                 end
                 handles.UpdateCustomAnnotations(handles);
             end
