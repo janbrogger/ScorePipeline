@@ -4,7 +4,7 @@ function data = ScoreMouseDown(varargin)
     cp = get(gca,'currentpoint');
     EEG = evalin('base','EEG');
     isOneClick = 1;
-    [clickedTime, clickedSample, selectedChannelIndex, clickedEegValue] = ScoreGetClickedTraceFromPoint(cp);    
+    [clickedTime, clickedSample, selectedChannelIndex, selectedChannel, clickedEegValue] = ScoreGetClickedTraceFromPoint(cp);    
     
     %disp(['Clicked elapsed time : ' num2str(clickedTime)]);  
     %disp(['Clicked sample : ' num2str(clickedSample)]);  
@@ -18,13 +18,14 @@ function data = ScoreMouseDown(varargin)
     
     if ~isempty(clickedTime)
         if strcmp(g.scoreAnnotationState, 'WaitingForFirstClick')
+            g.scoreClickedChannelIndex= selectedChannelIndex;
+            g.scoreClickedEegValue = clickedEegValue;
+            g.selectedChannel = selectedChannel.labels;
             if(~isOneClick)
                 g.scoreAnnotationState = 'WaitingForClick2';
                 g.scoreClickedSample = [];
                 g.scoreClickedTime = clickedTime;
-                g.scoreClickedSample = [g.scoreClickedSample clickedSample];
-                g.scoreClickedChannelIndex= selectedChannelIndex;
-                g.scoreClickedEegValue = clickedEegValue;
+                g.scoreClickedSample = [g.scoreClickedSample clickedSample];                
             else
                 autoannotation = qIEDScorePipeline(selectedChannelIndex,clickedSample);
                 g.scoreClickedSample = autoannotation{1};
@@ -50,8 +51,9 @@ function data = ScoreMouseDown(varargin)
         if strcmp(g.scoreAnnotationState, 'Ready')  
             g.scoreAnnotationState = 'WaitingForFirstClick';  
             clickedSamples = g.scoreClickedSample;
-            ClickedChannel = g.scoreClickedChannelIndex;
-            dataSegment = EEG.data(ClickedChannel, clickedSamples(1):clickedSamples(2));
+            ClickedChannelIndex = g.scoreClickedChannelIndex;
+            ClickedChannel = g.selectedChannel;
+            dataSegment = EEG.data(ClickedChannelIndex, clickedSamples(1):clickedSamples(2));
             [ymax ymaxsample] = max(dataSegment);
             allFigures = findall(0,'type','figure');
             oneEventDetails = findobj(allFigures, 'tag', 'oneEventDetails');
@@ -62,7 +64,7 @@ function data = ScoreMouseDown(varargin)
                     if strcmp(configData,'No Data')
                         warning(['No annotation configurations have been set up']);
                     else
-                        [spikeStartAID, spikeCenterAID,spikeEndAID, afterDischargeEndAID, ClickedChannelAID] = GetClickableAnnotationConfig(handles.SearchResultId);                        
+                        [spikeStartAID, spikeCenterAID,spikeEndAID, afterDischargeEndAID, ClickedChannelAID, ClickedChannelIndexAID] = GetClickableAnnotationConfig(handles.SearchResultId);                        
                         if ~isempty(spikeStartAID)
                             ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, spikeStartAID,'ValueInt',clickedSamples(1));
                         else
@@ -89,7 +91,12 @@ function data = ScoreMouseDown(varargin)
                             warning(['Annotation configuration AfterDischargeEnd not found']);
                         end  
                         if ~isempty(ClickedChannelAID)
-                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, ClickedChannelAID,'ValueInt',ClickedChannel);
+                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, ClickedChannelAID,'ValueText',ClickedChannel);
+                        else
+                            warning(['Annotation configuration ClickedChannel not found']);
+                        end  
+                        if ~isempty(ClickedChannelAID)
+                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, ClickedChannelIndexAID,'ValueInt',ClickedChannelIndex);
                         else
                             warning(['Annotation configuration ClickedChannel not found']);
                         end  

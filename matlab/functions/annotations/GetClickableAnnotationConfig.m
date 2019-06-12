@@ -1,9 +1,11 @@
-function [Start, Center,End, SlowEnd, ClickedChannel] = GetClickableAnnotationConfig(searchResultId)
+function [Start, Center,End, SlowEnd, ClickedChannel, ClickedChannelIndex, OtherChannels] = GetClickableAnnotationConfig(searchResultId)
     Start = [];
     Center = [];
     End = [];
     SlowEnd = [];
     ClickedChannel = [];
+    ClickedChannelIndex = [];
+    OtherChannels = [];
     configData = ScoreGetAnnotationsForOneProject(searchResultId);
     if ~strcmp(configData,'No Data')
         for i=1:size(configData,1)
@@ -21,7 +23,13 @@ function [Start, Center,End, SlowEnd, ClickedChannel] = GetClickableAnnotationCo
                 SlowEnd = configData.SearchResultAnnotationConfigId(i); 
             elseif strcmp(configData.AnnotationLevel(i), 'Event') ...
                 && strcmp(configData.FieldName(i), 'ClickedChannel')
-                ClickedChannel = configData.SearchResultAnnotationConfigId(i);    
+                ClickedChannel = configData.SearchResultAnnotationConfigId(i);   
+            elseif strcmp(configData.AnnotationLevel(i), 'Event') ...
+                && strcmp(configData.FieldName(i), 'ClickedChannelIndex')
+                ClickedChannelIndex = configData.SearchResultAnnotationConfigId(i); 
+            elseif strcmp(configData.AnnotationLevel(i), 'Event') ...
+                && strcmp(configData.FieldName(i), 'OtherChannels')
+                OtherChannels = configData.SearchResultAnnotationConfigId(i); 
             end
         end
     end                     

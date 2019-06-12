@@ -1,7 +1,8 @@
-function [clickedTime, clickedSample, selectedChannelIndex, clickedEegValue] = ScoreGetClickedTraceFromPoint(point)    
+function [clickedTime, clickedSample, selectedChannelIndex, selectedChannel, clickedEegValue] = ScoreGetClickedTraceFromPoint(point)    
     clickedTime = [];
     clickedSample = [];
     selectedChannelIndex = [];
+    selectedChannel = [];
     clickedEegValue = [];
     
     g = get(gcf,'UserData');
