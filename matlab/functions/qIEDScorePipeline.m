@@ -145,16 +145,17 @@ IEDspikeend = tempminimum;
 IEDspikeendy = signal(IEDspikeend);
 
 % Slow after-wave. Assuming duration less than 800ms or 400 samples, 
-% and duration > 250 ms or 125 samples (within delta range).
+% and duration > 200 ms or 100 samples (within delta range).
 % Find most matlab-prominent minimum following spike end and set as end of
-% slo wave.
+% slo wave. When sub-optimal duration, Gauss will still approximate
+% area well, e.g. in the case of JME fast SW.
 % Gaussian1 fit to afterdischarge. Coefficient bounds to increase
 % performance. Gauss area is computed on a gauss curve shiftet
 % vertically by subtracting 'minimum' leading to overestimates in cases
 % of high voltage difference between start and stop.
 % Exaxtareagfitsubtrapz subtracts area under line between start and
 % stop voltage.
-minstartpos = IEDspikeend+125;
+minstartpos = IEDspikeend+100;
 lesserend = min(IEDspikeend+400, length(signal));
 hasSlow = minstartpos < length(signal);
 %calculate slow-wave only if the signal is long enough for a slow wave
@@ -177,7 +178,8 @@ if(~hasSlow)
     hasSlow = 1;
 end    
 %try to optimize identification of slow-wave end. 
-%trying harder smoothing and choosing first minimum occuring after spikeend+125
+%trying harder smoothing and choosing first minimum occuring after
+%spikeend+100
 slowpromlaggedX = slowminimalprominencesX(slowminimalprominencesX > minstartpos);
 slowpromlaggedY = slowminimalprominencesY(slowminimalprominencesX > minstartpos);
 if(~isempty(slowpromlaggedX))
@@ -280,7 +282,7 @@ if(hasSlow)
 end
 pbaspect([xaspectr yaspectr 1]);
 
-out = {IEDspikestart, IEDspikepeak, IEDspikeend, IEDslowend};
+out = {IEDspikestart+clicksample-500, IEDspikepeak+clicksample-500, IEDspikeend+clicksample-500, IEDslowend+clicksample-500};
 
 
 

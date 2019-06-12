@@ -50,7 +50,7 @@ function data = ScoreMouseDown(varargin)
         end
         if strcmp(g.scoreAnnotationState, 'Ready')  
             g.scoreAnnotationState = 'WaitingForFirstClick';  
-            clickedSamples = g.scoreClickedSample;
+            clickedSamples = g.scoreClickedSample;            
             ClickedChannelIndex = g.scoreClickedChannelIndex;
             ClickedChannel = g.selectedChannel;
             dataSegment = EEG.data(ClickedChannelIndex, clickedSamples(1):clickedSamples(2));
@@ -64,7 +64,8 @@ function data = ScoreMouseDown(varargin)
                     if strcmp(configData,'No Data')
                         warning(['No annotation configurations have been set up']);
                     else
-                        [spikeStartAID, spikeCenterAID,spikeEndAID, afterDischargeEndAID, ClickedChannelAID, ClickedChannelIndexAID] = GetClickableAnnotationConfig(handles.SearchResultId);                        
+                        OtherChannels = ScoreGetOneEventLocationTextInfo(handles.SearchResultEventId);
+                        [spikeStartAID, spikeCenterAID,spikeEndAID, afterDischargeEndAID, ClickedChannelAID, ClickedChannelIndexAID,OtherChannelsAID] = GetClickableAnnotationConfig(handles.SearchResultId);                        
                         if ~isempty(spikeStartAID)
                             ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, spikeStartAID,'ValueInt',clickedSamples(1));
                         else
@@ -84,18 +85,18 @@ function data = ScoreMouseDown(varargin)
                             ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, afterDischargeEndAID,'ValueInt',clickedSamples(4));
                         else
                             warning(['Annotation configuration AfterDischargeEnd not found']);
-                        end  
-                        if ~isempty(afterDischargeEndAID)
-                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, afterDischargeEndAID,'ValueInt',clickedSamples(4));
-                        else
-                            warning(['Annotation configuration AfterDischargeEnd not found']);
-                        end  
+                        end
                         if ~isempty(ClickedChannelAID)
                             ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, ClickedChannelAID,'ValueText',ClickedChannel);
                         else
                             warning(['Annotation configuration ClickedChannel not found']);
                         end  
-                        if ~isempty(ClickedChannelAID)
+                        if ~isempty(OtherChannelsAID)
+                            ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, OtherChannelsAID,'ValueText',OtherChannels);
+                        else
+                            warning(['Annotation configuration ClickedChannel not found']);
+                        end  
+                        if ~isempty(ClickedChannelIndexAID)
                             ScoreSetAnnotationForOneEvent(handles.SearchResultEventId, ClickedChannelIndexAID,'ValueInt',ClickedChannelIndex);
                         else
                             warning(['Annotation configuration ClickedChannel not found']);

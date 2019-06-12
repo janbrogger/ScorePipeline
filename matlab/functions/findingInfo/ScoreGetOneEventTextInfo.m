@@ -23,18 +23,8 @@ function text = ScoreGetOneEventTextInfo(searchResultEventId, useHTMLBreak)
     if ~strcmp(data, 'No Data')
         %Commented out for blinding purposes.
         %text = [ data.EventCodeName(1) ];
-        %
-        for i=1:numel(data.EventPropertyTypeName)
-            if useHTMLBreak
-                text = [text '<BR>'];
-            end
-            %Added IF for morphology blinding - eivaan 17.10.18
-            if(~strcmp('Morphology', data.EventPropertyTypeName(i)))
-                text = [text data.EventPropertyTypeName(i) ':' data.EventPropertyCodeName(i)]; 
-            else
-                text = [text {'BLINDED'}];
-            end
-        end
+        %        
+        text = [text {'BLINDED'}];
         text = strjoin(text);
     else        
         %No event properties listed, get only the event code name
