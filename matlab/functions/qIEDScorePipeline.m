@@ -145,9 +145,8 @@ IEDspikeend = tempminimum;
 IEDspikeendy = signal(IEDspikeend);
 
 % Slow after-wave. Assuming duration less than 800ms or 400 samples, 
-% and duration > 200 ms or 100 samples (within delta range).
-% Find most matlab-prominent minimum following spike end and set as end of
-% slo wave. When sub-optimal duration, Gauss will still approximate
+% and duration > 166 ms (<6Hz or >83 samples).
+% When sub-optimal duration, Gauss will still approximate
 % area well, e.g. in the case of JME fast SW.
 % Gaussian1 fit to afterdischarge. Coefficient bounds to increase
 % performance. Gauss area is computed on a gauss curve shiftet
@@ -155,7 +154,7 @@ IEDspikeendy = signal(IEDspikeend);
 % of high voltage difference between start and stop.
 % Exaxtareagfitsubtrapz subtracts area under line between start and
 % stop voltage.
-minstartpos = IEDspikeend+70;
+minstartpos = IEDspikeend+83;
 lesserend = min(IEDspikeend+400, length(signal));
 hasSlow = minstartpos < length(signal);
 %calculate slow-wave only if the signal is long enough for a slow wave
@@ -163,7 +162,7 @@ hasSlow = minstartpos < length(signal);
 slowX = (IEDspikeend:1:lesserend);
 slowsignal = [slowX; signal(slowX)];
 slowXformin = IEDspikeend:1:lesserend;
-slowYformin = smoothdata(signal(slowXformin),2,'movmean',70);
+slowYformin = smoothdata(signal(slowXformin),2,'movmean',83);
 [slowminima, slowminimaprominences] = islocalmin(slowYformin); 
 %inverseslowY = max(slowYformin)-slowYformin; %try findpeaks method
 %[Minima, MinIdx] = findpeaks(inverseslowY); %try findpeaks method
@@ -196,7 +195,7 @@ if(~isempty(slowXminimalagged))
     minspread = max(slowYminimalagged) - min(slowYminimalagged);
     for i=2:length(slowYminimalagged)
         mindiff = currentmin - slowYminimalagged(i) ;
-        if(slowYminimalagged(i)<currentmin && mindiff>0.25*minspread)
+        if(slowYminimalagged(i)<currentmin && mindiff>0.5*minspread)
             IEDslowend = slowXminimalagged(i);
             currentmin = slowYminimalagged(i);
         end
