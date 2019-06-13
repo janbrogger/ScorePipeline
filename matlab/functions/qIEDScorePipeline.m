@@ -195,7 +195,7 @@ if(~isempty(slowXminimalagged))
     minspread = max(slowYminimalagged) - min(slowYminimalagged);
     for i=2:length(slowYminimalagged)
         mindiff = currentmin - slowYminimalagged(i) ;
-        if(slowYminimalagged(i)<currentmin && mindiff>0.5*minspread)
+        if(slowYminimalagged(i)<currentmin && mindiff>0.25*minspread)
             IEDslowend = slowXminimalagged(i);
             currentmin = slowYminimalagged(i);
         end
