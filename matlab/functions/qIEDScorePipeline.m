@@ -134,7 +134,7 @@ for i = 2:1:iterationlength
     tempVolt = signal(tempminimum);
     if(bcurrentVolt > tempVolt)
         break;
-    elseif( binterslope < 0.6)
+    elseif( binterslope < -0.6)
         tempminimum = xendminima(i);
         tempminimumy = signal(tempminimum);
     end    
@@ -155,15 +155,15 @@ IEDspikeendy = signal(IEDspikeend);
 % of high voltage difference between start and stop.
 % Exaxtareagfitsubtrapz subtracts area under line between start and
 % stop voltage.
-minstartpos = IEDspikeend+100;
+minstartpos = IEDspikeend+70;
 lesserend = min(IEDspikeend+400, length(signal));
 hasSlow = minstartpos < length(signal);
 %calculate slow-wave only if the signal is long enough for a slow wave
 
 slowX = (IEDspikeend:1:lesserend);
 slowsignal = [slowX; signal(slowX)];
-slowXformin = minstartpos:1:lesserend;
-slowYformin = smoothdata(signal(slowXformin),2,'movmean',100);
+slowXformin = IEDspikeend:1:lesserend;
+slowYformin = smoothdata(signal(slowXformin),2,'movmean',70);
 [slowminima, slowminimaprominences] = islocalmin(slowYformin); 
 %inverseslowY = max(slowYformin)-slowYformin; %try findpeaks method
 %[Minima, MinIdx] = findpeaks(inverseslowY); %try findpeaks method
@@ -179,12 +179,28 @@ if(~hasSlow)
 end    
 %try to optimize identification of slow-wave end. 
 %trying harder smoothing and choosing first minimum occuring after
-%spikeend+100
-slowpromlaggedX = slowminimalprominencesX(slowminimalprominencesX > minstartpos);
-slowpromlaggedY = slowminimalprominencesY(slowminimalprominencesX > minstartpos);
-if(~isempty(slowpromlaggedX))
-    [~, idx] = max(slowpromlaggedY);
-    IEDslowend = slowpromlaggedX(idx);
+%spikeend+offset. Replace with next minimum if lower voltage within reason.
+%Experimenting with prominence. Replace if difference to next considered
+%prominence is greater than a fourth of the total distribution width of
+%prominences.
+%slowpromlaggedX = slowminimalprominencesX(slowminimalprominencesX > minstartpos);
+%slowpromlaggedY = slowminimalprominencesY(slowminimalprominencesX > minstartpos);
+slowXminima = slowXformin(slowminima);
+slowYminima = slowYformin(slowminima);
+slowXminimalagged = slowXminima(slowXminima > minstartpos);
+slowYminimalagged = slowYminima(slowXminima > minstartpos);
+if(~isempty(slowXminimalagged))
+    %[~, idx] = max(slowpromlaggedY);
+    currentmin = slowYminimalagged(1);
+    IEDslowend = slowXminimalagged(1);
+    minspread = max(slowYminimalagged) - min(slowYminimalagged);
+    for i=2:length(slowYminimalagged)
+        mindiff = currentmin - slowYminimalagged(i) ;
+        if(slowYminimalagged(i)<currentmin && mindiff>0.25*minspread)
+            IEDslowend = slowXminimalagged(i);
+            currentmin = slowYminimalagged(i);
+        end
+    end
 else
     IEDslowend = IEDspikeend; %slowminimalprominencesX(1); 
 end
@@ -257,6 +273,7 @@ scatter(IEDspikepeak, IEDspikepeaky,7, 'red')
 scatter(xstartminima, signal(xstartminima),5,'green')
 scatter(xendminima, signal(xendminima),5,'green')
 if(hasSlow)
+    plot(slowXformin, smoothdata(slowYformin,2,'movmean',50));
     scatter(slowminimalprominencesY, signal(slowminimalprominencesX),5,'green')
     scatter(IEDslowend, IEDslowendy,9, 'blue')
     plot(slowsignal(1, :), YHat, 'red');
