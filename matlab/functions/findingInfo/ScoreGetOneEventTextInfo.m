@@ -1,4 +1,4 @@
-function text = ScoreGetOneEventTextInfo(searchResultEventId, useHTMLBreak)    
+function text = ScoreGetOneEventTextInfo(searchResultId, searchResultEventId, useHTMLBreak)    
 
     %Get all the event property codings for all the events that this
     %event is coupled to via EventPropertyCoding
@@ -21,14 +21,20 @@ function text = ScoreGetOneEventTextInfo(searchResultEventId, useHTMLBreak)
     %disp(data);
     text = '';
     if ~strcmp(data, 'No Data')
-        text = [ data.EventCodeName(1) ];
-        for i=1:numel(data.EventPropertyTypeName)
-            if useHTMLBreak
-                text = [text '<BR>'];
-            end
-            text = [text data.EventPropertyTypeName(i) ':' data.EventPropertyCodeName(i)];        
+        if (~IsNamingBlindedSearchResult(searchResultId))
+            text = [ data.EventCodeName(1) ];
         end
-        text = strjoin(text);
+        for i=1:numel(data.EventPropertyTypeName)            
+            if (~IsNamingBlindedSearchResult(searchResultId))                
+                if useHTMLBreak
+                    text = [text '<BR>'];
+                end
+                text = [text data.EventPropertyTypeName(i) ':' data.EventPropertyCodeName(i)];  
+            end            
+        end
+        if ~isempty(text)
+            text = strjoin(text);
+        end
     else        
         %No event properties listed, get only the event code name
         shoppingBasketQuery = ['SELECT  ' ... 

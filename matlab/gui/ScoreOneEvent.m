@@ -217,7 +217,7 @@ data = {'SearchResultEventId' handles.SearchResultEventId;
 set(handles.oneEventProperties,'data',data,'ColumnName',colNames);   
 
 set(handles.scoreText, 'String', 'Error in getting text');
-eventText = ScoreGetOneEventTextInfo(handles.SearchResultEventId, 1);
+eventText = ScoreGetOneEventTextInfo(handles.SearchResultId, handles.SearchResultEventId, 1);
 locationText = ScoreGetOneEventLocationTextInfo(handles.SearchResultEventId, 1);
 eventText = ['<HTML><head><title>nothing</title></head><body>' eventText '<BR>' locationText '</body></HTML>'];
 set(handles.scoreText, 'String', eventText);

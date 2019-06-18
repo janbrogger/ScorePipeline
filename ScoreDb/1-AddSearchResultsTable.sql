@@ -14,6 +14,7 @@ CREATE TABLE [dbo].[SearchResult](
 	[DatePerformed] [datetime] NULL,
 	[Comment] [nvarchar](255) NULL,
 	[UserId] [int] NOT NULL,
+	[IsNamingBlinded] [bit] NULL,
  CONSTRAINT [PK_SearchResult] PRIMARY KEY CLUSTERED 
 (
 	[SearchResultId] ASC
