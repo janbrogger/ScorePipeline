@@ -1,4 +1,5 @@
-function openSuccess = ScoreOpenEegFileInEeglab(newFilePath, searchResultEventId)
+function openSuccess = ScoreOpenEegFileInEeglab(newFilePath, searchResultId, searchResultEventId)
+
     disp(['Opening new EEG file ' newFilePath ' SearchResultEventId: ' searchResultEventId] );    
     openSuccess = 0;
     %Start up EEGLAB if pop_fileio is not in the path   
@@ -86,6 +87,13 @@ function openSuccess = ScoreOpenEegFileInEeglab(newFilePath, searchResultEventId
             
             evalin('base', 'eeglab redraw');
             figh = ScoreGetEeglabPlot(0);
+            
+            projectSpecificMouseDown = GetProjectSpecificMouseDown(searchResultId);
+            figh.UserData = setfield(figh.UserData, 'projectSpecificMouseDown', projectSpecificMouseDown);
+            projectSpecificMouseMove = GetProjectSpecificMouseMove(searchResultId);
+            figh.UserData = setfield(figh.UserData, 'projectSpecificMouseMove', projectSpecificMouseMove);
+            projectSpecificMouseUp = GetProjectSpecificMouseUp(searchResultId);
+            figh.UserData = setfield(figh.UserData, 'projectSpecificMouseUp', projectSpecificMouseUp);
             set(figh, 'windowbuttonmotionfcn', {@ScoreMouseMove});
             
             openSuccess = 1;
