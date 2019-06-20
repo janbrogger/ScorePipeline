@@ -15,6 +15,9 @@ CREATE TABLE [dbo].[SearchResult](
 	[Comment] [nvarchar](255) NULL,
 	[UserId] [int] NOT NULL,
 	[IsNamingBlinded] [bit] NULL,
+	[MouseDownFunction] [nvarchar](max)  default '',
+	[MouseUpFunction] [nvarchar](max) default '',
+	[MouseMoveFunction] [nvarchar](max) default '',
  CONSTRAINT [PK_SearchResult] PRIMARY KEY CLUSTERED 
 (
 	[SearchResultId] ASC

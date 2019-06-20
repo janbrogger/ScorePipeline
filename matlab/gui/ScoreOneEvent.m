@@ -381,7 +381,7 @@ if ~isempty(existingPlot)
     previousPosition = get(existingPlot,'Position');
 end    
 SetFileOpenWaitStatus(handles);
-openSuccess = ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultEventId)); 
+openSuccess = ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultId), num2str(handles.SearchResultEventId)); 
 if openSuccess
     [handles.timeSpanMinusGaps, handles.recStart, handles.eventTime] = ...
         ScoreGotoEvent(handles.SearchResultEventId);     
