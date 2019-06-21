@@ -879,8 +879,8 @@ elseif strcmp(selectedObject.Tag, 'workstate1')
 elseif strcmp(selectedObject.Tag, 'workstate2')    
     value = 2;    
 end    
-
-ScoreSetUserAnnotationWorkStatus(handles.SearchResultEventId, userId, value)    
+userId = evalin('base', 'scoreUserId');
+ScoreSetUserAnnotationWorkStatus(handles.SearchResultEventId, userId, value);    
 
 
 % --- Executes on button press in report.
