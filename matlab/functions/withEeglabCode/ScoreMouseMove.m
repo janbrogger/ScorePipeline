@@ -1,7 +1,11 @@
 function data = ScoreMouseMove(varargin)
     g = get(gcf,'UserData');
-    projectSpecificMouseMove = getfield(g, 'projectSpecificMouseMove');
-    if ~strcmp(projectSpecificMouseMove,'null')
-        eval(projectSpecificMouseMove);
+    if isfield(g,'projectSpecificMouseMove')
+        projectSpecificMouseMove = g.projectSpecificMouseMove;
+        if ~strcmp(projectSpecificMouseMove,'null')
+            eval(projectSpecificMouseMove);
+        end
+    else
+        warning('The variable projectSpecificMouseMove has not been initialized on this EEGLAB plot');
     end
 end
