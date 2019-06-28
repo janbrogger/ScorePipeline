@@ -46,9 +46,9 @@ function openSuccess = ScoreOpenEegFileInEeglab(newFilePath, searchResultId, sea
             EEG = pop_reref( EEG, [],'exclude',[ekgindex photicindex ]);  
             %notch
             disp('Filtering data');
-            EEG = pop_eegfilt(EEG, 48, 52, 3300, 1, [], 0);
+            EEG = pop_eegfilt(EEG, 48, 52, 3300, 1, 1, 0);
             %passband
-            EEG = pop_eegfilt(EEG, 1, 70, 6600, 0, [], 0);
+            EEG = pop_eegfilt(EEG, 1, 70, 6600, 0, 1, 0);
 
             disp('Fixing some events');
             EEG = SetSomeLongEventsToZero(EEG);
@@ -112,7 +112,7 @@ function ScoreClearEeglabStudy()
 end
 
 function EEG = SetSomeLongEventsToZero(EEG)
-        eventsToChangeDuration = find(strcmp({EEG.event(:).value},'Review progress'));
+        eventsToChangeDuration = find(strcmp({EEG.event(:).type},'Review progress'));
         for i = eventsToChangeDuration
             EEG.event(i).duration = 0;
         end
