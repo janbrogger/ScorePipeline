@@ -205,6 +205,17 @@ else
     end
 end
 
+studyid = ScoreQueryRun([ ...
+        'SELECT MIN(StudyId)  ' ...
+        'FROM   SearchResult_Event INNER JOIN ' ...
+        '		Event ON SearchResult_Event.EventId = Event.EventId INNER JOIN ' ...
+        '       EventCoding ON Event.EventCodingId = EventCoding.EventCodingId INNER JOIN ' ...
+        '       Description ON EventCoding.DescriptionId = Description.DescriptionId ' ...
+        ' WHERE SearchResult_Event.SearchResultEventId = ' num2str(handles.SearchResultEventId)]);  
+handles.studyid = studyid.x;
+studyidtext = num2str(studyid.x);
+setappdata(0,'studyid',studyid.x);
+
 data = {'SearchResultEventId' handles.SearchResultEventId;
         'Event time' time.StartDateTime{1};
         'Time in seconds minus gaps' num2str(handles.timeSpanMinusGaps, '%6.1f');
@@ -212,6 +223,7 @@ data = {'SearchResultEventId' handles.SearchResultEventId;
         'File status' fileExistsText;
         'EEGLAB status' eeglabStatus;    
         'Current EEG position' '';
+        'StudyId' studyidtext;
        };
 
 set(handles.oneEventProperties,'data',data,'ColumnName',colNames);   

@@ -6,6 +6,6 @@ function data = ScoreMouseMove(varargin)
             eval(projectSpecificMouseMove);
         end
     else
-        warning('The variable projectSpecificMouseMove has not been initialized on this EEGLAB plot');
+        %warning('The variable projectSpecificMouseMove has not been initialized on this EEGLAB plot');
     end
 end
