@@ -99,17 +99,21 @@ ScoreRestoreEEGScaling(hObject, handles, 0);
 % uiwait(handles.oneEventDetails);
 
 function UpdateNavigationSlider(handles)
-
-searchResultEventCount = ScoreQueryRun(['SELECT COUNT(SearchResultEventId) FROM SearchResult_Event WHERE SearchResult_Event.SearchResultId = ' num2str(handles.SearchResultId)]);
-set(handles.navigationSlider,'SliderStep', [1/searchResultEventCount.x 10/searchResultEventCount.x]);
+isMultipleEventPerEEG = getappdata(0, 'isMultipleEventPerEEG');
+if(isMultipleEventPerEEG == 1)
+    ResultCount = ScoreQueryRun(['SELECT COUNT(SearchResultStudyId) FROM SearchResult_Study WHERE SearchResult_Study.SearchResultId = ' num2str(handles.SearchResultId)]);
+else
+    ResultCount = ScoreQueryRun(['SELECT COUNT(SearchResultEventId) FROM SearchResult_Event WHERE SearchResult_Event.SearchResultId = ' num2str(handles.SearchResultId)]);
+end
+set(handles.navigationSlider,'SliderStep', [1/ResultCount.x 10/ResultCount.x]);
 set(handles.navigationSlider,'Min', 1);
-set(handles.navigationSlider,'Max', searchResultEventCount.x);
+set(handles.navigationSlider,'Max', ResultCount.x);
 
 rowNumberQuery = ['SELECT Row# FROM ( ' ...
-    'SELECT SearchResultEventId, ROW_NUMBER() OVER(ORDER BY SearchResultEventId ASC) AS Row# ' ...
-    'FROM SearchResult_Event WHERE SearchResult_Event.SearchResultId = ' ...
+    'SELECT SearchResultStudyId, ROW_NUMBER() OVER(ORDER BY SearchResultStudyId ASC) AS Row# ' ...
+    'FROM SearchResult_Study WHERE SearchResult_Study.SearchResultId = ' ...
     num2str(handles.SearchResultId) ') q ' ...
-    'WHERE SearchResultEventId=' num2str(handles.SearchResultEventId) ];
+    'WHERE SearchResultStudyId=' num2str(handles.SearchResultStudyId) ];
 rowNumberData = ScoreQueryRun(rowNumberQuery);
 
 if ~strcmp(rowNumberData, 'No Data')
@@ -205,16 +209,17 @@ else
     end
 end
 
-studyid = ScoreQueryRun([ ...
-        'SELECT MIN(StudyId)  ' ...
+searchresultstudyid = ScoreQueryRun([ ...
+        'SELECT MIN(SearchResult_Study.SearchResultStudyId)  ' ...
         'FROM   SearchResult_Event INNER JOIN ' ...
         '		Event ON SearchResult_Event.EventId = Event.EventId INNER JOIN ' ...
         '       EventCoding ON Event.EventCodingId = EventCoding.EventCodingId INNER JOIN ' ...
-        '       Description ON EventCoding.DescriptionId = Description.DescriptionId ' ...
-        ' WHERE SearchResult_Event.SearchResultEventId = ' num2str(handles.SearchResultEventId)]);  
-handles.studyid = studyid.x;
-studyidtext = num2str(studyid.x);
-setappdata(0,'studyid',studyid.x);
+        '       Study ON EventCoding.DescriptionId = Study.ActiveDescriptionId INNER JOIN ' ...
+        '       SearchResult_Study ON Study.StudyId = SearchResult_Study.StudyId ' ...
+        ' WHERE SearchResult_Event.SearchResultEventId = ' num2str(handles.SearchResultEventId) ' AND SearchResult_Study.SearchResultId = ' num2str(handles.SearchResultId) ]);  
+handles.SearchResultStudyId = searchresultstudyid.x;
+studyidtext = num2str(handles.SearchResultStudyId);
+setappdata(0,'SearchResultStudyId',handles.SearchResultStudyId);
 
 data = {'SearchResultEventId' handles.SearchResultEventId;
         'Event time' time.StartDateTime{1};
@@ -223,7 +228,7 @@ data = {'SearchResultEventId' handles.SearchResultEventId;
         'File status' fileExistsText;
         'EEGLAB status' eeglabStatus;    
         'Current EEG position' '';
-        'StudyId' studyidtext;
+        'SearchResultStudyId' studyidtext;
        };
 
 set(handles.oneEventProperties,'data',data,'ColumnName',colNames);   
@@ -304,8 +309,15 @@ nextSearchResultEventId = ScoreQueryRun(['SELECT MIN(SearchResultEventId) FROM S
     ' AND SearchResult_Event.SearchResultEventId > ' num2str(handles.SearchResultEventId) ...
     ]);
 oldSearchResultRecordingId = handles.SearchResultRecordingId;
-if not(isnan(nextSearchResultEventId.x))
-    handles.SearchResultEventId = nextSearchResultEventId.x;
+
+isMultipleEventPerEEG = getappdata(0, 'isMultipleEventPerEEG');
+if(isMultipleEventPerEEG == 1)
+    [nextsearchresultstudyid, nextSearchResultEventId] = ScoreGetNextStudy(handles.SearchResultId, handles.SearchResultStudyId);        
+end
+
+if not(isnan(nextSearchResultEventId(1,1)))
+    handles.SearchResultEventId = nextSearchResultEventId(1,1);
+    handles.SearchResultStudyId = nextsearchresultstudyid(1,1);
     handles = UpdateInfo(handles);
     UpdateNavigationSlider(handles);
     UpdateWorkState(handles);
@@ -325,8 +337,15 @@ nextSearchResultEventId = ScoreQueryRun(['SELECT MAX(SearchResultEventId) FROM S
     'AND SearchResult_Event.SearchResultEventId < ' num2str(handles.SearchResultEventId) ...
     ]);
 oldSearchResultRecordingId = handles.SearchResultRecordingId;
-if not(isnan(nextSearchResultEventId.x))
-    handles.SearchResultEventId = nextSearchResultEventId.x;
+
+isMultipleEventPerEEG = getappdata(0, 'isMultipleEventPerEEG');
+if(isMultipleEventPerEEG == 1)
+    [nextsearchresultstudyid, nextSearchResultEventId] = ScoreGetPreviousStudy(handles.SearchResultId, handles.SearchResultStudyId);        
+end
+
+if not(isnan(nextSearchResultEventId(1,1)))
+    handles.SearchResultEventId = nextSearchResultEventId(1,1);
+    handles.SearchResultStudyId = nextsearchresultstudyid(1,1);
     handles = UpdateInfo(handles);
     UpdateNavigationSlider(handles);
     UpdateWorkState(handles);
