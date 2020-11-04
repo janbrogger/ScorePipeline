@@ -395,7 +395,10 @@ existingPlot = ScoreGetEeglabPlot();
 if get(findobj('tag','autoOpenCheckbox'),'value') && (isempty(existingPlot) || (oldSearchResultRecordingId ~= handles.SearchResultRecordingId && handles.FileExists == 1))
     OpenEEG(hObject, handles);
 end
-ScoreGotoEvent(handles.SearchResultEventId);
+isMultipleEventPerEEG = getappdata(0, 'isMultipleEventPerEEG');
+if(isMultipleEventPerEEG ~= 1)
+    ScoreGotoEvent(handles.SearchResultEventId);
+end
 if get(findobj('tag','autoOpenCheckbox'),'value') == 0
     existingPlot = findobj(0, 'tag', 'EEGPLOT');
     if not(isempty(existingPlot))
@@ -418,8 +421,11 @@ assignin('base', 'EEG', []);
 assignin('base', 'STUDY', []);
 openSuccess = ScoreOpenEegFileInEeglab(handles.FilePath, num2str(handles.SearchResultId), num2str(handles.SearchResultEventId)); 
 if openSuccess
-    [handles.timeSpanMinusGaps, handles.recStart, handles.eventTime] = ...
-        ScoreGotoEvent(handles.SearchResultEventId);     
+    isMultipleEventPerEEG = getappdata(0, 'isMultipleEventPerEEG');
+    if(isMultipleEventPerEEG ~= 1)
+        [handles.timeSpanMinusGaps, handles.recStart, handles.eventTime] = ...
+            ScoreGotoEvent(handles.SearchResultEventId);     
+    end
 else 
     warning('EEG file open failure');
 end    
