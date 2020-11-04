@@ -20,7 +20,9 @@ function text = ScoreGetOneEventLocationTextInfo(searchResultEventId, useHTMLBre
     
     %disp(data);
     text = '';
-    if ~strcmp(data, 'No Data')        
+    isMultipleEventPerEEG = getappdata(0, 'isMultipleEventPerEEG');
+    
+    if (~strcmp(data, 'No Data') && isMultipleEventPerEEG ~= 1)    
         indeterminate = '';
         indeterminateCount = 0;
         selected = '';
