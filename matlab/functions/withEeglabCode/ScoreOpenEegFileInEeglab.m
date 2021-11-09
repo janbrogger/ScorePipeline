@@ -21,9 +21,10 @@ function openSuccess = ScoreOpenEegFileInEeglab(newFilePath, searchResultId, sea
        ScoreClearEeglabStudy()
     else        
         try 
-            EEG = pop_fileio(newFilePath);                
+            EEG = pop_fileio(newFilePath);   
+            hdr = ft_read_header(newFilePath);
             EEG.setname='test';    
-            
+            EEG.startDateTime = hdr.orig.startDateTime;
             
             disp('Removing unused channels');
             EEG = pop_select( EEG,'nochannel',{'Rate' 'IBI' 'Bursts' 'Suppr'});                                                   
